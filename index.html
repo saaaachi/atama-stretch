@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>あたまのストレッチ</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #f5f5f5;
+}
+
+/* 上バー */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.back-space {
+  width: 40px; /* 戻るボタン用の空白 */
+}
+
+.setting-btn {
+  margin-left: 10px;
+  font-size: 20px;
+}
+
+/* メイン */
+.center {
+  text-align: center;
+  margin-top: 100px;
+}
+
+.start-btn {
+  font-size: 24px;
+  padding: 20px 40px;
+  border-radius: 20px;
+  border: none;
+  background: white;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+
+/* 右下ボタン */
+.bottom-right {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  text-align: center;
+}
+
+.small-btn {
+  margin-top: 10px;
+  padding: 15px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+  <div class="back-space"></div>
+  <button class="setting-btn">⚙️</button>
+</div>
+
+<div class="center">
+  <button class="start-btn" onclick="startGame()">
+    今日の問題
+  </button>
+</div>
+
+<div class="bottom-right">
+  <button class="small-btn" onclick="location.href='result.html'">実績</button><br>
+  <button class="small-btn" onclick="location.href='music.html'">音楽</button>
+</div>
+
+<!-- 準備画面 -->
+<div id="loading" style="display:none; text-align:center; margin-top:100px;">
+  <p>問題を準備しています…</p>
+  <div>広告エリア</div>
+</div>
+
+<script>
+function startGame() {
+  const today = new Date().toDateString();
+  const last = localStorage.getItem("lastAdDate");
+
+  document.querySelector(".center").style.display = "none";
+  document.getElementById("loading").style.display = "block";
+
+  if (last !== today) {
+    localStorage.setItem("lastAdDate", today);
+    setTimeout(() => {
+      location.href = "quiz.html";
+    }, 1500);
+  } else {
+    location.href = "quiz.html";
+  }
+}
+</script>
+
+</body>
+</html>
