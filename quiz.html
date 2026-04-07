@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- AdSense -->
+<!-- AdSense共通 -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
      crossorigin="anonymous"></script>
 
@@ -17,7 +17,6 @@ body {
   margin: auto;
 }
 
-/* カード */
 .card {
   background: white;
   margin: 20px;
@@ -27,13 +26,11 @@ body {
   box-shadow: 0 6px 15px rgba(0,0,0,0.05);
 }
 
-/* 問題 */
 .question {
   font-size: 22px;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
-/* ボタン */
 .choice {
   width: 100%;
   padding: 15px;
@@ -44,17 +41,13 @@ body {
   background: #f0f0f0;
 }
 
-.choice:active {
-  transform: scale(0.97);
-}
+.choice:active { transform: scale(0.97); }
 
-/* 正解・不正解 */
 .correct { background: #c8f7c5 !important; }
 .wrong { background: #f7c5c5 !important; }
 
-/* 広告枠 */
-.ad-box {
-  margin: 20px;
+.ad-top {
+  margin: 10px;
   text-align: center;
 }
 </style>
@@ -65,120 +58,23 @@ body {
 <div id="app"></div>
 
 <script>
+// 状態
 let current = parseInt(localStorage.getItem("current")) || 0;
 let total = parseInt(localStorage.getItem("count")) || 5;
+let correctCount = parseInt(localStorage.getItem("correct")) || 0;
 let correctAnswer = "";
 
-/* 問題タイプ */
-function getRandomType(){
-  let types = [];
-  if(localStorage.getItem("math") !== "false") types.push("math");
-  if(localStorage.getItem("memory") !== "false") types.push("memory");
-  if(localStorage.getItem("logic") !== "false") types.push("logic");
-  return types[Math.floor(Math.random()*types.length)];
-}
-
-/* 表示 */
-function renderQuiz(){
+/* ---------- 準備画面 ---------- */
+function showLoading(){
 
   document.getElementById("app").innerHTML = `
     <div class="card">
-      <div>${current+1} / ${total}</div>
-      <div class="question" id="question"></div>
-      <button class="choice" id="btn1"></button>
-      <button class="choice" id="btn2"></button>
-    </div>
-    <div class="ad-box" id="ad"></div>
-  `;
+      <p>問題を準備しています…</p>
 
-  generateQuestion();
-
-  document.getElementById("btn1").onclick = function(){
-    answer(this, this.innerText);
-  };
-
-  document.getElementById("btn2").onclick = function(){
-    answer(this, this.innerText);
-  };
-}
-
-/* 問題生成 */
-function generateQuestion(){
-
-  if(current === total-1){
-    showMemoryGame();
-    return;
-  }
-
-  let type = getRandomType();
-
-  if(type === "math"){
-    let a = Math.floor(Math.random()*10);
-    let b = Math.floor(Math.random()*10);
-    let answer = a + b;
-
-    document.getElementById("question").innerText = `${a} + ${b} = ?`;
-
-    let wrong = answer + (Math.random()<0.5 ? 1 : -1);
-    setChoices(answer, wrong);
-  }
-
-  if(type === "memory"){
-    document.getElementById("question").innerText = `家【に・を】帰る`;
-    setChoices("に","を");
-  }
-
-  if(type === "logic"){
-    document.getElementById("question").innerText = `いぬはどっち？`;
-    setChoices("🐕","🐈");
-  }
-}
-
-/* 選択肢 */
-function setChoices(a,b){
-  let arr = Math.random()<0.5 ? [a,b] : [b,a];
-
-  document.getElementById("btn1").innerText = arr[0];
-  document.getElementById("btn2").innerText = arr[1];
-
-  correctAnswer = a;
-}
-
-/* 回答 */
-function answer(btn, value){
-
-  if(value == correctAnswer){
-    btn.classList.add("correct");
-  } else {
-    btn.classList.add("wrong");
-  }
-
-  setTimeout(()=>{
-    next();
-  }, 800);
-}
-
-/* 次 */
-function next(){
-  current++;
-  localStorage.setItem("current", current);
-
-  if(current % 2 === 0 && current < total){
-    showAd();
-  } else {
-    renderQuiz();
-  }
-}
-
-/* 広告 */
-function showAd(){
-
-  document.getElementById("app").innerHTML = `
-    <div class="ad-box">
       <ins class="adsbygoogle"
-        style="display:block; height:100px;"
+        style="display:block"
         data-ad-client="ca-pub-1299640300068792"
-        data-ad-slot="7107118417"
+        data-ad-slot="2165782928"
         data-ad-format="auto"
         data-full-width-responsive="true"></ins>
     </div>
@@ -191,14 +87,137 @@ function showAd(){
   },1500);
 }
 
-/* 神経衰弱 */
+/* ---------- 問題画面 ---------- */
+function renderQuiz(){
+
+  document.getElementById("app").innerHTML = `
+    <div class="ad-top">
+      <ins class="adsbygoogle"
+        style="display:inline-block;width:320px;height:100px"
+        data-ad-client="ca-pub-1299640300068792"
+        data-ad-slot="7107118417"></ins>
+    </div>
+
+    <div class="card">
+      <div>${current+1} / ${total}</div>
+      <div class="question" id="question"></div>
+
+      <button class="choice" id="btn1"></button>
+      <button class="choice" id="btn2"></button>
+    </div>
+  `;
+
+  (adsbygoogle = window.adsbygoogle || []).push({});
+
+  generateQuestion();
+
+  btn1.onclick = () => answer(btn1, btn1.innerText);
+  btn2.onclick = () => answer(btn2, btn2.innerText);
+}
+
+/* ---------- 問題生成 ---------- */
+function generateQuestion(){
+
+  if(current === total-1){
+    showMemoryGame();
+    return;
+  }
+
+  let types = [];
+  if(localStorage.getItem("math") !== "false") types.push("math");
+  if(localStorage.getItem("memory") !== "false") types.push("memory");
+  if(localStorage.getItem("logic") !== "false") types.push("logic");
+
+  let type = types[Math.floor(Math.random()*types.length)];
+
+  /* 計算（20まで） */
+  if(type === "math"){
+    let a = Math.floor(Math.random()*10)+1;
+    let b = Math.floor(Math.random()*10)+1;
+
+    if(Math.random()<0.5){
+      correctAnswer = a + b;
+      document.getElementById("question").innerText = `${a} + ${b} = ?`;
+    } else {
+      correctAnswer = a;
+      let sum = a + b;
+      document.getElementById("question").innerText = `${sum} - ${b} = ?`;
+    }
+
+    let wrong = correctAnswer + (Math.random()<0.5?1:-1);
+    setChoices(correctAnswer, wrong);
+  }
+
+  /* 助動詞（ランダム） */
+  if(type === "memory"){
+    let words = ["家","学校","公園","駅"];
+    let word = words[Math.floor(Math.random()*words.length)];
+
+    document.getElementById("question").innerText = `${word}【に・を】行く`;
+
+    correctAnswer = "に";
+    setChoices("に","を");
+  }
+
+  /* どっち？ */
+  if(type === "logic"){
+    let pairs = [
+      ["いぬ","🐕","🐈"],
+      ["ねこ","🐈","🐕"],
+      ["さかな","🐟","🐕"]
+    ];
+
+    let p = pairs[Math.floor(Math.random()*pairs.length)];
+
+    document.getElementById("question").innerText = `${p[0]}はどっち？`;
+
+    correctAnswer = p[1];
+    setChoices(p[1], p[2]);
+  }
+}
+
+/* ---------- 選択肢 ---------- */
+function setChoices(a,b){
+  let arr = Math.random()<0.5 ? [a,b] : [b,a];
+  btn1.innerText = arr[0];
+  btn2.innerText = arr[1];
+}
+
+/* ---------- 回答 ---------- */
+function answer(btn, value){
+
+  if(value == correctAnswer){
+    btn.classList.add("correct");
+    correctCount++;
+    localStorage.setItem("correct", correctCount);
+  } else {
+    btn.classList.add("wrong");
+  }
+
+  setTimeout(()=>{
+    next();
+  },800);
+}
+
+/* ---------- 次 ---------- */
+function next(){
+  current++;
+  localStorage.setItem("current", current);
+
+  if(current >= total){
+    finish();
+  } else {
+    renderQuiz();
+  }
+}
+
+/* ---------- 神経衰弱 ---------- */
 function showMemoryGame(){
 
   let icons = ["🍎","🍎","🍓","🍓","🍊","🍊","🍌","🍌"];
   icons.sort(()=>Math.random()-0.5);
 
-  let first = null;
-  let lock = false;
+  let first=null, lock=false;
 
   document.getElementById("app").innerHTML = `
     <div class="card">
@@ -210,26 +229,21 @@ function showMemoryGame(){
   let grid = document.getElementById("grid");
 
   icons.forEach(icon=>{
-    let btn = document.createElement("button");
-    btn.innerText = "？";
+    let btn=document.createElement("button");
+    btn.innerText="？";
     btn.style.padding="20px";
-    btn.style.fontSize="24px";
 
-    btn.onclick = function(){
+    btn.onclick=function(){
+      if(lock || btn.innerText!=="？") return;
+      btn.innerText=icon;
 
-      if(lock || btn.innerText !== "？") return;
+      if(!first){ first=btn; return; }
 
-      btn.innerText = icon;
-
-      if(!first){
-        first = btn;
-        return;
-      }
-
-      if(first.innerText === btn.innerText){
-        first = null;
+      if(first.innerText===btn.innerText){
+        correctCount++;
+        first=null;
       } else {
-        lock = true;
+        lock=true;
         setTimeout(()=>{
           first.innerText="？";
           btn.innerText="？";
@@ -245,23 +259,37 @@ function showMemoryGame(){
   });
 }
 
-/* クリア判定 */
 function checkClear(){
-  let all = document.querySelectorAll("button");
-  let done = [...all].every(b => b.innerText !== "？");
-
+  let done=[...document.querySelectorAll("button")].every(b=>b.innerText!=="？");
   if(done){
-    setTimeout(()=>{
-      alert("お疲れ様でした！");
-      localStorage.removeItem("current");
-      location.href="index.html";
-    },500);
+    setTimeout(finish,500);
   }
 }
 
-/* 初期 */
-renderQuiz();
+/* ---------- 終了 ---------- */
+function finish(){
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <h2>お疲れ様でした！</h2>
+      <p>${total}問中 ${correctCount}問正解！</p>
+      <button onclick="restart()">もう一度</button>
+    </div>
+  `;
 
+  localStorage.removeItem("current");
+  localStorage.removeItem("correct");
+}
+
+function restart(){
+  location.href="index.html";
+}
+
+/* ---------- 初期 ---------- */
+if(current===0){
+  showLoading();
+}else{
+  renderQuiz();
+}
 </script>
 
 </body>
