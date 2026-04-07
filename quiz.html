@@ -1,70 +1,268 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>あたまのストレッチ</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
+     crossorigin="anonymous"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system;
+  background: #f2f4f7;
+  max-width: 520px;
+  margin: auto;
+}
+
+/* カード */
+.card {
+  background: white;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+}
+
+/* 問題 */
+.question {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+/* ボタン */
+.choice {
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  font-size: 18px;
+  border-radius: 12px;
+  border: none;
+  background: #f0f0f0;
+}
+
+.choice:active {
+  transform: scale(0.97);
+}
+
+/* 正解・不正解 */
+.correct { background: #c8f7c5 !important; }
+.wrong { background: #f7c5c5 !important; }
+
+/* 広告枠 */
+.ad-box {
+  margin: 20px;
+  text-align: center;
+}
+</style>
 </head>
+
 <body>
 
-<!-- ゲーム画面 -->
-<div id="game-screen" style="display:none;">
-  <h2>ゲーム画面</h2>
+<div id="app"></div>
 
-  <!-- BGMボタン -->
-  <button onclick="toggleBGM()">🔊 音楽ON / OFF</button>
-</div>
-<audio id="bgm" loop>
-  <source src="audio/bgm.mp3" type="audio/mpeg">
-</audio>
 <script>
+let current = parseInt(localStorage.getItem("current")) || 0;
+let total = parseInt(localStorage.getItem("count")) || 5;
+let correctAnswer = "";
 
-const today = new Date().toLocaleDateString();
-const lastSeen = localStorage.getItem("lastAdDate");
+/* 問題タイプ */
+function getRandomType(){
+  let types = [];
+  if(localStorage.getItem("math") !== "false") types.push("math");
+  if(localStorage.getItem("memory") !== "false") types.push("memory");
+  if(localStorage.getItem("logic") !== "false") types.push("logic");
+  return types[Math.floor(Math.random()*types.length)];
+}
 
-window.onload = function(){
+/* 表示 */
+function renderQuiz(){
 
-  if(lastSeen !== today){
-    showLoadingWithAd();
-    localStorage.setItem("lastAdDate", today);
-  } else {
-    startGame();
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <div>${current+1} / ${total}</div>
+      <div class="question" id="question"></div>
+      <button class="choice" id="btn1"></button>
+      <button class="choice" id="btn2"></button>
+    </div>
+    <div class="ad-box" id="ad"></div>
+  `;
+
+  generateQuestion();
+
+  document.getElementById("btn1").onclick = function(){
+    answer(this, this.innerText);
+  };
+
+  document.getElementById("btn2").onclick = function(){
+    answer(this, this.innerText);
+  };
+}
+
+/* 問題生成 */
+function generateQuestion(){
+
+  if(current === total-1){
+    showMemoryGame();
+    return;
   }
 
-}
+  let type = getRandomType();
 
-// 準備画面（広告）
-function showLoadingWithAd(){
+  if(type === "math"){
+    let a = Math.floor(Math.random()*10);
+    let b = Math.floor(Math.random()*10);
+    let answer = a + b;
 
-  try {
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  } catch(e) {}
+    document.getElementById("question").innerText = `${a} + ${b} = ?`;
 
-  setTimeout(() => {
-    startGame();
-  }, 1500);
-}
+    let wrong = answer + (Math.random()<0.5 ? 1 : -1);
+    setChoices(answer, wrong);
+  }
 
-// ゲーム開始
-function startGame(){
-  document.getElementById("loading-screen").style.display = "none";
-  document.getElementById("game-screen").style.display = "block";
-}
+  if(type === "memory"){
+    document.getElementById("question").innerText = `家【に・を】帰る`;
+    setChoices("に","を");
+  }
 
-// 🎵 BGM制御
-let isPlaying = false;
-
-function toggleBGM(){
-  const bgm = document.getElementById("bgm");
-
-  if(!isPlaying){
-    bgm.play();
-    isPlaying = true;
-  } else {
-    bgm.pause();
-    isPlaying = false;
+  if(type === "logic"){
+    document.getElementById("question").innerText = `いぬはどっち？`;
+    setChoices("🐕","🐈");
   }
 }
+
+/* 選択肢 */
+function setChoices(a,b){
+  let arr = Math.random()<0.5 ? [a,b] : [b,a];
+
+  document.getElementById("btn1").innerText = arr[0];
+  document.getElementById("btn2").innerText = arr[1];
+
+  correctAnswer = a;
+}
+
+/* 回答 */
+function answer(btn, value){
+
+  if(value == correctAnswer){
+    btn.classList.add("correct");
+  } else {
+    btn.classList.add("wrong");
+  }
+
+  setTimeout(()=>{
+    next();
+  }, 800);
+}
+
+/* 次 */
+function next(){
+  current++;
+  localStorage.setItem("current", current);
+
+  if(current % 2 === 0 && current < total){
+    showAd();
+  } else {
+    renderQuiz();
+  }
+}
+
+/* 広告 */
+function showAd(){
+
+  document.getElementById("app").innerHTML = `
+    <div class="ad-box">
+      <ins class="adsbygoogle"
+        style="display:block; height:100px;"
+        data-ad-client="ca-pub-1299640300068792"
+        data-ad-slot="7107118417"
+        data-ad-format="auto"
+        data-full-width-responsive="true"></ins>
+    </div>
+  `;
+
+  (adsbygoogle = window.adsbygoogle || []).push({});
+
+  setTimeout(()=>{
+    renderQuiz();
+  },1500);
+}
+
+/* 神経衰弱 */
+function showMemoryGame(){
+
+  let icons = ["🍎","🍎","🍓","🍓","🍊","🍊","🍌","🍌"];
+  icons.sort(()=>Math.random()-0.5);
+
+  let first = null;
+  let lock = false;
+
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <p>同じ絵を見つけてください</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" id="grid"></div>
+    </div>
+  `;
+
+  let grid = document.getElementById("grid");
+
+  icons.forEach(icon=>{
+    let btn = document.createElement("button");
+    btn.innerText = "？";
+    btn.style.padding="20px";
+    btn.style.fontSize="24px";
+
+    btn.onclick = function(){
+
+      if(lock || btn.innerText !== "？") return;
+
+      btn.innerText = icon;
+
+      if(!first){
+        first = btn;
+        return;
+      }
+
+      if(first.innerText === btn.innerText){
+        first = null;
+      } else {
+        lock = true;
+        setTimeout(()=>{
+          first.innerText="？";
+          btn.innerText="？";
+          first=null;
+          lock=false;
+        },800);
+      }
+
+      checkClear();
+    };
+
+    grid.appendChild(btn);
+  });
+}
+
+/* クリア判定 */
+function checkClear(){
+  let all = document.querySelectorAll("button");
+  let done = [...all].every(b => b.innerText !== "？");
+
+  if(done){
+    setTimeout(()=>{
+      alert("お疲れ様でした！");
+      localStorage.removeItem("current");
+      location.href="index.html";
+    },500);
+  }
+}
+
+/* 初期 */
+renderQuiz();
 
 </script>
+
 </body>
 </html>
