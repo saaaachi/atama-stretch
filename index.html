@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"ー>
-  <title>あたまのストレッチ</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あたまのストレッチ</title>
 
 <style>
 body {
   margin: 0;
   font-family: sans-serif;
-  background: #f5f5f5;
+  background: #f7fdf9;
+
+  max-width: 520px;
+  margin: auto;
+  min-height: 100vh;
 }
 
 /* 上バー */
@@ -22,20 +27,31 @@ body {
   width: 10vw;
 }
 
+/* 設定（グレー） */
 .setting-btn {
   font-size: 6vw;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 50%;
+  padding: 2vh;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 /* 中央 */
 .center {
   text-align: center;
-  margin-top: 20vh;
+  margin-top: 18vh;
 }
 
+/* 今日の問題（赤パステル） */
 .start-btn {
-  font-size: 6vw;
-  padding: 4vh 8vw;
-  border-radius: 5vw;
+  font-size: 8vw;
+  padding: 5vh 10vw;
+  border-radius: 6vw;
+  border: none;
+  background: #ffd6d6;
+  color: #333;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
 }
 
 /* 右下 */
@@ -43,53 +59,86 @@ body {
   position: fixed;
   right: 5vw;
   bottom: 5vh;
+  text-align: center;
 }
 
+/* 実績（青）・音楽（緑） */
 .small-btn {
   margin-top: 2vh;
-  padding: 3vh;
-  font-size: 4vw;
+  padding: 4vh;
+  font-size: 5vw;
   border-radius: 50%;
+  border: none;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
 
-  max-width: 500px;
-margin: auto;
+/* 実績（青パステル） */
+.result-btn {
+  background: #d6e4ff;
+}
+
+/* 音楽（緑パステル） */
+.music-btn {
+  background: #d6f5e3;
+}
+
+/* タップ時 */
+button:active {
+  transform: scale(0.95);
+}
+
+/* 準備画面 */
+#loading {
+  display: none;
+  text-align: center;
+  margin-top: 20vh;
+  font-size: 5vw;
+}
+
+.ad-box {
+  margin-top: 5vh;
+  padding: 4vh;
+  background: #fff;
+  border-radius: 4vw;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  font-size: 4vw;
 }
 </style>
 </head>
 
 <body>
 
+<!-- 上バー -->
 <div class="top-bar">
   <div class="back-space"></div>
-  <button class="setting-btn">⚙️</button>
+  <button class="setting-btn" onclick="location.href='settings.html'">⚙️</button>
 </div>
 
-<div class="center">
+<!-- メイン -->
+<div class="center" id="mainUI">
   <button class="start-btn" onclick="startGame()">
     今日の問題
   </button>
 </div>
 
+<!-- 右下 -->
 <div class="bottom-right">
-  <button class="small-btn" onclick="location.href='result.html'">実績</button><br>
-  <button class="small-btn" onclick="location.href='music.html'">音楽</button>
+  <button class="small-btn result-btn" onclick="location.href='result.html'">
+    実績
+  </button><br>
+
+  <button class="small-btn music-btn" onclick="location.href='music.html'">
+    音楽
+  </button>
 </div>
 
 <!-- 準備画面 -->
-<div id="loading" style="display:none; text-align:center; margin-top:100px;">
+<div id="loading">
   <p>問題を準備しています…</p>
-  <div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
-     crossorigin="anonymous"></script>
-<!-- 頭問題準備中 -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-1299640300068792"
-     data-ad-slot="2165782928"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script></div>
+
+  <div class="ad-box">
+    広告エリア
+  </div>
 </div>
 
 <script>
@@ -97,14 +146,16 @@ function startGame() {
   const today = new Date().toDateString();
   const last = localStorage.getItem("lastAdDate");
 
-  document.querySelector(".center").style.display = "none";
+  document.getElementById("mainUI").style.display = "none";
   document.getElementById("loading").style.display = "block";
 
   if (last !== today) {
     localStorage.setItem("lastAdDate", today);
+
     setTimeout(() => {
       location.href = "quiz.html";
     }, 1500);
+
   } else {
     location.href = "quiz.html";
   }
