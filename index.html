@@ -8,126 +8,142 @@
 <style>
 body {
   margin: 0;
-  font-family: sans-serif;
-  background: #f7fdf9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+  
+  background: #f2f4f7;
 
   max-width: 520px;
   margin: auto;
-  min-height: 100vh;
 }
 
 /* 上バー */
 .top-bar {
   display: flex;
   align-items: center;
-  padding: 2vh;
+  padding: 12px;
 }
 
 .back-space {
-  width: 10vw;
+  width: 40px;
 }
 
-/* 設定（グレー） */
+/* 設定ボタン */
 .setting-btn {
-  font-size: 6vw;
-  background: #e0e0e0;
+  font-size: 20px;
   border: none;
-  border-radius: 50%;
-  padding: 2vh;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* 中央 */
-.center {
+/* メインカード */
+.main-card {
+  background: white;
+  margin: 20px;
+  padding: 30px 20px;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+
   text-align: center;
-  margin-top: 18vh;
 }
 
-/* 今日の問題（赤パステル） */
+/* タイトル */
+.title {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* 今日の問題ボタン */
 .start-btn {
-  font-size: 8vw;
-  padding: 5vh 10vw;
-  border-radius: 6vw;
+  width: 100%;
+  font-size: 22px;
+  padding: 18px;
+  border-radius: 16px;
   border: none;
-  background: #ffd6d6;
-  color: #333;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+
+  background: linear-gradient(135deg, #ffb3b3, #ff8f8f);
+  color: white;
+
+  box-shadow: 0 4px 10px rgba(255, 120, 120, 0.3);
 }
 
-/* 右下 */
-.bottom-right {
-  position: fixed;
-  right: 5vw;
-  bottom: 5vh;
-  text-align: center;
+/* 下カード */
+.bottom-card {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+  gap: 10px;
 }
 
-/* 実績（青）・音楽（緑） */
-.small-btn {
-  margin-top: 2vh;
-  padding: 4vh;
-  font-size: 5vw;
-  border-radius: 50%;
+.menu-btn {
+  flex: 1;
+  padding: 20px 0;
+  border-radius: 16px;
   border: none;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+  font-size: 16px;
+  background: white;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-/* 実績（青パステル） */
+/* 個別カラー */
 .result-btn {
-  background: #d6e4ff;
+  color: #4a90e2;
 }
 
-/* 音楽（緑パステル） */
 .music-btn {
-  background: #d6f5e3;
+  color: #4caf50;
 }
 
-/* タップ時 */
+/* タップ感 */
 button:active {
-  transform: scale(0.95);
+  transform: scale(0.97);
 }
 
 /* 準備画面 */
 #loading {
   display: none;
   text-align: center;
-  margin-top: 20vh;
-  font-size: 5vw;
+  margin-top: 40vh;
 }
 
 .ad-box {
-  margin-top: 5vh;
-  padding: 4vh;
-  background: #fff;
-  border-radius: 4vw;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  font-size: 4vw;
+  margin-top: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 </style>
 </head>
 
 <body>
 
-<!-- 上バー -->
 <div class="top-bar">
   <div class="back-space"></div>
   <button class="setting-btn" onclick="location.href='settings.html'">⚙️</button>
 </div>
 
 <!-- メイン -->
-<div class="center" id="mainUI">
+<div class="main-card" id="mainUI">
+  <div class="title">今日のトレーニング</div>
+
   <button class="start-btn" onclick="startGame()">
-    今日の問題
+    今日の問題をはじめる
   </button>
 </div>
 
-<!-- 右下 -->
-<div class="bottom-right">
-  <button class="small-btn result-btn" onclick="location.href='result.html'">
+<!-- 下メニュー -->
+<div class="bottom-card">
+  <button class="menu-btn result-btn" onclick="location.href='result.html'">
     実績
-  </button><br>
+  </button>
 
-  <button class="small-btn music-btn" onclick="location.href='music.html'">
+  <button class="menu-btn music-btn" onclick="location.href='music.html'">
     音楽
   </button>
 </div>
@@ -137,7 +153,7 @@ button:active {
   <p>問題を準備しています…</p>
 
   <div class="ad-box">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
      crossorigin="anonymous"></script>
 <!-- 頭問題準備中 -->
 <ins class="adsbygoogle"
@@ -158,6 +174,7 @@ function startGame() {
   const last = localStorage.getItem("lastAdDate");
 
   document.getElementById("mainUI").style.display = "none";
+  document.querySelector(".bottom-card").style.display = "none";
   document.getElementById("loading").style.display = "block";
 
   if (last !== today) {
