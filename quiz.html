@@ -17,6 +17,7 @@ body{
  overflow:hidden;
 }
 
+/* 上 */
 .header{
  position:fixed;
  top:0;
@@ -33,12 +34,14 @@ body{
  cursor:pointer;
 }
 
+/* 広告 */
 .ad{
  margin-top:60px;
  text-align:center;
  min-height:110px;
 }
 
+/* メイン */
 .container{
  text-align:center;
  padding:15px;
@@ -64,6 +67,7 @@ body{
 .correct{background:#81ecec;}
 .wrong{background:#fab1a0;}
 
+/* 神経衰弱 */
 .memory{
  display:grid;
  grid-template-columns:repeat(4,1fr);
@@ -78,6 +82,14 @@ body{
  justify-content:center;
  align-items:center;
  font-size:28px;
+ transition:.3s;
+}
+
+/* ★追加：揃ったカード */
+.matched{
+ background:#b9fbc0 !important;
+ opacity:0.8;
+ transform:scale(0.95);
 }
 </style>
 </head>
@@ -111,9 +123,7 @@ let total = Number(localStorage.getItem("questionCount")) || 5;
 let current = 0;
 let score = 0;
 
-/* ===== 問題データ ===== */
-
-// 助動詞20問
+/* ===== データ ===== */
 const josiList = [
 ["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
 ["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
@@ -122,7 +132,6 @@ const josiList = [
 ["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
 ];
 
-// どっち20問
 const whichList = [
 ["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
 ["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
@@ -131,7 +140,6 @@ const whichList = [
 ["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
 ];
 
-// 神経衰弱パターン
 const memorySets = [
 ["🍎","🍓","🍊","🍌"],
 ["🐶","🐱","🐼","🐸"],
@@ -140,151 +148,152 @@ const memorySets = [
 
 let used = new Set();
 
-/* ===== 問題生成 ===== */
-
-function getQuestion(){
-
-  // 最終問題 → 神経衰弱
-  if(current === total){
-    return {type:"memory"};
-  }
-
-  let type = Math.random() < 0.5 ? "josi" : "which";
-
-  if(type==="josi"){
-    let i;
-    do{
-      i = Math.floor(Math.random()*josiList.length);
-    }while(used.has("j"+i));
-    used.add("j"+i);
-
-    let x = josiList[i];
-    let wrong = ["に","で","と","を","へ"].filter(p=>p!==x[1]);
-
-    return {
-      type:"choice",
-      q:`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,
-      choices:[x[1],wrong[0]].sort(()=>Math.random()-0.5),
-      answer:x[1]
-    };
-  }
-
-  if(type==="which"){
-    let i;
-    do{
-      i = Math.floor(Math.random()*whichList.length);
-    }while(used.has("w"+i));
-    used.add("w"+i);
-
-    let x = whichList[i];
-    return {
-      type:"choice",
-      q:`${x[2]}はどっち？`,
-      choices:[x[0],x[1]],
-      answer:x[0]
-    };
-  }
-}
-
-/* ===== 表示 ===== */
-
+/* ===== 出題 ===== */
 function next(){
 
-  document.getElementById("answers").innerHTML="";
+ document.getElementById("answers").innerHTML="";
 
-  if(current>=total){
-    document.querySelector(".container").innerHTML=
-    `<h2>お疲れ様でした！</h2>
-     <p>${score} / ${total} 正解</p>
-     <button onclick="location.href='index.html'">ホームへ</button>`;
-    return;
-  }
+ if(current>=total){
+   document.querySelector(".container").innerHTML=
+   `<h2>お疲れ様でした！</h2>
+    <p>${score} / ${total} 正解</p>
+    <button onclick="location.href='index.html'">ホームへ</button>`;
+   return;
+ }
 
-  current++;
+ current++;
 
-  document.getElementById("progress").innerText = current+" / "+total;
+ document.getElementById("progress").innerText=current+" / "+total;
+ document.getElementById("last").innerText=(current===total)?"ラスト問題！":"";
 
-  document.getElementById("last").innerText =
-    (current===total) ? "ラスト問題！" : "";
+ if(current % 2 === 1){
+   let ad=document.getElementById("adArea");
+   ad.innerHTML=`<ins class="adsbygoogle"
+   style="display:inline-block;width:320px;height:100px"
+   data-ad-client="ca-pub-1299640300068792"
+   data-ad-slot="7107118417"></ins>`;
+   (adsbygoogle = window.adsbygoogle || []).push({});
+ }
 
-  /* 広告更新 */
-  if(current % 2 === 1){
-    let ad = document.getElementById("adArea");
-    ad.innerHTML = `
-    <ins class="adsbygoogle"
-    style="display:inline-block;width:320px;height:100px"
-    data-ad-client="ca-pub-1299640300068792"
-    data-ad-slot="7107118417"></ins>`;
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  }
+ if(current === total){
+   startMemory();
+   return;
+ }
 
-  let q = getQuestion();
+ let type=Math.random()<0.5?"josi":"which";
 
-  if(q.type==="choice"){
-    document.getElementById("question").innerText = q.q;
+ if(type==="josi"){
+   let i;
+   do{i=Math.floor(Math.random()*josiList.length);}
+   while(used.has("j"+i));
+   used.add("j"+i);
 
-    q.choices.forEach(c=>{
-      let btn=document.createElement("button");
-      btn.className="btn";
-      btn.innerText=c;
+   let x=josiList[i];
+   let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
 
-      btn.onclick=()=>{
-        if(c===q.answer){
-          btn.classList.add("correct");
-          score++;
-        }else{
-          btn.classList.add("wrong");
-        }
-        setTimeout(next,800);
-      };
+   renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
+ }
 
-      document.getElementById("answers").appendChild(btn);
-    });
-  }
+ if(type==="which"){
+   let i;
+   do{i=Math.floor(Math.random()*whichList.length);}
+   while(used.has("w"+i));
+   used.add("w"+i);
 
-  if(q.type==="memory"){
-    document.getElementById("question").innerText="神経衰弱";
+   let x=whichList[i];
+   renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
+ }
+}
 
-    let set = memorySets[Math.floor(Math.random()*memorySets.length)];
-    let cards = [...set,...set].sort(()=>Math.random()-0.5);
+/* ===== 選択問題 ===== */
+function renderChoice(q,choices,answer){
 
-    let open=[];
-    let matched=0;
+ document.getElementById("question").innerText=q;
 
-    let area=document.getElementById("answers");
-    area.className="memory";
+ choices.sort(()=>Math.random()-0.5);
 
-    cards.forEach(card=>{
-      let div=document.createElement("div");
-      div.className="card";
-      div.innerText="?";
+ choices.forEach(c=>{
+   let btn=document.createElement("button");
+   btn.className="btn";
+   btn.innerText=c;
 
-      div.onclick=()=>{
-        if(div.innerText!=="?") return;
+   btn.onclick=()=>{
+     if(c===answer){
+       btn.classList.add("correct");
+       score++;
+     }else{
+       btn.classList.add("wrong");
+     }
+     setTimeout(next,800);
+   };
 
-        div.innerText=card;
-        open.push({div,card});
+   document.getElementById("answers").appendChild(btn);
+ });
+}
 
-        if(open.length===2){
-          if(open[0].card===open[1].card){
-            matched+=2;
-            if(matched===8){
-              score++;
-              setTimeout(next,800);
-            }
-          }else{
-            setTimeout(()=>{
-              open[0].div.innerText="?";
-              open[1].div.innerText="?";
-            },600);
-          }
-          open=[];
-        }
-      };
+/* ===== 神経衰弱 ===== */
+function startMemory(){
 
-      area.appendChild(div);
-    });
-  }
+ document.getElementById("question").innerText="神経衰弱";
+
+ let set=memorySets[Math.floor(Math.random()*memorySets.length)];
+ let cards=[...set,...set].sort(()=>Math.random()-0.5);
+
+ let open=[];
+ let matched=0;
+ let lock=false;
+
+ let area=document.getElementById("answers");
+ area.className="memory";
+
+ cards.forEach(card=>{
+   let div=document.createElement("div");
+   div.className="card";
+   div.innerText="?";
+
+   div.onclick=()=>{
+
+     if(lock) return;
+     if(div.innerText!=="?") return;
+
+     div.innerText=card;
+     open.push({div,card});
+
+     if(open.length===2){
+
+       lock=true;
+
+       let [a,b]=open;
+
+       if(a.card===b.card){
+
+         a.div.classList.add("matched");
+         b.div.classList.add("matched");
+
+         matched+=2;
+         open=[];
+         lock=false;
+
+         if(matched===8){
+           score++;
+           setTimeout(next,800);
+         }
+
+       }else{
+
+         setTimeout(()=>{
+           a.div.innerText="?";
+           b.div.innerText="?";
+           open=[];
+           lock=false;
+         },700);
+
+       }
+     }
+   };
+
+   area.appendChild(div);
+ });
 }
 
 next();
