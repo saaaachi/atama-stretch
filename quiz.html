@@ -85,11 +85,28 @@ body{
  transition:.3s;
 }
 
-/* ★追加：揃ったカード */
 .matched{
  background:#b9fbc0 !important;
  opacity:0.8;
  transform:scale(0.95);
+}
+
+/* ⭐ホームボタン（特大） */
+.big-home-btn{
+ width:92%;
+ padding:30px;
+ font-size:28px;
+ border-radius:22px;
+ border:none;
+ background:#74b9ff;
+ color:white;
+ margin-top:30px;
+ box-shadow:0 8px 20px rgba(0,0,0,0.2);
+ transition:0.2s;
+}
+
+.big-home-btn:active{
+ transform:scale(0.96);
 }
 </style>
 </head>
@@ -155,9 +172,11 @@ function next(){
 
  if(current>=total){
    document.querySelector(".container").innerHTML=
-   `<h2>お疲れ様でした！</h2>
-    <p>${score} / ${total} 正解</p>
-    <button onclick="location.href='index.html'">ホームへ</button>`;
+   `<h2>🎉 おつかれさまでした！</h2>
+    <p style="font-size:24px">${score} / ${total} 正解！</p>
+    <button class="big-home-btn" onclick="location.href='index.html'">
+    🏠 ホームへ戻る
+    </button>`;
    return;
  }
 
