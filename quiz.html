@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- AdSense共通 -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
-     crossorigin="anonymous"></script>
+crossorigin="anonymous"></script>
 
 <style>
 body {
@@ -17,57 +16,69 @@ body {
   margin: auto;
 }
 
+.top-bar {
+  padding: 10px;
+}
+
+.back-btn {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
 .card {
   background: white;
   margin: 20px;
   padding: 20px;
   border-radius: 16px;
   text-align: center;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.05);
 }
 
 .question {
-  font-size: 22px;
-  margin: 20px 0;
+  font-size: 26px;
+  margin: 25px 0;
 }
 
 .choice {
   width: 100%;
-  padding: 15px;
+  padding: 18px;
   margin: 10px 0;
-  font-size: 18px;
+  font-size: 20px;
   border-radius: 12px;
   border: none;
-  background: #f0f0f0;
+  background: #eee;
 }
 
-.choice:active { transform: scale(0.97); }
-
-.correct { background: #c8f7c5 !important; }
-.wrong { background: #f7c5c5 !important; }
+.correct { background:#c8f7c5; }
+.wrong { background:#f7c5c5; }
 
 .ad-top {
-  margin: 10px;
-  text-align: center;
+  margin:10px;
+  text-align:center;
 }
 </style>
 </head>
 
 <body>
 
+<div class="top-bar">
+  <button class="back-btn" onclick="goHome()">←</button>
+</div>
+
 <div id="app"></div>
 
 <script>
-// 状態
 let current = parseInt(localStorage.getItem("current")) || 0;
 let total = parseInt(localStorage.getItem("count")) || 5;
 let correctCount = parseInt(localStorage.getItem("correct")) || 0;
 let correctAnswer = "";
+let memoryDone = false;
 
 /* ---------- 準備画面 ---------- */
 function showLoading(){
-
-  document.getElementById("app").innerHTML = `
+  app.innerHTML = `
     <div class="card">
       <p>問題を準備しています…</p>
 
@@ -79,24 +90,15 @@ function showLoading(){
         data-full-width-responsive="true"></ins>
     </div>
   `;
-
   (adsbygoogle = window.adsbygoogle || []).push({});
-
-  setTimeout(()=>{
-    renderQuiz();
-  },1500);
+  setTimeout(renderQuiz,1500);
 }
 
-/* ---------- 問題画面 ---------- */
+/* ---------- 問題表示 ---------- */
 function renderQuiz(){
 
-  document.getElementById("app").innerHTML = `
-    <div class="ad-top">
-      <ins class="adsbygoogle"
-        style="display:inline-block;width:320px;height:100px"
-        data-ad-client="ca-pub-1299640300068792"
-        data-ad-slot="7107118417"></ins>
-    </div>
+  app.innerHTML = `
+    <div class="ad-top" id="adTop"></div>
 
     <div class="card">
       <div>${current+1} / ${total}</div>
@@ -107,12 +109,26 @@ function renderQuiz(){
     </div>
   `;
 
-  (adsbygoogle = window.adsbygoogle || []).push({});
-
-  generateQuestion();
+  loadAd();
 
   btn1.onclick = () => answer(btn1, btn1.innerText);
   btn2.onclick = () => answer(btn2, btn2.innerText);
+
+  generateQuestion();
+}
+
+/* ---------- 広告生成 ---------- */
+function loadAd(){
+  let ad = document.getElementById("adTop");
+
+  ad.innerHTML = `
+    <ins class="adsbygoogle"
+      style="display:inline-block;width:320px;height:100px"
+      data-ad-client="ca-pub-1299640300068792"
+      data-ad-slot="7107118417"></ins>
+  `;
+
+  (adsbygoogle = window.adsbygoogle || []).push({});
 }
 
 /* ---------- 問題生成 ---------- */
@@ -130,83 +146,86 @@ function generateQuestion(){
 
   let type = types[Math.floor(Math.random()*types.length)];
 
-  /* 計算（20まで） */
-  if(type === "math"){
-    let a = Math.floor(Math.random()*10)+1;
-    let b = Math.floor(Math.random()*10)+1;
+  /* 計算 */
+  if(type==="math"){
+    let a=Math.floor(Math.random()*10)+1;
+    let b=Math.floor(Math.random()*10)+1;
 
     if(Math.random()<0.5){
-      correctAnswer = a + b;
-      document.getElementById("question").innerText = `${a} + ${b} = ?`;
-    } else {
-      correctAnswer = a;
-      let sum = a + b;
-      document.getElementById("question").innerText = `${sum} - ${b} = ?`;
+      correctAnswer=a+b;
+      question.innerText=`${a}+${b}=?`;
+    }else{
+      correctAnswer=a;
+      question.innerText=`${a+b}-${b}=?`;
     }
 
-    let wrong = correctAnswer + (Math.random()<0.5?1:-1);
-    setChoices(correctAnswer, wrong);
+    setChoices(correctAnswer, correctAnswer+1);
   }
 
-  /* 助動詞（ランダム） */
-  if(type === "memory"){
-    let words = ["家","学校","公園","駅"];
-    let word = words[Math.floor(Math.random()*words.length)];
+  /* 助動詞（強化版🔥） */
+  if(type==="memory"){
+    let patterns = [
+      ["家【に・を】帰る","に"],
+      ["学校【に・を】行く","に"],
+      ["水【に・を】飲む","を"],
+      ["公園【に・を】遊ぶ","で"],
+      ["椅子【に・を】座る","に"]
+    ];
 
-    document.getElementById("question").innerText = `${word}【に・を】行く`;
+    let p = patterns[Math.floor(Math.random()*patterns.length)];
 
-    correctAnswer = "に";
-    setChoices("に","を");
+    question.innerText = p[0];
+    correctAnswer = p[1];
+
+    setChoices(p[1], p[1]==="に"?"を":"に");
   }
 
-  /* どっち？ */
-  if(type === "logic"){
-    let pairs = [
+  /* どっち */
+  if(type==="logic"){
+    let data=[
       ["いぬ","🐕","🐈"],
       ["ねこ","🐈","🐕"],
       ["さかな","🐟","🐕"]
     ];
 
-    let p = pairs[Math.floor(Math.random()*pairs.length)];
+    let p=data[Math.floor(Math.random()*data.length)];
 
-    document.getElementById("question").innerText = `${p[0]}はどっち？`;
+    question.innerText=`${p[0]}はどっち？`;
+    correctAnswer=p[1];
 
-    correctAnswer = p[1];
-    setChoices(p[1], p[2]);
+    setChoices(p[1],p[2]);
   }
 }
 
 /* ---------- 選択肢 ---------- */
 function setChoices(a,b){
-  let arr = Math.random()<0.5 ? [a,b] : [b,a];
-  btn1.innerText = arr[0];
-  btn2.innerText = arr[1];
+  let arr=Math.random()<0.5?[a,b]:[b,a];
+  btn1.innerText=arr[0];
+  btn2.innerText=arr[1];
 }
 
 /* ---------- 回答 ---------- */
-function answer(btn, value){
-
-  if(value == correctAnswer){
+function answer(btn,val){
+  if(val==correctAnswer){
     btn.classList.add("correct");
     correctCount++;
-    localStorage.setItem("correct", correctCount);
-  } else {
+    localStorage.setItem("correct",correctCount);
+  }else{
     btn.classList.add("wrong");
   }
 
-  setTimeout(()=>{
-    next();
-  },800);
+  setTimeout(next,800);
 }
 
 /* ---------- 次 ---------- */
 function next(){
   current++;
-  localStorage.setItem("current", current);
+  localStorage.setItem("current",current);
 
-  if(current >= total){
-    finish();
-  } else {
+  // ⭐ 2問ごと広告リフレッシュ
+  if(current % 2 === 0){
+    renderQuiz();
+  }else{
     renderQuiz();
   }
 }
@@ -214,19 +233,19 @@ function next(){
 /* ---------- 神経衰弱 ---------- */
 function showMemoryGame(){
 
-  let icons = ["🍎","🍎","🍓","🍓","🍊","🍊","🍌","🍌"];
+  let icons=["🍎","🍎","🍓","🍓","🍊","🍊","🍌","🍌"];
   icons.sort(()=>Math.random()-0.5);
 
-  let first=null, lock=false;
+  let first=null,lock=false;
 
-  document.getElementById("app").innerHTML = `
+  app.innerHTML=`
     <div class="card">
       <p>同じ絵を見つけてください</p>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" id="grid"></div>
     </div>
   `;
 
-  let grid = document.getElementById("grid");
+  let grid=document.getElementById("grid");
 
   icons.forEach(icon=>{
     let btn=document.createElement("button");
@@ -234,15 +253,14 @@ function showMemoryGame(){
     btn.style.padding="20px";
 
     btn.onclick=function(){
-      if(lock || btn.innerText!=="？") return;
+      if(lock||btn.innerText!=="？")return;
       btn.innerText=icon;
 
-      if(!first){ first=btn; return; }
+      if(!first){first=btn;return;}
 
       if(first.innerText===btn.innerText){
-        correctCount++;
         first=null;
-      } else {
+      }else{
         lock=true;
         setTimeout(()=>{
           first.innerText="？";
@@ -261,18 +279,26 @@ function showMemoryGame(){
 
 function checkClear(){
   let done=[...document.querySelectorAll("button")].every(b=>b.innerText!=="？");
-  if(done){
-    setTimeout(finish,500);
+  if(done&&!memoryDone){
+    memoryDone=true;
+    correctCount++;
+    finish();
   }
 }
 
 /* ---------- 終了 ---------- */
 function finish(){
-  document.getElementById("app").innerHTML = `
+
+  let percent=Math.round((correctCount/total)*100);
+
+  app.innerHTML=`
     <div class="card">
-      <h2>お疲れ様でした！</h2>
+      <h2>🎉 お疲れ様でした！</h2>
       <p>${total}問中 ${correctCount}問正解！</p>
-      <button onclick="restart()">もう一度</button>
+      <p>正解率 ${percent}%</p>
+
+      <button class="choice" onclick="restart()">もう一度</button>
+      <button class="choice" onclick="goHome()">ホームへ</button>
     </div>
   `;
 
@@ -280,7 +306,11 @@ function finish(){
   localStorage.removeItem("correct");
 }
 
-function restart(){
+/* ---------- 共通 ---------- */
+function restart(){ location.href="index.html"; }
+function goHome(){
+  localStorage.removeItem("current");
+  localStorage.removeItem("correct");
   location.href="index.html";
 }
 
