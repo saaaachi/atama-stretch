@@ -3,306 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>問題</title>
+<title>あたまのストレッチ</title>
 
 <style>
-body{
-  margin:0;
-  font-family:sans-serif;
-  background:#f5f7fb;
-  overflow:hidden;
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #f7fdf9;
+
+  max-width: 520px;
+  margin: auto;
+  min-height: 100vh;
 }
 
-/* 上固定 */
-.top{
-  position:fixed;
-  top:0;
-  width:100%;
-  background:#fff;
-  padding:10px;
-  z-index:10;
+/* 上バー */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 2vh;
 }
 
-/* 戻る */
-.back{
-  position:absolute;
-  left:10px;
-  top:10px;
+.back-space {
+  width: 10vw;
 }
 
-/* 広告 */
-.ad{
-  margin-top:30px;
+/* 設定（グレー） */
+.setting-btn {
+  font-size: 6vw;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 50%;
+  padding: 2vh;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* メイン */
-.container{
-  margin-top:140px;
-  text-align:center;
+/* 中央 */
+.center {
+  text-align: center;
+  margin-top: 18vh;
 }
 
-/* 問題 */
-.question{
-  font-size:28px;
-  margin-bottom:20px;
+/* 今日の問題（赤パステル） */
+.start-btn {
+  font-size: 8vw;
+  padding: 5vh 10vw;
+  border-radius: 6vw;
+  border: none;
+  background: #ffd6d6;
+  color: #333;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
 }
 
-/* ボタン */
-.btn{
-  display:block;
-  width:80%;
-  margin:10px auto;
-  padding:18px;
-  font-size:22px;
-  border:none;
-  border-radius:15px;
-  background:#e0e7ff;
+/* 右下 */
+.bottom-right {
+  position: fixed;
+  right: 5vw;
+  bottom: 5vh;
+  text-align: center;
 }
 
-/* 神経衰弱 */
-.memory{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  padding:10px;
+/* 実績（青）・音楽（緑） */
+.small-btn {
+  margin-top: 2vh;
+  padding: 4vh;
+  font-size: 5vw;
+  border-radius: 50%;
+  border: none;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
 }
 
-.card{
-  padding:20px;
-  font-size:28px;
+/* 実績（青パステル） */
+.result-btn {
+  background: #d6e4ff;
 }
 
-/* 状態 */
-.status{
-  margin-bottom:10px;
-  font-size:18px;
+/* 音楽（緑パステル） */
+.music-btn {
+  background: #d6f5e3;
+}
+
+/* タップ時 */
+button:active {
+  transform: scale(0.95);
+}
+
+/* 準備画面 */
+#loading {
+  display: none;
+  text-align: center;
+  margin-top: 20vh;
+  font-size: 5vw;
+}
+
+.ad-box {
+  margin-top: 5vh;
+  padding: 4vh;
+  background: #fff;
+  border-radius: 4vw;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  font-size: 4vw;
 }
 </style>
 </head>
 
 <body>
 
-<div class="top">
-<button onclick="location.href='index.html'" class="back">←</button>
-
-<div class="ad">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"></script>
-<ins class="adsbygoogle"
-     style="display:inline-block;width:320px;height:100px"
-     data-ad-client="ca-pub-1299640300068792"
-     data-ad-slot="7107118417"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
+<!-- 上バー -->
+<div class="top-bar">
+  <div class="back-space"></div>
+  <button class="setting-btn" onclick="location.href='settings.html'">⚙️</button>
 </div>
 
-<div class="container">
+<!-- メイン -->
+<div class="center" id="mainUI">
+  <button class="start-btn" onclick="startGame()">
+    今日の問題
+  </button>
+</div>
 
-<div id="status" class="status"></div>
-<div id="question" class="question"></div>
-<div id="choices"></div>
-<div id="result"></div>
+<!-- 右下 -->
+<div class="bottom-right">
+  <button class="small-btn result-btn" onclick="location.href='result.html'">
+    実績
+  </button><br>
 
+  <button class="small-btn music-btn" onclick="location.href='music.html'">
+    音楽
+  </button>
+</div>
+
+<!-- 準備画面 -->
+<div id="loading">
+  <p>問題を準備しています…</p>
+
+  <div class="ad-box">
+    広告エリア
+  </div>
 </div>
 
 <script>
+function startGame() {
+  const today = new Date().toDateString();
+  const last = localStorage.getItem("lastAdDate");
 
-// ===== 設定 =====
-let total = Number(localStorage.getItem("questionCount")) || 5;
+  document.getElementById("mainUI").style.display = "none";
+  document.getElementById("loading").style.display = "block";
 
-// ===== 状態 =====
-let current = 0;
-let correct = 0;
-let used = [];
-let currentAnswer = "";
+  if (last !== today) {
+    localStorage.setItem("lastAdDate", today);
 
-// ===== 音 =====
-const ok = new Audio("music/correct.mp3");
-const ng = new Audio("music/wrong.mp3");
+    setTimeout(() => {
+      location.href = "quiz.html";
+    }, 1500);
 
-// ===== データ =====
-
-// 計算
-function createMath(){
-  let a = Math.floor(Math.random()*10);
-  let b = Math.floor(Math.random()*10);
-  let ans = a+b;
-  let wrong = ans + (Math.random()>0.5?1:-1);
-
-  return {
-    q:`${a}+${b}=?`,
-    choices: shuffle([ans, wrong]),
-    answer: ans
-  };
-}
-
-// 助詞（完全2択）
-const particles = [
-  {q:"家【に・を】帰る", choices:["に","を"], answer:"に"},
-  {q:"水【に・を】飲む", choices:["を","に"], answer:"を"},
-  {q:"公園【で・に】遊ぶ", choices:["で","に"], answer:"で"},
-  {q:"学校【で・に】勉強する", choices:["で","に"], answer:"で"},
-];
-
-// どっち（増量）
-const which = [
-  {q:"いぬはどっち？", a:"🐕", b:"🐈", ans:"🐕"},
-  {q:"ねこはどっち？", a:"🐈", b:"🐕", ans:"🐈"},
-  {q:"りんごはどっち？", a:"🍎", b:"🍌", ans:"🍎"},
-  {q:"バナナはどっち？", a:"🍌", b:"🍎", ans:"🍌"},
-  {q:"いちごはどっち？", a:"🍓", b:"🍇", ans:"🍓"},
-  {q:"ぶどうはどっち？", a:"🍇", b:"🍓", ans:"🍇"},
-];
-
-// ===== 神経衰弱 =====
-let mem = [];
-let open = [];
-
-function startMemory(){
-  const base = ["🍎","🍓","🍊","🍌"];
-  mem = shuffle([...base,...base]);
-
-  let html = `<div class="memory">`;
-  mem.forEach((v,i)=>{
-    html += `<button class="card" onclick="openCard(${i})">？</button>`;
-  });
-  html += `</div>`;
-
-  document.getElementById("question").innerText="ラスト問題！神経衰弱";
-  document.getElementById("choices").innerHTML=html;
-}
-
-function openCard(i){
-  let cards = document.getElementsByClassName("card");
-  if(open.length===2 || cards[i].textContent!=="？") return;
-
-  cards[i].textContent = mem[i];
-  open.push(i);
-
-  if(open.length===2){
-    setTimeout(()=>{
-      let [a,b]=open;
-
-      if(mem[a]===mem[b]){
-        cards[a].disabled=true;
-        cards[b].disabled=true;
-      }else{
-        cards[a].textContent="？";
-        cards[b].textContent="？";
-      }
-
-      open=[];
-
-      if([...cards].every(c=>c.disabled)){
-        correct++;
-        next();
-      }
-
-    },700);
+  } else {
+    location.href = "quiz.html";
   }
 }
-
-// ===== 出題 =====
-function next(){
-
-  if(current >= total){
-    finish();
-    return;
-  }
-
-  // ラスト
-  if(current === total-1){
-    document.getElementById("status").innerText="ラスト問題！";
-    startMemory();
-    current++;
-    return;
-  }
-
-  current++;
-  document.getElementById("status").innerText=`${current}/${total}`;
-
-  let data;
-
-  do{
-    let t = Math.floor(Math.random()*3);
-
-    if(t===0) data = createMath();
-
-    if(t===1){
-      let p = particles[Math.floor(Math.random()*particles.length)];
-      data = {
-        q:p.q,
-        choices: shuffle(p.choices),
-        answer: p.answer
-      };
-    }
-
-    if(t===2){
-      let w = which[Math.floor(Math.random()*which.length)];
-      data = {
-        q:w.q,
-        choices: shuffle([w.a,w.b]),
-        answer: w.ans
-      };
-    }
-
-  }while(used.includes(data.q));
-
-  used.push(data.q);
-
-  document.getElementById("question").innerText=data.q;
-
-  // 読み上げ
-  speechSynthesis.speak(new SpeechSynthesisUtterance(data.q));
-
-  currentAnswer = data.answer;
-
-  let html="";
-  data.choices.forEach(c=>{
-    html += `<button class="btn" onclick="answer('${c}')">${c}</button>`;
-  });
-
-  document.getElementById("choices").innerHTML=html;
-
-  // 広告更新（2問ごと）
-  if(current % 2 === 0){
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  }
-}
-
-// ===== 回答 =====
-function answer(c){
-
-  if(c === currentAnswer){
-    ok.currentTime=0;
-    ok.play();
-    correct++;
-  }else{
-    ng.currentTime=0;
-    ng.play();
-  }
-
-  setTimeout(next,600);
-}
-
-// ===== 終了 =====
-function finish(){
-  document.getElementById("status").innerText="";
-  document.getElementById("question").innerText="🎉 おつかれさまでした！";
-
-  document.getElementById("choices").innerHTML=`
-    <p>${total}問中 ${correct}問正解！</p>
-    <button class="btn" onclick="location.href='index.html'">ホームへ</button>
-  `;
-}
-
-// ===== util =====
-function shuffle(a){
-  return a.sort(()=>Math.random()-0.5);
-}
-
-// スタート
-next();
-
 </script>
 
 </body>
