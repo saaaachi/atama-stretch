@@ -3,347 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>問題</title>
+<title>あたまのストレッチ</title>
 
 <style>
-body{
-  margin:0;
-  font-family:sans-serif;
-  background:#f5f7fb;
-  overflow:hidden;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+  
+  background: #f2f4f7;
+
+  max-width: 520px;
+  margin: auto;
 }
 
-/* 上固定 */
-.top{
-  position:fixed;
-  top:0;
-  width:100%;
-  background:#fff;
-  padding:10px;
-  z-index:10;
+/* 上バー */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 12px;
 }
 
-/* 戻る */
-.back{
-  position:absolute;
-  left:10px;
-  top:10px;
-  font-size:18px;
+.back-space {
+  width: 40px;
 }
 
-/* 広告 */
-.ad{
-  margin-top:40px;
+/* 設定ボタン */
+.setting-btn {
+  font-size: 20px;
+  border: none;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* メイン */
-.container{
-  margin-top:190px; /* ←広告かぶり対策 */
-  text-align:center;
+/* メインカード */
+.main-card {
+  background: white;
+  margin: 20px;
+  padding: 30px 20px;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+
+  text-align: center;
 }
 
-/* 問題 */
-.question{
-  font-size:30px;
-  margin-bottom:25px;
+/* タイトル */
+.title {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 20px;
 }
 
-/* ステータス */
-.status{
-  font-size:18px;
-  margin-bottom:10px;
+/* 今日の問題ボタン */
+.start-btn {
+  width: 100%;
+  font-size: 22px;
+  padding: 18px;
+  border-radius: 16px;
+  border: none;
+
+  background: linear-gradient(135deg, #ffb3b3, #ff8f8f);
+  color: white;
+
+  box-shadow: 0 4px 10px rgba(255, 120, 120, 0.3);
 }
 
-/* ボタン */
-.btn{
-  display:block;
-  width:85%;
-  margin:12px auto;
-  padding:20px;
-  font-size:24px;
-  border:none;
-  border-radius:18px;
-  background:#e0e7ff;
-  transition:0.2s;
+/* 下カード */
+.bottom-card {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+  gap: 10px;
 }
 
-.btn:active{
-  transform:scale(0.96);
+.menu-btn {
+  flex: 1;
+  padding: 20px 0;
+  border-radius: 16px;
+  border: none;
+  font-size: 16px;
+  background: white;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-/* 正解 */
-.correct{
-  background:#b9fbc0 !important;
+/* 個別カラー */
+.result-btn {
+  color: #4a90e2;
 }
 
-/* 不正解 */
-.wrong{
-  background:#ffadad !important;
-  animation:shake 0.3s;
+.music-btn {
+  color: #4caf50;
 }
 
-@keyframes shake{
-  0%{transform:translateX(0);}
-  25%{transform:translateX(-6px);}
-  50%{transform:translateX(6px);}
-  75%{transform:translateX(-6px);}
-  100%{transform:translateX(0);}
+/* タップ感 */
+button:active {
+  transform: scale(0.97);
 }
 
-/* 神経衰弱 */
-.memory{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  padding:10px;
+/* 準備画面 */
+#loading {
+  display: none;
+  text-align: center;
+  margin-top: 40vh;
 }
 
-.card{
-  padding:18px;
-  font-size:26px;
-  border-radius:10px;
+.ad-box {
+  margin-top: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 </style>
 </head>
 
 <body>
 
-<div class="top">
-<button onclick="location.href='index.html'" class="back">←</button>
-
-<div class="ad">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"></script>
-<ins class="adsbygoogle"
-     style="display:inline-block;width:320px;height:100px"
-     data-ad-client="ca-pub-1299640300068792"
-     data-ad-slot="7107118417"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
+<div class="top-bar">
+  <div class="back-space"></div>
+  <button class="setting-btn" onclick="location.href='settings.html'">⚙️</button>
 </div>
 
-<div class="container">
+<!-- メイン -->
+<div class="main-card" id="mainUI">
+  <div class="title">今日のトレーニング</div>
 
-<div id="status" class="status"></div>
-<div id="question" class="question"></div>
-<div id="choices"></div>
-<div id="result"></div>
+  <button class="start-btn" onclick="startGame()">
+    今日の問題をはじめる
+  </button>
+</div>
 
+<!-- 下メニュー -->
+<div class="bottom-card">
+  <button class="menu-btn result-btn" onclick="location.href='result.html'">
+    実績
+  </button>
+
+  <button class="menu-btn music-btn" onclick="location.href='music.html'">
+    音楽
+  </button>
+</div>
+
+<!-- 準備画面 -->
+<div id="loading">
+  <p>問題を準備しています…</p>
+
+  <div class="ad-box">
+    広告エリア
+  </div>
 </div>
 
 <script>
+function startGame() {
+  const today = new Date().toDateString();
+  const last = localStorage.getItem("lastAdDate");
 
-// ===== 設定 =====
-let total = Number(localStorage.getItem("questionCount")) || 5;
+  document.getElementById("mainUI").style.display = "none";
+  document.querySelector(".bottom-card").style.display = "none";
+  document.getElementById("loading").style.display = "block";
 
-// ===== 状態 =====
-let current = 0;
-let correct = 0;
-let used = [];
-let currentAnswer = "";
+  if (last !== today) {
+    localStorage.setItem("lastAdDate", today);
 
-// ===== 音 =====
-const ok = new Audio("music/correct.mp3");
-const ng = new Audio("music/wrong.mp3");
+    setTimeout(() => {
+      location.href = "quiz.html";
+    }, 1500);
 
-// ===== シャッフル =====
-function shuffle(a){
-  return a.sort(()=>Math.random()-0.5);
-}
-
-// ===== 計算 =====
-function createMath(){
-  let a = Math.floor(Math.random()*10);
-  let b = Math.floor(Math.random()*10);
-  let ans = a+b;
-  let wrong = ans + (Math.random()>0.5?1:-1);
-
-  let choices = shuffle([ans, wrong]);
-
-  return {
-    q:`${a}+${b}=?`,
-    choices:choices,
-    answer:ans
-  };
-}
-
-// ===== 助詞 =====
-const particles = [
-  {q:"家【に・を】帰る", answer:"に"},
-  {q:"水【に・を】飲む", answer:"を"},
-  {q:"公園【で・に】遊ぶ", answer:"で"},
-  {q:"学校【で・に】勉強する", answer:"で"}
-];
-
-// ===== どっち =====
-const which = [
-  {q:"いぬはどっち？", a:"🐕", b:"🐈", ans:"🐕"},
-  {q:"ねこはどっち？", a:"🐈", b:"🐕", ans:"🐈"},
-  {q:"りんごはどっち？", a:"🍎", b:"🍌", ans:"🍎"},
-  {q:"バナナはどっち？", a:"🍌", b:"🍎", ans:"🍌"},
-  {q:"いちごはどっち？", a:"🍓", b:"🍇", ans:"🍓"},
-  {q:"ぶどうはどっち？", a:"🍇", b:"🍓", ans:"🍇"}
-];
-
-// ===== 神経衰弱 =====
-let mem = [];
-let open = [];
-
-function startMemory(){
-  const base = ["🍎","🍓","🍊","🍌"];
-  mem = shuffle([...base,...base]);
-
-  let html = `<div class="memory">`;
-  mem.forEach((v,i)=>{
-    html += `<button class="card" onclick="openCard(${i})">？</button>`;
-  });
-  html += `</div>`;
-
-  document.getElementById("question").innerText="ラスト問題！神経衰弱";
-  document.getElementById("choices").innerHTML=html;
-}
-
-function openCard(i){
-  let cards = document.getElementsByClassName("card");
-  if(open.length===2 || cards[i].textContent!=="？") return;
-
-  cards[i].textContent = mem[i];
-  open.push(i);
-
-  if(open.length===2){
-    setTimeout(()=>{
-      let [a,b]=open;
-
-      if(mem[a]===mem[b]){
-        cards[a].disabled=true;
-        cards[b].disabled=true;
-      }else{
-        cards[a].textContent="？";
-        cards[b].textContent="？";
-      }
-
-      open=[];
-
-      if([...cards].every(c=>c.disabled)){
-        correct++;
-        next();
-      }
-
-    },700);
+  } else {
+    location.href = "quiz.html";
   }
 }
-
-// ===== 出題 =====
-function next(){
-
-  if(current >= total){
-    finish();
-    return;
-  }
-
-  // ラスト
-  if(current === total-1){
-    document.getElementById("status").innerText="ラスト問題！";
-    startMemory();
-    current++;
-    return;
-  }
-
-  current++;
-  document.getElementById("status").innerText=`${current}/${total}`;
-
-  let data;
-
-  do{
-    let t = Math.floor(Math.random()*3);
-
-    if(t===0) data = createMath();
-
-    if(t===1){
-      let p = particles[Math.floor(Math.random()*particles.length)];
-      let choices = shuffle(["に","を","で"]).slice(0,2); // 必ず2択
-      if(!choices.includes(p.answer)){
-        choices[0] = p.answer;
-        choices = shuffle(choices);
-      }
-
-      data = {
-        q:p.q,
-        choices:choices,
-        answer:p.answer
-      };
-    }
-
-    if(t===2){
-      let w = which[Math.floor(Math.random()*which.length)];
-      data = {
-        q:w.q,
-        choices:shuffle([w.a,w.b]),
-        answer:w.ans
-      };
-    }
-
-  }while(used.includes(data.q));
-
-  used.push(data.q);
-
-  document.getElementById("question").innerText=data.q;
-
-  speechSynthesis.speak(new SpeechSynthesisUtterance(data.q));
-
-  currentAnswer = data.answer;
-
-  let html="";
-  data.choices.forEach(c=>{
-    html += `<button class="btn" onclick="answer('${c}')">${c}</button>`;
-  });
-
-  document.getElementById("choices").innerHTML=html;
-
-  // 広告更新（2問ごと）
-  if(current % 2 === 0){
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  }
-}
-
-// ===== 回答 =====
-function answer(c){
-
-  let buttons = document.querySelectorAll(".btn");
-
-  buttons.forEach(b=>{
-    if(b.innerText == c){
-
-      if(c === currentAnswer){
-        b.classList.add("correct");
-        ok.currentTime=0;
-        ok.play();
-        correct++;
-      }else{
-        b.classList.add("wrong");
-        ng.currentTime=0;
-        ng.play();
-      }
-    }
-    b.disabled = true;
-  });
-
-  setTimeout(next,700);
-}
-
-// ===== 終了 =====
-function finish(){
-  document.getElementById("status").innerText="";
-  document.getElementById("question").innerText="🎉 おつかれさまでした！";
-
-  document.getElementById("choices").innerHTML=`
-    <p style="font-size:22px">${total}問中 ${correct}問正解！</p>
-    <button class="btn" onclick="location.href='index.html'">ホームへ</button>
-  `;
-}
-
-// スタート
-next();
-
 </script>
 
 </body>
