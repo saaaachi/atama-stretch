@@ -16,31 +16,31 @@ body {
 /* ヘッダー /
 .header {
   position: relative;
-  padding: 10px;
+  height: 50px;
 }
 
 .back {
   position: absolute;
-  left: 10px;
+  left: 15px;
   top: 10px;
-  font-size: 20px;
+  font-size: 22px;
   text-decoration: none;
 }
 
 / タイトル /
 h1 {
-  margin: 10px 0 5px;
+  margin: 10px 0;
 }
 
 / アニメーション /
 .wave {
-  margin: 15px auto;
-  width: 80%;
+  margin: 10px auto;
+  width: 85%;
   height: 50px;
+  border-radius: 10px;
   background: linear-gradient(90deg,#a0c4ff,#bdb2ff,#ffc6ff);
   background-size: 200% 100%;
-  animation: move 2s infinite linear;
-  border-radius: 10px;
+  animation: move 2s linear infinite;
 }
 
 @keyframes move {
@@ -97,23 +97,24 @@ h1 {
 <div class="wave"></div>
 
 <!-- 広告A -->
-<div id="adA">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
- crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
- style="display:inline-block;width:320px;height:100px"
- data-ad-client="ca-pub-1299640300068792"
- data-ad-slot="3000015733"></ins>
+<div id="adA" style="margin:10px 0;">
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:320px;height:100px"
+    data-ad-client="ca-pub-1299640300068792"
+    data-ad-slot="3000015733"></ins>
 </div>
 
 <!-- 広告B -->
-<div id="adB" style="display:none;">
-<ins class="adsbygoogle"
- style="display:inline-block;width:320px;height:100px"
- data-ad-client="ca-pub-1299640300068792"
- data-ad-slot="9654526170"></ins>
+<div id="adB" style="display:none;margin:10px 0;">
+  <ins class="adsbygoogle"
+    style="display:inline-block;width:320px;height:100px"
+    data-ad-client="ca-pub-1299640300068792"
+    data-ad-slot="9654526170"></ins>
 </div>
 
+<!-- AdSense 読み込み（1回だけ！） -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
+ crossorigin="anonymous"></script>
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 (adsbygoogle = window.adsbygoogle || []).push({});
@@ -165,9 +166,9 @@ let current = null;
 
 // メイン音
 function playMusic(name, btn){
-  const audios = ["seseragi","kotori","debussy"];
+  const ids = ["seseragi","kotori","debussy"];
 
-  audios.forEach(id=>{
+  ids.forEach(id=>{
     document.getElementById(id).pause();
   });
 
@@ -188,7 +189,7 @@ function playMusic(name, btn){
 
 // ガンマ
 const gamma = document.getElementById("gamma");
-document.getElementById("gammaSwitch").addEventListener("change", (e)=>{
+document.getElementById("gammaSwitch").addEventListener("change", e=>{
   if(e.target.checked){
     gamma.play();
   }else{
