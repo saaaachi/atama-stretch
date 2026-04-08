@@ -28,35 +28,66 @@ body{
   position:absolute;
   left:10px;
   top:10px;
+  font-size:18px;
 }
 
 /* 広告 */
 .ad{
-  margin-top:30px;
+  margin-top:40px;
 }
 
 /* メイン */
 .container{
-  margin-top:140px;
+  margin-top:190px; /* ←広告かぶり対策 */
   text-align:center;
 }
 
 /* 問題 */
 .question{
-  font-size:28px;
-  margin-bottom:20px;
+  font-size:30px;
+  margin-bottom:25px;
+}
+
+/* ステータス */
+.status{
+  font-size:18px;
+  margin-bottom:10px;
 }
 
 /* ボタン */
 .btn{
   display:block;
-  width:80%;
-  margin:10px auto;
-  padding:18px;
-  font-size:22px;
+  width:85%;
+  margin:12px auto;
+  padding:20px;
+  font-size:24px;
   border:none;
-  border-radius:15px;
+  border-radius:18px;
   background:#e0e7ff;
+  transition:0.2s;
+}
+
+.btn:active{
+  transform:scale(0.96);
+}
+
+/* 正解 */
+.correct{
+  background:#b9fbc0 !important;
+}
+
+/* 不正解 */
+.wrong{
+  background:#ffadad !important;
+  animation:shake 0.3s;
+}
+
+@keyframes shake{
+  0%{transform:translateX(0);}
+  25%{transform:translateX(-6px);}
+  50%{transform:translateX(6px);}
+  75%{transform:translateX(-6px);}
+  100%{transform:translateX(0);}
 }
 
 /* 神経衰弱 */
@@ -68,14 +99,9 @@ body{
 }
 
 .card{
-  padding:20px;
-  font-size:28px;
-}
-
-/* 状態 */
-.status{
-  margin-bottom:10px;
-  font-size:18px;
+  padding:18px;
+  font-size:26px;
+  border-radius:10px;
 }
 </style>
 </head>
@@ -119,38 +145,43 @@ let currentAnswer = "";
 const ok = new Audio("music/correct.mp3");
 const ng = new Audio("music/wrong.mp3");
 
-// ===== データ =====
+// ===== シャッフル =====
+function shuffle(a){
+  return a.sort(()=>Math.random()-0.5);
+}
 
-// 計算
+// ===== 計算 =====
 function createMath(){
   let a = Math.floor(Math.random()*10);
   let b = Math.floor(Math.random()*10);
   let ans = a+b;
   let wrong = ans + (Math.random()>0.5?1:-1);
 
+  let choices = shuffle([ans, wrong]);
+
   return {
     q:`${a}+${b}=?`,
-    choices: shuffle([ans, wrong]),
-    answer: ans
+    choices:choices,
+    answer:ans
   };
 }
 
-// 助詞（完全2択）
+// ===== 助詞 =====
 const particles = [
-  {q:"家【に・を】帰る", choices:["に","を"], answer:"に"},
-  {q:"水【に・を】飲む", choices:["を","に"], answer:"を"},
-  {q:"公園【で・に】遊ぶ", choices:["で","に"], answer:"で"},
-  {q:"学校【で・に】勉強する", choices:["で","に"], answer:"で"},
+  {q:"家【に・を】帰る", answer:"に"},
+  {q:"水【に・を】飲む", answer:"を"},
+  {q:"公園【で・に】遊ぶ", answer:"で"},
+  {q:"学校【で・に】勉強する", answer:"で"}
 ];
 
-// どっち（増量）
+// ===== どっち =====
 const which = [
   {q:"いぬはどっち？", a:"🐕", b:"🐈", ans:"🐕"},
   {q:"ねこはどっち？", a:"🐈", b:"🐕", ans:"🐈"},
   {q:"りんごはどっち？", a:"🍎", b:"🍌", ans:"🍎"},
   {q:"バナナはどっち？", a:"🍌", b:"🍎", ans:"🍌"},
   {q:"いちごはどっち？", a:"🍓", b:"🍇", ans:"🍓"},
-  {q:"ぶどうはどっち？", a:"🍇", b:"🍓", ans:"🍇"},
+  {q:"ぶどうはどっち？", a:"🍇", b:"🍓", ans:"🍇"}
 ];
 
 // ===== 神経衰弱 =====
@@ -229,10 +260,16 @@ function next(){
 
     if(t===1){
       let p = particles[Math.floor(Math.random()*particles.length)];
+      let choices = shuffle(["に","を","で"]).slice(0,2); // 必ず2択
+      if(!choices.includes(p.answer)){
+        choices[0] = p.answer;
+        choices = shuffle(choices);
+      }
+
       data = {
         q:p.q,
-        choices: shuffle(p.choices),
-        answer: p.answer
+        choices:choices,
+        answer:p.answer
       };
     }
 
@@ -240,8 +277,8 @@ function next(){
       let w = which[Math.floor(Math.random()*which.length)];
       data = {
         q:w.q,
-        choices: shuffle([w.a,w.b]),
-        answer: w.ans
+        choices:shuffle([w.a,w.b]),
+        answer:w.ans
       };
     }
 
@@ -251,7 +288,6 @@ function next(){
 
   document.getElementById("question").innerText=data.q;
 
-  // 読み上げ
   speechSynthesis.speak(new SpeechSynthesisUtterance(data.q));
 
   currentAnswer = data.answer;
@@ -272,16 +308,26 @@ function next(){
 // ===== 回答 =====
 function answer(c){
 
-  if(c === currentAnswer){
-    ok.currentTime=0;
-    ok.play();
-    correct++;
-  }else{
-    ng.currentTime=0;
-    ng.play();
-  }
+  let buttons = document.querySelectorAll(".btn");
 
-  setTimeout(next,600);
+  buttons.forEach(b=>{
+    if(b.innerText == c){
+
+      if(c === currentAnswer){
+        b.classList.add("correct");
+        ok.currentTime=0;
+        ok.play();
+        correct++;
+      }else{
+        b.classList.add("wrong");
+        ng.currentTime=0;
+        ng.play();
+      }
+    }
+    b.disabled = true;
+  });
+
+  setTimeout(next,700);
 }
 
 // ===== 終了 =====
@@ -290,14 +336,9 @@ function finish(){
   document.getElementById("question").innerText="🎉 おつかれさまでした！";
 
   document.getElementById("choices").innerHTML=`
-    <p>${total}問中 ${correct}問正解！</p>
+    <p style="font-size:22px">${total}問中 ${correct}問正解！</p>
     <button class="btn" onclick="location.href='index.html'">ホームへ</button>
   `;
-}
-
-// ===== util =====
-function shuffle(a){
-  return a.sort(()=>Math.random()-0.5);
 }
 
 // スタート
