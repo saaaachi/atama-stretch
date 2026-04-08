@@ -3,347 +3,291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>問題</title>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
+crossorigin="anonymous"></script>
 
 <style>
 body{
-  margin:0;
-  font-family:sans-serif;
-  background:#f5f7fb;
-  overflow:hidden;
+ margin:0;
+ font-family:sans-serif;
+ background:#f5f6fa;
+ overflow:hidden;
 }
 
-/* 上固定 */
-.top{
-  position:fixed;
-  top:0;
-  width:100%;
-  background:#fff;
-  padding:10px;
-  z-index:10;
+.header{
+ position:fixed;
+ top:0;
+ width:100%;
+ height:60px;
+ background:#fff;
+ display:flex;
+ align-items:center;
+ padding:10px;
 }
 
-/* 戻る */
 .back{
-  position:absolute;
-  left:10px;
-  top:10px;
-  font-size:18px;
+ font-size:20px;
+ cursor:pointer;
 }
 
-/* 広告 */
 .ad{
-  margin-top:40px;
+ margin-top:60px;
+ text-align:center;
+ min-height:110px;
 }
 
-/* メイン */
 .container{
-  margin-top:190px; /* ←広告かぶり対策 */
-  text-align:center;
+ text-align:center;
+ padding:15px;
 }
 
-/* 問題 */
 .question{
-  font-size:30px;
-  margin-bottom:25px;
+ font-size:30px;
+ margin:20px 0;
 }
 
-/* ステータス */
-.status{
-  font-size:18px;
-  margin-bottom:10px;
-}
-
-/* ボタン */
 .btn{
-  display:block;
-  width:85%;
-  margin:12px auto;
-  padding:20px;
-  font-size:24px;
-  border:none;
-  border-radius:18px;
-  background:#e0e7ff;
-  transition:0.2s;
+ width:90%;
+ margin:10px auto;
+ padding:18px;
+ font-size:22px;
+ border-radius:15px;
+ border:none;
+ background:#dfe6e9;
+ transition:.2s;
 }
 
-.btn:active{
-  transform:scale(0.96);
-}
+.btn:active{transform:scale(.95);}
+.correct{background:#81ecec;}
+.wrong{background:#fab1a0;}
 
-/* 正解 */
-.correct{
-  background:#b9fbc0 !important;
-}
-
-/* 不正解 */
-.wrong{
-  background:#ffadad !important;
-  animation:shake 0.3s;
-}
-
-@keyframes shake{
-  0%{transform:translateX(0);}
-  25%{transform:translateX(-6px);}
-  50%{transform:translateX(6px);}
-  75%{transform:translateX(-6px);}
-  100%{transform:translateX(0);}
-}
-
-/* 神経衰弱 */
 .memory{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  padding:10px;
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:10px;
 }
 
 .card{
-  padding:18px;
-  font-size:26px;
-  border-radius:10px;
+ height:70px;
+ background:#b2bec3;
+ border-radius:10px;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ font-size:28px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="top">
-<button onclick="location.href='index.html'" class="back">←</button>
-
-<div class="ad">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"></script>
-<ins class="adsbygoogle"
-     style="display:inline-block;width:320px;height:100px"
-     data-ad-client="ca-pub-1299640300068792"
-     data-ad-slot="7107118417"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+<div class="header">
+<div class="back" onclick="location.href='index.html'">←</div>
 </div>
+
+<div class="ad" id="adArea">
+<ins class="adsbygoogle"
+style="display:inline-block;width:320px;height:100px"
+data-ad-client="ca-pub-1299640300068792"
+data-ad-slot="7107118417"></ins>
 </div>
 
 <div class="container">
-
-<div id="status" class="status"></div>
+<div id="progress"></div>
+<div id="last" style="color:red;font-weight:bold;"></div>
 <div id="question" class="question"></div>
-<div id="choices"></div>
-<div id="result"></div>
-
+<div id="answers"></div>
 </div>
 
 <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
 
-// ===== 設定 =====
+/* ===== 設定 ===== */
 let total = Number(localStorage.getItem("questionCount")) || 5;
 
-// ===== 状態 =====
 let current = 0;
-let correct = 0;
-let used = [];
-let currentAnswer = "";
+let score = 0;
 
-// ===== 音 =====
-const ok = new Audio("music/correct.mp3");
-const ng = new Audio("music/wrong.mp3");
+/* ===== 問題データ ===== */
 
-// ===== シャッフル =====
-function shuffle(a){
-  return a.sort(()=>Math.random()-0.5);
-}
-
-// ===== 計算 =====
-function createMath(){
-  let a = Math.floor(Math.random()*10);
-  let b = Math.floor(Math.random()*10);
-  let ans = a+b;
-  let wrong = ans + (Math.random()>0.5?1:-1);
-
-  let choices = shuffle([ans, wrong]);
-
-  return {
-    q:`${a}+${b}=?`,
-    choices:choices,
-    answer:ans
-  };
-}
-
-// ===== 助詞 =====
-const particles = [
-  {q:"家【に・を】帰る", answer:"に"},
-  {q:"水【に・を】飲む", answer:"を"},
-  {q:"公園【で・に】遊ぶ", answer:"で"},
-  {q:"学校【で・に】勉強する", answer:"で"}
+// 助動詞20問
+const josiList = [
+["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
+["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
+["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
+["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
+["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
 ];
 
-// ===== どっち =====
-const which = [
-  {q:"いぬはどっち？", a:"🐕", b:"🐈", ans:"🐕"},
-  {q:"ねこはどっち？", a:"🐈", b:"🐕", ans:"🐈"},
-  {q:"りんごはどっち？", a:"🍎", b:"🍌", ans:"🍎"},
-  {q:"バナナはどっち？", a:"🍌", b:"🍎", ans:"🍌"},
-  {q:"いちごはどっち？", a:"🍓", b:"🍇", ans:"🍓"},
-  {q:"ぶどうはどっち？", a:"🍇", b:"🍓", ans:"🍇"}
+// どっち20問
+const whichList = [
+["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
+["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
+["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
+["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
+["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
 ];
 
-// ===== 神経衰弱 =====
-let mem = [];
-let open = [];
+// 神経衰弱パターン
+const memorySets = [
+["🍎","🍓","🍊","🍌"],
+["🐶","🐱","🐼","🐸"],
+["🚗","🚲","✈️","🚀"]
+];
 
-function startMemory(){
-  const base = ["🍎","🍓","🍊","🍌"];
-  mem = shuffle([...base,...base]);
+let used = new Set();
 
-  let html = `<div class="memory">`;
-  mem.forEach((v,i)=>{
-    html += `<button class="card" onclick="openCard(${i})">？</button>`;
-  });
-  html += `</div>`;
+/* ===== 問題生成 ===== */
 
-  document.getElementById("question").innerText="ラスト問題！神経衰弱";
-  document.getElementById("choices").innerHTML=html;
-}
+function getQuestion(){
 
-function openCard(i){
-  let cards = document.getElementsByClassName("card");
-  if(open.length===2 || cards[i].textContent!=="？") return;
+  // 最終問題 → 神経衰弱
+  if(current === total){
+    return {type:"memory"};
+  }
 
-  cards[i].textContent = mem[i];
-  open.push(i);
+  let type = Math.random() < 0.5 ? "josi" : "which";
 
-  if(open.length===2){
-    setTimeout(()=>{
-      let [a,b]=open;
+  if(type==="josi"){
+    let i;
+    do{
+      i = Math.floor(Math.random()*josiList.length);
+    }while(used.has("j"+i));
+    used.add("j"+i);
 
-      if(mem[a]===mem[b]){
-        cards[a].disabled=true;
-        cards[b].disabled=true;
-      }else{
-        cards[a].textContent="？";
-        cards[b].textContent="？";
-      }
+    let x = josiList[i];
+    let wrong = ["に","で","と","を","へ"].filter(p=>p!==x[1]);
 
-      open=[];
+    return {
+      type:"choice",
+      q:`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,
+      choices:[x[1],wrong[0]].sort(()=>Math.random()-0.5),
+      answer:x[1]
+    };
+  }
 
-      if([...cards].every(c=>c.disabled)){
-        correct++;
-        next();
-      }
+  if(type==="which"){
+    let i;
+    do{
+      i = Math.floor(Math.random()*whichList.length);
+    }while(used.has("w"+i));
+    used.add("w"+i);
 
-    },700);
+    let x = whichList[i];
+    return {
+      type:"choice",
+      q:`${x[2]}はどっち？`,
+      choices:[x[0],x[1]],
+      answer:x[0]
+    };
   }
 }
 
-// ===== 出題 =====
+/* ===== 表示 ===== */
+
 function next(){
 
-  if(current >= total){
-    finish();
-    return;
-  }
+  document.getElementById("answers").innerHTML="";
 
-  // ラスト
-  if(current === total-1){
-    document.getElementById("status").innerText="ラスト問題！";
-    startMemory();
-    current++;
+  if(current>=total){
+    document.querySelector(".container").innerHTML=
+    `<h2>お疲れ様でした！</h2>
+     <p>${score} / ${total} 正解</p>
+     <button onclick="location.href='index.html'">ホームへ</button>`;
     return;
   }
 
   current++;
-  document.getElementById("status").innerText=`${current}/${total}`;
 
-  let data;
+  document.getElementById("progress").innerText = current+" / "+total;
 
-  do{
-    let t = Math.floor(Math.random()*3);
+  document.getElementById("last").innerText =
+    (current===total) ? "ラスト問題！" : "";
 
-    if(t===0) data = createMath();
-
-    if(t===1){
-      let p = particles[Math.floor(Math.random()*particles.length)];
-      let choices = shuffle(["に","を","で"]).slice(0,2); // 必ず2択
-      if(!choices.includes(p.answer)){
-        choices[0] = p.answer;
-        choices = shuffle(choices);
-      }
-
-      data = {
-        q:p.q,
-        choices:choices,
-        answer:p.answer
-      };
-    }
-
-    if(t===2){
-      let w = which[Math.floor(Math.random()*which.length)];
-      data = {
-        q:w.q,
-        choices:shuffle([w.a,w.b]),
-        answer:w.ans
-      };
-    }
-
-  }while(used.includes(data.q));
-
-  used.push(data.q);
-
-  document.getElementById("question").innerText=data.q;
-
-  speechSynthesis.speak(new SpeechSynthesisUtterance(data.q));
-
-  currentAnswer = data.answer;
-
-  let html="";
-  data.choices.forEach(c=>{
-    html += `<button class="btn" onclick="answer('${c}')">${c}</button>`;
-  });
-
-  document.getElementById("choices").innerHTML=html;
-
-  // 広告更新（2問ごと）
-  if(current % 2 === 0){
+  /* 広告更新 */
+  if(current % 2 === 1){
+    let ad = document.getElementById("adArea");
+    ad.innerHTML = `
+    <ins class="adsbygoogle"
+    style="display:inline-block;width:320px;height:100px"
+    data-ad-client="ca-pub-1299640300068792"
+    data-ad-slot="7107118417"></ins>`;
     (adsbygoogle = window.adsbygoogle || []).push({});
+  }
+
+  let q = getQuestion();
+
+  if(q.type==="choice"){
+    document.getElementById("question").innerText = q.q;
+
+    q.choices.forEach(c=>{
+      let btn=document.createElement("button");
+      btn.className="btn";
+      btn.innerText=c;
+
+      btn.onclick=()=>{
+        if(c===q.answer){
+          btn.classList.add("correct");
+          score++;
+        }else{
+          btn.classList.add("wrong");
+        }
+        setTimeout(next,800);
+      };
+
+      document.getElementById("answers").appendChild(btn);
+    });
+  }
+
+  if(q.type==="memory"){
+    document.getElementById("question").innerText="神経衰弱";
+
+    let set = memorySets[Math.floor(Math.random()*memorySets.length)];
+    let cards = [...set,...set].sort(()=>Math.random()-0.5);
+
+    let open=[];
+    let matched=0;
+
+    let area=document.getElementById("answers");
+    area.className="memory";
+
+    cards.forEach(card=>{
+      let div=document.createElement("div");
+      div.className="card";
+      div.innerText="?";
+
+      div.onclick=()=>{
+        if(div.innerText!=="?") return;
+
+        div.innerText=card;
+        open.push({div,card});
+
+        if(open.length===2){
+          if(open[0].card===open[1].card){
+            matched+=2;
+            if(matched===8){
+              score++;
+              setTimeout(next,800);
+            }
+          }else{
+            setTimeout(()=>{
+              open[0].div.innerText="?";
+              open[1].div.innerText="?";
+            },600);
+          }
+          open=[];
+        }
+      };
+
+      area.appendChild(div);
+    });
   }
 }
 
-// ===== 回答 =====
-function answer(c){
-
-  let buttons = document.querySelectorAll(".btn");
-
-  buttons.forEach(b=>{
-    if(b.innerText == c){
-
-      if(c === currentAnswer){
-        b.classList.add("correct");
-        ok.currentTime=0;
-        ok.play();
-        correct++;
-      }else{
-        b.classList.add("wrong");
-        ng.currentTime=0;
-        ng.play();
-      }
-    }
-    b.disabled = true;
-  });
-
-  setTimeout(next,700);
-}
-
-// ===== 終了 =====
-function finish(){
-  document.getElementById("status").innerText="";
-  document.getElementById("question").innerText="🎉 おつかれさまでした！";
-
-  document.getElementById("choices").innerHTML=`
-    <p style="font-size:22px">${total}問中 ${correct}問正解！</p>
-    <button class="btn" onclick="location.href='index.html'">ホームへ</button>
-  `;
-}
-
-// スタート
 next();
-
 </script>
 
 </body>
