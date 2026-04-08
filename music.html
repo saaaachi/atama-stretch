@@ -7,111 +7,191 @@
 
 <style>
 body {
-  font-family: sans-serif;
-  background: #f5f7fb;
-  text-align: center;
   margin: 0;
+  font-family: sans-serif;
+  background: #f6f7fb;
+  text-align: center;
 }
 
+/* ヘッダー */
+.header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
 .back {
-  position: absolute;
-  left: 10px;
-  top: 10px;
   font-size: 20px;
+  text-decoration: none;
 }
 
+/* タイトル */
 h1 {
-  margin-top: 40px;
+  margin-top: 10px;
 }
 
-.button {
+/* ボタン */
+.btn {
+  display: block;
   width: 80%;
-  max-width: 300px;
   margin: 15px auto;
   padding: 20px;
-  border-radius: 20px;
   font-size: 18px;
+  border-radius: 15px;
   border: none;
-  background: #e0e7ff;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.playing {
-  background: #a5b4fc;
+.active {
+  background: #d0ebff;
 }
 
 /* ガンマスイッチ */
 .switch {
-  margin: 25px auto;
+  margin: 20px;
 }
 
-label {
-  font-size: 18px;
+/* 音量 */
+.slider {
+  width: 80%;
+}
+
+/* アニメーション */
+.wave {
+  margin: 20px auto;
+  width: 80%;
+  height: 50px;
+  background: linear-gradient(90deg,#a0c4ff,#bdb2ff,#ffc6ff);
+  background-size: 200% 100%;
+  animation: move 2s infinite linear;
+}
+@keyframes move {
+  0% {background-position: 0%;}
+  100% {background-position: 100%;}
 }
 </style>
 </head>
 
 <body>
 
-<button class="back" onclick="location.href='index.html'">←</button>
+<div class="header">
+  <a href="index.html" class="back">←</a>
+</div>
 
 <h1>音楽</h1>
 
-<!-- ガンマ波 -->
+<div class="wave"></div>
+
+<button class="btn" onclick="playMusic('seseragi')">せせらぎ</button>
+<button class="btn" onclick="playMusic('kotori')">小鳥</button>
+<button class="btn" onclick="playMusic('debussy')">ピアノ</button>
+
 <div class="switch">
   <label>
-    <input type="checkbox" id="gammaToggle"> ガンマ波を流す
+    ガンマ波 ON/OFF
+    <input type="checkbox" id="gammaSwitch" onchange="toggleGamma()">
   </label>
 </div>
 
-<!-- 他の音 -->
-<button class="button" onclick="playMain('seseragi', this)">せせらぎ</button>
-<button class="button" onclick="playMain('kotori', this)">小鳥</button>
-<button class="button" onclick="playMain('debussy', this)">クラシック</button>
+<!-- 音量 -->
+<div>
+  音量<br>
+  <input type="range" min="0" max="1" step="0.1" value="0.5"
+    class="slider" onchange="changeVolume(this.value)">
+</div>
 
-<!-- 音源 -->
-<audio id="gamma" src="music/gamma.mp3" loop></audio>
-<audio id="seseragi" src="music/seseragi.mp3" loop></audio>
-<audio id="kotori" src="music/kotori.mp3" loop></audio>
-<audio id="debussy" src="music/debussy.mp3" loop></audio>
+<!-- タイマー -->
+<div>
+  タイマー（分）<br>
+  <select onchange="setTimer(this.value)">
+    <option value="0">なし</option>
+    <option value="5">5分</option>
+    <option value="10">10分</option>
+    <option value="15">15分</option>
+  </select>
+</div>
+
+<!-- 広告 -->
+<div style="margin-top:20px;">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:inline-block;width:320px;height:100px"
+     data-ad-client="ca-pub-1299640300068792"
+     data-ad-slot="3000015733"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
 
 <script>
-let currentMain = null;
+// 音源
+const audio = {
+  seseragi: new Audio("music/seseragi.mp3"),
+  kotori: new Audio("music/kotori.mp3"),
+  debussy: new Audio("music/debussy.mp3"),
+  gamma: new Audio("music/gamma.mp3")
+};
 
-// メイン音（排他）
-function playMain(id, btn) {
-  const audio = document.getElementById(id);
+let current = null;
 
-  if (currentMain && currentMain !== audio) {
-    currentMain.pause();
-    document.querySelectorAll('.button').forEach(b => b.classList.remove('playing'));
-  }
+// 再生
+function playMusic(name){
+  // 全停止
+  Object.values(audio).forEach(a=>{
+    if(a !== audio.gamma) a.pause();
+  });
 
-  if (audio.paused) {
-    audio.play();
-    btn.classList.add('playing');
-    currentMain = audio;
-  } else {
-    audio.pause();
-    btn.classList.remove('playing');
-    currentMain = null;
+  current = audio[name];
+  current.loop = true;
+  current.play();
+
+  updateButtons(name);
+}
+
+// ボタン色
+function updateButtons(active){
+  document.querySelectorAll(".btn").forEach(b=>b.classList.remove("active"));
+  if(active==="seseragi") document.querySelectorAll(".btn")[0].classList.add("active");
+  if(active==="kotori") document.querySelectorAll(".btn")[1].classList.add("active");
+  if(active==="debussy") document.querySelectorAll(".btn")[2].classList.add("active");
+}
+
+// ガンマ
+function toggleGamma(){
+  if(document.getElementById("gammaSwitch").checked){
+    audio.gamma.loop = true;
+    audio.gamma.play();
+  }else{
+    audio.gamma.pause();
   }
 }
 
-// ガンマ波（重ねOK）
-const gamma = document.getElementById("gamma");
-document.getElementById("gammaToggle").addEventListener("change", (e) => {
-  if (e.target.checked) {
-    gamma.play();
-  } else {
-    gamma.pause();
-  }
-});
+// 音量
+function changeVolume(v){
+  Object.values(audio).forEach(a=>a.volume = v);
+}
 
-// 音量調整（重要）
-gamma.volume = 0.7;
-document.getElementById("seseragi").volume = 0.4;
-document.getElementById("kotori").volume = 0.4;
-document.getElementById("debussy").volume = 0.4;
+// タイマー
+let timer;
+function setTimer(min){
+  clearTimeout(timer);
+  if(min > 0){
+    timer = setTimeout(()=>{
+      Object.values(audio).forEach(a=>a.pause());
+      alert("タイマー終了");
+    }, min * 60000);
+  }
+}
+
+// スリープ防止（簡易）
+let wakeLock = null;
+async function keepAwake(){
+  try{
+    wakeLock = await navigator.wakeLock.request('screen');
+  }catch(e){}
+}
+keepAwake();
 </script>
 
 </body>
