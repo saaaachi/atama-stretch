@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>音楽</title>
+
+<style>
+body {
+  font-family: sans-serif;
+  background: #f5f7fb;
+  text-align: center;
+  margin: 0;
+}
+
+.header {
+  padding: 10px;
+}
+
+.back {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  font-size: 20px;
+}
+
+h1 {
+  margin-top: 30px;
+}
+
+.button {
+  width: 80%;
+  max-width: 300px;
+  margin: 15px auto;
+  padding: 20px;
+  border-radius: 20px;
+  font-size: 18px;
+  background: #e0e7ff;
+  border: none;
+}
+
+.playing {
+  background: #a5b4fc;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <button class="back" onclick="location.href='index.html'">←</button>
+</div>
+
+<h1>音楽</h1>
+
+<button class="button" onclick="toggleSound('gamma', this)">ガンマ波</button>
+<button class="button" onclick="toggleSound('seseragi', this)">せせらぎ</button>
+<button class="button" onclick="toggleSound('kotori', this)">小鳥</button>
+<button class="button" onclick="toggleSound('debussy', this)">クラシック</button>
+
+<audio id="gamma" src="music/gamma.mp3" loop></audio>
+<audio id="seseragi" src="music/seseragi.mp3" loop></audio>
+<audio id="kotori" src="music/kotori.mp3" loop></audio>
+<audio id="debussy" src="music/debussy.mp3" loop></audio>
+
+<script>
+let current = null;
+
+function toggleSound(id, btn) {
+  const audio = document.getElementById(id);
+
+  if (current && current !== audio) {
+    current.pause();
+    document.querySelectorAll('.button').forEach(b => b.classList.remove('playing'));
+  }
+
+  if (audio.paused) {
+    audio.play();
+    btn.classList.add('playing');
+    current = audio;
+  } else {
+    audio.pause();
+    btn.classList.remove('playing');
+    current = null;
+  }
+}
+</script>
+
+</body>
+</html>
