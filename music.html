@@ -13,28 +13,48 @@ body {
   text-align: center;
 }
 
-/* ヘッダー */
+/* ヘッダー /
 .header {
-  display: flex;
-  align-items: center;
+  position: relative;
   padding: 10px;
 }
+
 .back {
+  position: absolute;
+  left: 10px;
+  top: 10px;
   font-size: 20px;
   text-decoration: none;
 }
 
-/* タイトル */
+/ タイトル /
 h1 {
-  margin-top: 10px;
+  margin: 10px 0 5px;
 }
 
-/* ボタン */
+/ アニメーション /
+.wave {
+  margin: 15px auto;
+  width: 80%;
+  height: 50px;
+  background: linear-gradient(90deg,#a0c4ff,#bdb2ff,#ffc6ff);
+  background-size: 200% 100%;
+  animation: move 2s infinite linear;
+  border-radius: 10px;
+}
+
+@keyframes move {
+  0% {background-position: 0%;}
+  100% {background-position: 100%;}
+}
+
+/ ボタン /
 .btn {
   display: block;
-  width: 80%;
-  margin: 15px auto;
-  padding: 20px;
+  width: 85%;
+  max-width: 320px;
+  margin: 12px auto;
+  padding: 18px;
   font-size: 18px;
   border-radius: 15px;
   border: none;
@@ -46,28 +66,22 @@ h1 {
   background: #d0ebff;
 }
 
-/* ガンマスイッチ */
+/ ガンマ /
 .switch {
-  margin: 20px;
+  margin: 15px;
+  font-size: 16px;
 }
 
-/* 音量 */
+/ スライダー /
 .slider {
   width: 80%;
 }
 
-/* アニメーション */
-.wave {
-  margin: 20px auto;
-  width: 80%;
-  height: 50px;
-  background: linear-gradient(90deg,#a0c4ff,#bdb2ff,#ffc6ff);
-  background-size: 200% 100%;
-  animation: move 2s infinite linear;
-}
-@keyframes move {
-  0% {background-position: 0%;}
-  100% {background-position: 100%;}
+/ 説明 */
+.desc {
+  font-size: 14px;
+  color: #666;
+  margin-top: 10px;
 }
 </style>
 </head>
@@ -82,26 +96,51 @@ h1 {
 
 <div class="wave"></div>
 
-<button class="btn" onclick="playMusic('seseragi')">せせらぎ</button>
-<button class="btn" onclick="playMusic('kotori')">小鳥</button>
-<button class="btn" onclick="playMusic('debussy')">ピアノ</button>
+<!-- 広告A -->
+<div id="adA">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
+ crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+ style="display:inline-block;width:320px;height:100px"
+ data-ad-client="ca-pub-1299640300068792"
+ data-ad-slot="3000015733"></ins>
+</div>
 
+<!-- 広告B -->
+<div id="adB" style="display:none;">
+<ins class="adsbygoogle"
+ style="display:inline-block;width:320px;height:100px"
+ data-ad-client="ca-pub-1299640300068792"
+ data-ad-slot="9654526170"></ins>
+</div>
+
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+<!-- 音ボタン -->
+<button class="btn" onclick="playMusic('seseragi', this)">せせらぎ</button>
+<button class="btn" onclick="playMusic('kotori', this)">小鳥</button>
+<button class="btn" onclick="playMusic('debussy', this)">ピアノ</button>
+
+<!-- ガンマ -->
 <div class="switch">
   <label>
-    ガンマ波 ON/OFF
-    <input type="checkbox" id="gammaSwitch" onchange="toggleGamma()">
+    ガンマ波（40Hz）ON/OFF
+    <input type="checkbox" id="gammaSwitch">
   </label>
 </div>
 
-<!-- 音量 -->
+<!-- ガンマ音量 -->
 <div>
-  音量<br>
+  ガンマ音量<br>
   <input type="range" min="0" max="1" step="0.1" value="0.5"
-    class="slider" onchange="changeVolume(this.value)">
+    class="slider" onchange="changeGammaVolume(this.value)">
 </div>
 
 <!-- タイマー -->
-<div>
+<div style="margin-top:10px;">
   タイマー（分）<br>
   <select onchange="setTimer(this.value)">
     <option value="0">なし</option>
@@ -111,65 +150,55 @@ h1 {
   </select>
 </div>
 
-<!-- 広告 -->
-<div style="margin-top:20px;">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:inline-block;width:320px;height:100px"
-     data-ad-client="ca-pub-1299640300068792"
-     data-ad-slot="3000015733"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+<div class="desc">
+※音声が流れます。音量にご注意ください。
 </div>
 
-<script>
-// 音源
-const audio = {
-  seseragi: new Audio("music/seseragi.mp3"),
-  kotori: new Audio("music/kotori.mp3"),
-  debussy: new Audio("music/debussy.mp3"),
-  gamma: new Audio("music/gamma.mp3")
-};
+<!-- 音源 -->
+<audio id="seseragi" src="music/seseragi.mp3" loop></audio>
+<audio id="kotori" src="music/kotori.mp3" loop></audio>
+<audio id="debussy" src="music/debussy.mp3" loop></audio>
+<audio id="gamma" src="music/gamma.mp3" loop></audio>
 
+<script>
 let current = null;
 
-// 再生
-function playMusic(name){
-  // 全停止
-  Object.values(audio).forEach(a=>{
-    if(a !== audio.gamma) a.pause();
+// メイン音
+function playMusic(name, btn){
+  const audios = ["seseragi","kotori","debussy"];
+
+  audios.forEach(id=>{
+    document.getElementById(id).pause();
   });
 
-  current = audio[name];
-  current.loop = true;
-  current.play();
-
-  updateButtons(name);
-}
-
-// ボタン色
-function updateButtons(active){
   document.querySelectorAll(".btn").forEach(b=>b.classList.remove("active"));
-  if(active==="seseragi") document.querySelectorAll(".btn")[0].classList.add("active");
-  if(active==="kotori") document.querySelectorAll(".btn")[1].classList.add("active");
-  if(active==="debussy") document.querySelectorAll(".btn")[2].classList.add("active");
+
+  const audio = document.getElementById(name);
+
+  if(current === audio){
+    audio.pause();
+    current = null;
+    return;
+  }
+
+  audio.play();
+  btn.classList.add("active");
+  current = audio;
 }
 
 // ガンマ
-function toggleGamma(){
-  if(document.getElementById("gammaSwitch").checked){
-    audio.gamma.loop = true;
-    audio.gamma.play();
+const gamma = document.getElementById("gamma");
+document.getElementById("gammaSwitch").addEventListener("change", (e)=>{
+  if(e.target.checked){
+    gamma.play();
   }else{
-    audio.gamma.pause();
+    gamma.pause();
   }
-}
+});
 
-// 音量
-function changeVolume(v){
-  Object.values(audio).forEach(a=>a.volume = v);
+// ガンマ音量
+function changeGammaVolume(v){
+  gamma.volume = v;
 }
 
 // タイマー
@@ -178,17 +207,24 @@ function setTimer(min){
   clearTimeout(timer);
   if(min > 0){
     timer = setTimeout(()=>{
-      Object.values(audio).forEach(a=>a.pause());
+      document.querySelectorAll("audio").forEach(a=>a.pause());
       alert("タイマー終了");
     }, min * 60000);
   }
 }
 
-// スリープ防止（簡易）
-let wakeLock = null;
+// 広告切替（90秒）
+let showA = true;
+setInterval(()=>{
+  document.getElementById("adA").style.display = showA ? "none" : "block";
+  document.getElementById("adB").style.display = showA ? "block" : "none";
+  showA = !showA;
+}, 90000);
+
+// スリープ防止
 async function keepAwake(){
   try{
-    wakeLock = await navigator.wakeLock.request('screen');
+    await navigator.wakeLock.request('screen');
   }catch(e){}
 }
 keepAwake();
