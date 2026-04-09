@@ -118,6 +118,29 @@ button:active {
   border-radius: 16px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
+
+/* ===== お知らせ ===== */
+.news-wrap {
+  overflow: hidden;
+  margin: 20px;
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.news-text {
+  white-space: nowrap;
+  display: inline-block;
+  animation: scrollText 12s linear infinite;
+  font-size: 14px;
+  color: #555;
+}
+
+@keyframes scrollText {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
 </style>
 </head>
 
@@ -125,7 +148,8 @@ button:active {
 
 <div class="top-bar">
   <div class="back-space"></div>
-  <button class="setting-btn" onclick="location.href='settings.html'">⚙️</button>
+  <!-- 修正：setting.htmlに変更 -->
+  <button class="setting-btn" onclick="location.href='setting.html'">⚙️</button>
 </div>
 
 <!-- メイン -->
@@ -148,6 +172,13 @@ button:active {
   </button>
 </div>
 
+<!-- ⭐お知らせ追加 -->
+<div class="news-wrap">
+  <div class="news-text">
+    🎉 お知らせ：毎日コツコツ続けて脳トレしよう！ガンマ波サウンドもぜひ使ってみてください♪
+  </div>
+</div>
+
 <!-- 準備画面 -->
 <div id="loading">
   <p>問題を準備しています…</p>
@@ -164,6 +195,7 @@ function startGame() {
 
   document.getElementById("mainUI").style.display = "none";
   document.querySelector(".bottom-card").style.display = "none";
+  document.querySelector(".news-wrap").style.display = "none";
   document.getElementById("loading").style.display = "block";
 
   if (last !== today) {
