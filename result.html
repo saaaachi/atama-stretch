@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>実績</title>
+
+<style>
+body{
+ margin:0;
+ font-family:sans-serif;
+ background:#f5f6fa;
+ text-align:center;
+}
+
+.header{
+ position:fixed;
+ top:0;
+ width:100%;
+ height:60px;
+ background:#fff;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:0 15px;
+}
+
+.back{font-size:20px;}
+.title{font-weight:bold;}
+
+.container{
+ margin-top:80px;
+ padding:20px;
+}
+
+.card{
+ background:#fff;
+ padding:20px;
+ margin:15px 0;
+ border-radius:15px;
+ box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.big{
+ font-size:28px;
+ font-weight:bold;
+}
+
+.badge{
+ display:inline-block;
+ padding:10px 15px;
+ margin:5px;
+ border-radius:20px;
+ background:#dfe6e9;
+}
+
+.unlocked{
+ background:#ffeaa7;
+}
+
+.home{
+ margin-top:30px;
+ padding:20px;
+ width:90%;
+ font-size:22px;
+ border:none;
+ border-radius:15px;
+ background:#74b9ff;
+ color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+ <div class="back" onclick="location.href='index.html'">←</div>
+ <div class="title">実績</div>
+</div>
+
+<div class="container">
+
+<div class="card">
+ <div>プレイ回数</div>
+ <div id="play" class="big"></div>
+</div>
+
+<div class="card">
+ <div>正解率</div>
+ <div id="rate" class="big"></div>
+</div>
+
+<div class="card">
+ <div>連続プレイ日数🔥</div>
+ <div id="streak" class="big"></div>
+</div>
+
+<div class="card">
+ <div>🏆 実績</div>
+ <div id="badges"></div>
+</div>
+
+<button class="home" onclick="location.href='index.html'">
+🏠 ホームへ
+</button>
+
+</div>
+
+<script>
+let totalPlay = Number(localStorage.getItem("totalPlay")||0);
+let totalCorrect = Number(localStorage.getItem("totalCorrect")||0);
+let totalQuestions = Number(localStorage.getItem("totalQuestions")||0);
+let streak = Number(localStorage.getItem("streak")||0);
+
+document.getElementById("play").innerText = totalPlay+"回";
+
+let rate = totalQuestions ? Math.floor((totalCorrect/totalQuestions)*100) : 0;
+document.getElementById("rate").innerText = rate+"%";
+
+document.getElementById("streak").innerText = streak+"日";
+
+let badgesHTML="";
+
+function badge(name,condition){
+ badgesHTML += `<span class="badge ${condition?"unlocked":""}">
+ ${name}
+ </span>`;
+}
+
+// 実績条件
+badge("初プレイ", totalPlay>=1);
+badge("10回プレイ", totalPlay>=10);
+badge("正解率80%", rate>=80);
+badge("3日連続🔥", streak>=3);
+badge("10日連続👑", streak>=10);
+
+document.getElementById("badges").innerHTML = badgesHTML;
+</script>
+
+</body>
+</html>
