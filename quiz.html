@@ -17,7 +17,7 @@ body{
  overflow:hidden;
 }
 
-/* 上 */
+/* ヘッダー */
 .header{
  position:fixed;
  top:0;
@@ -25,13 +25,33 @@ body{
  height:60px;
  background:#fff;
  display:flex;
+ justify-content:space-between;
  align-items:center;
- padding:10px;
+ padding:0 15px;
 }
 
 .back{
  font-size:20px;
  cursor:pointer;
+}
+
+.title{
+ font-size:18px;
+ font-weight:bold;
+}
+
+/* 音楽ボタン */
+.audio-controls{
+ display:flex;
+ gap:8px;
+}
+
+.audio-btn{
+ padding:6px 10px;
+ border:none;
+ border-radius:8px;
+ background:#dfe6e9;
+ font-size:12px;
 }
 
 /* 広告 */
@@ -48,15 +68,15 @@ body{
 }
 
 .question{
- font-size:30px;
+ font-size:32px;
  margin:20px 0;
 }
 
 .btn{
  width:90%;
  margin:10px auto;
- padding:18px;
- font-size:22px;
+ padding:20px;
+ font-size:24px;
  border-radius:15px;
  border:none;
  background:#dfe6e9;
@@ -75,23 +95,20 @@ body{
 }
 
 .card{
- height:70px;
+ height:75px;
  background:#b2bec3;
  border-radius:10px;
  display:flex;
  justify-content:center;
  align-items:center;
- font-size:28px;
- transition:.3s;
+ font-size:30px;
 }
 
 .matched{
  background:#b9fbc0 !important;
- opacity:0.8;
- transform:scale(0.95);
 }
 
-/* ⭐ホームボタン（特大） */
+/* ホーム */
 .big-home-btn{
  width:92%;
  padding:30px;
@@ -101,20 +118,55 @@ body{
  background:#74b9ff;
  color:white;
  margin-top:30px;
- box-shadow:0 8px 20px rgba(0,0,0,0.2);
- transition:0.2s;
 }
 
-.big-home-btn:active{
- transform:scale(0.96);
+/* 波紋 */
+.wave{
+ position:fixed;
+ top:45%;
+ left:50%;
+ transform:translate(-50%,-50%);
+ width:200px;
+ height:200px;
+ pointer-events:none;
+ z-index:999;
 }
+
+.wave::before,.wave::after{
+ content:"";
+ position:absolute;
+ border-radius:50%;
+ border:3px solid rgba(100,150,255,0.4);
+ width:100%;
+ height:100%;
+ animation:ripple 2.5s infinite;
+}
+
+.wave::after{animation-delay:1.2s;}
+
+@keyframes ripple{
+ 0%{transform:scale(.5);opacity:.7;}
+ 100%{transform:scale(2);opacity:0;}
+}
+
+.hidden{display:none;}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-<div class="back" onclick="location.href='index.html'">←</div>
+  <div class="back" onclick="location.href='index.html'">←</div>
+
+  <div class="audio-controls">
+    <button class="audio-btn" onclick="toggleBGM()">BGM</button>
+    <label>
+      γ
+      <input type="checkbox" id="gammaToggle">
+    </label>
+  </div>
+
+  <div class="title">問題</div>
 </div>
 
 <div class="ad" id="adArea">
@@ -131,105 +183,92 @@ data-ad-slot="7107118417"></ins>
 <div id="answers"></div>
 </div>
 
+<div id="waveEffect" class="wave hidden"></div>
+
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 
-/* ===== 設定 ===== */
-let total = Number(localStorage.getItem("questionCount")) || 5;
+/* ===== 音 ===== */
+let bgm = new Audio("music/bgm.mp3");
+bgm.loop = true;
 
+let gamma = new Audio("music/gamma.mp3");
+gamma.loop = true;
+
+let playing = false;
+
+const wave = document.getElementById("waveEffect");
+
+function toggleBGM(){
+ if(playing){
+   bgm.pause();
+   playing=false;
+   stopWave();
+ }else{
+   bgm.play();
+   playing=true;
+   startWave();
+ }
+}
+
+document.getElementById("gammaToggle").addEventListener("change",e=>{
+ if(e.target.checked){
+   gamma.play();
+   startWave();
+ }else{
+   gamma.pause();
+   checkWave();
+ }
+});
+
+function startWave(){ wave.classList.remove("hidden"); }
+function stopWave(){ if(!gamma.paused) return; wave.classList.add("hidden"); }
+function checkWave(){
+ if(!playing && gamma.paused){
+   wave.classList.add("hidden");
+ }
+}
+
+/* ===== 問題 ===== */
+let total = Number(localStorage.getItem("questionCount")) || 5;
 let current = 0;
 let score = 0;
 
-/* ===== データ ===== */
-const josiList = [
-["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
-["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
-["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
-["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
-["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
-];
+const josiList = [["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"]];
+const whichList = [["🐶","🐱","いぬ"],["🍎","🍌","りんご"]];
+const memorySets = [["🍎","🍓","🍊","🍌"]];
 
-const whichList = [
-["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
-["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
-["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
-["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
-["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
-];
-
-const memorySets = [
-["🍎","🍓","🍊","🍌"],
-["🐶","🐱","🐼","🐸"],
-["🚗","🚲","✈️","🚀"]
-];
-
-let used = new Set();
-
-/* ===== 出題 ===== */
 function next(){
 
  document.getElementById("answers").innerHTML="";
 
  if(current>=total){
    document.querySelector(".container").innerHTML=
-   `<h2>🎉 おつかれさまでした！</h2>
-    <p style="font-size:24px">${score} / ${total} 正解！</p>
-    <button class="big-home-btn" onclick="location.href='index.html'">
-    🏠 ホームへ戻る
-    </button>`;
+   `<h2>🎉 おつかれさま！</h2>
+    <p>${score}/${total}</p>
+    <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
    return;
  }
 
  current++;
-
  document.getElementById("progress").innerText=current+" / "+total;
  document.getElementById("last").innerText=(current===total)?"ラスト問題！":"";
 
- if(current % 2 === 1){
-   let ad=document.getElementById("adArea");
-   ad.innerHTML=`<ins class="adsbygoogle"
-   style="display:inline-block;width:320px;height:100px"
-   data-ad-client="ca-pub-1299640300068792"
-   data-ad-slot="7107118417"></ins>`;
-   (adsbygoogle = window.adsbygoogle || []).push({});
- }
-
- if(current === total){
-   startMemory();
-   return;
- }
+ if(current===total){ startMemory(); return; }
 
  let type=Math.random()<0.5?"josi":"which";
 
  if(type==="josi"){
-   let i;
-   do{i=Math.floor(Math.random()*josiList.length);}
-   while(used.has("j"+i));
-   used.add("j"+i);
-
-   let x=josiList[i];
-   let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
-
-   renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
- }
-
- if(type==="which"){
-   let i;
-   do{i=Math.floor(Math.random()*whichList.length);}
-   while(used.has("w"+i));
-   used.add("w"+i);
-
-   let x=whichList[i];
+   let x=josiList[Math.floor(Math.random()*josiList.length)];
+   renderChoice(`${x[0]}【に・で】${x[2]}`,["に","で"],x[1]);
+ }else{
+   let x=whichList[Math.floor(Math.random()*whichList.length)];
    renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
  }
 }
 
-/* ===== 選択問題 ===== */
 function renderChoice(q,choices,answer){
-
  document.getElementById("question").innerText=q;
-
- choices.sort(()=>Math.random()-0.5);
 
  choices.forEach(c=>{
    let btn=document.createElement("button");
@@ -250,12 +289,10 @@ function renderChoice(q,choices,answer){
  });
 }
 
-/* ===== 神経衰弱 ===== */
 function startMemory(){
-
  document.getElementById("question").innerText="神経衰弱";
 
- let set=memorySets[Math.floor(Math.random()*memorySets.length)];
+ let set=memorySets[0];
  let cards=[...set,...set].sort(()=>Math.random()-0.5);
 
  let open=[];
@@ -271,24 +308,18 @@ function startMemory(){
    div.innerText="?";
 
    div.onclick=()=>{
-
-     if(lock) return;
-     if(div.innerText!=="?") return;
+     if(lock||div.innerText!=="?") return;
 
      div.innerText=card;
      open.push({div,card});
 
      if(open.length===2){
-
        lock=true;
-
        let [a,b]=open;
 
        if(a.card===b.card){
-
          a.div.classList.add("matched");
          b.div.classList.add("matched");
-
          matched+=2;
          open=[];
          lock=false;
@@ -299,14 +330,12 @@ function startMemory(){
          }
 
        }else{
-
          setTimeout(()=>{
            a.div.innerText="?";
            b.div.innerText="?";
            open=[];
            lock=false;
          },700);
-
        }
      }
    };
