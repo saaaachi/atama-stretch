@@ -6,13 +6,15 @@
 
 <title>あたまのストレッチ｜無料の脳トレ・高齢者・失語症リハビリサポート</title>
 
-<meta name="description" content="無料で遊べる脳トレゲーム。高齢者・失語症・高次脳機能障害のリハビリの補助として、ご家庭で簡単に続けられます。集中をサポートする音機能も搭載。">
+<meta name="description" content="無料で遊べる脳トレゲーム。高齢者・失語症・高次脳機能障害のリハビリの補助として、ご家庭で簡単に続けられます。集中をサポートするガンマ波サウンド機能も搭載。">
 
-<!-- ⭐ アプリ化 -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff">
-<link rel="apple-touch-icon" href="icon.png">
+<!-- ⭐アイコン -->
+<link rel="icon" href="images/45264BEF-39F8-456E-92BE-7870C79D5AA2.png">
+<link rel="apple-touch-icon" href="images/45264BEF-39F8-456E-92BE-7870C79D5AA2.png">
+
+<!-- ⭐アプリ風 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ff8f8f">
 
 <style>
 body {
@@ -60,15 +62,6 @@ body {
   line-height: 1.6;
 }
 
-.gamma-box{
-  font-size:13px;
-  color:#777;
-  background:#f1f2f6;
-  padding:10px;
-  border-radius:12px;
-  margin-bottom:20px;
-}
-
 .start-btn {
   width: 100%;
   font-size: 22px;
@@ -97,13 +90,52 @@ body {
 .result-btn { color: #4a90e2; }
 .music-btn { color: #4caf50; }
 
+/* ⭐？ボタン */
+.info-btn{
+  margin-left:5px;
+  border:none;
+  background:#eee;
+  border-radius:50%;
+  width:22px;
+  height:22px;
+  font-size:12px;
+}
+
+/* ⭐ポップ */
+.popup{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  width:85%;
+  max-width:300px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  display:none;
+  z-index:999;
+  font-size:14px;
+  line-height:1.6;
+}
+
+.overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.4);
+  display:none;
+  z-index:998;
+}
+
 #loading {
   display: none;
   text-align: center;
   margin-top: 40vh;
 }
 
-/* お知らせ */
 .news-wrap {
   overflow: hidden;
   margin: 20px;
@@ -122,27 +154,6 @@ body {
 @keyframes scrollText {
   0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
-}
-
-/* ⭐ 初回ポップ */
-#firstModal{
- position:fixed;
- top:0;left:0;
- width:100%;height:100%;
- background:rgba(0,0,0,0.6);
- display:none;
- justify-content:center;
- align-items:center;
- z-index:9999;
-}
-
-.modal-box{
- background:white;
- padding:20px;
- border-radius:15px;
- width:85%;
- max-width:400px;
- line-height:1.6;
 }
 </style>
 </head>
@@ -163,13 +174,8 @@ body {
   <div class="title">脳トレ・リハビリサポート</div>
 
   <div class="desc">
-    高齢者の脳トレや、失語症・高次脳機能障害のリハビリの補助として、
-    ご家庭で簡単に続けられます。
-  </div>
-
-  <div class="gamma-box">
-    ガンマ波サウンドで集中サポート。<br>
-    朝は集中、夜はリラックスに使えます。
+    高齢者の脳トレや、失語症・高次脳機能障害のリハビリ補助として、
+    ご家庭で無理なく続けられるように作りました。
   </div>
 
   <button class="start-btn" onclick="startGame()">
@@ -180,68 +186,53 @@ body {
 
 <div class="bottom-card">
   <button class="menu-btn result-btn" onclick="location.href='result.html'">実績</button>
-  <button class="menu-btn music-btn" onclick="location.href='music.html'">音楽</button>
+
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;">
+    <button class="menu-btn music-btn" onclick="location.href='music.html'">
+      音楽
+    </button>
+    <button class="info-btn" onclick="openPopup()">？</button>
+  </div>
 </div>
 
 <div class="news-wrap">
   <div class="news-text">
-    🎉 実績機能＆音楽機能追加！ホーム画面に追加するとアプリみたいに使えます✨
+    🎉 実績機能＆音楽機能追加！毎日続けやすくなりました✨
   </div>
 </div>
 
 <div id="loading">
   <p>問題を準備しています…</p>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
+     crossorigin="anonymous"></script>
+<!-- 頭問題準備中 -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-1299640300068792"
+     data-ad-slot="2165782928"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
 </div>
 
-<!-- ⭐ 初回ポップ -->
-<div id="firstModal">
-  <div class="modal-box">
+<!-- ⭐ポップ -->
+<div class="overlay" id="overlay" onclick="closePopup()"></div>
 
-    <h3>はじめての方へ</h3>
+<div class="popup" id="popup">
+  <b>ガンマ波サウンドについて</b><br><br>
+  ガンマ波（40Hz）のリズム音は、集中したいときに使われることがあります。<br><br>
 
-    <p>
-    脳トレ・高齢者・失語症リハビリ補助として使えるゲームです。
-    </p>
+  ・朝や問題前 → 集中サポート<br>
+  ・夜 → オフでリラックス<br><br>
 
-    <p>
-    ⚙️ 設定から問題を調整できます<br>
-    👪 ご家族・支援者の方にもおすすめです
-    </p>
+  音楽ページ・問題ページでON/OFFできます。<br><br>
 
-    <p>
-    🎵 音楽ページではガンマ波で集中サポート<br>
-    ☀ 朝：集中 / 🌙 夜：リラックス
-    </p>
-
-    <p>
-    📱 ホーム画面に追加するとアプリのように使えます！
-    </p>
-
-    <p style="font-size:12px;color:#666;">
-    ※広告を利用しています（誤タップしにくい配置にしています）
-    </p>
-
-    <button onclick="closeModal()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#74b9ff;color:white;">
-      はじめる
-    </button>
-
-  </div>
+  無理のない範囲でご利用ください。
 </div>
 
 <script>
-
-/* 初回ポップ */
-window.onload = function(){
-  if(!localStorage.getItem("visited")){
-    document.getElementById("firstModal").style.display="flex";
-    localStorage.setItem("visited","true");
-  }
-}
-
-function closeModal(){
-  document.getElementById("firstModal").style.display="none";
-}
-
 function startGame() {
   document.getElementById("mainUI").style.display = "none";
   document.querySelector(".bottom-card").style.display = "none";
@@ -251,6 +242,17 @@ function startGame() {
   setTimeout(()=>{
     location.href="quiz.html";
   },1500);
+}
+
+/* ⭐ポップ操作 */
+function openPopup(){
+  document.getElementById("popup").style.display="block";
+  document.getElementById("overlay").style.display="block";
+}
+
+function closePopup(){
+  document.getElementById("popup").style.display="none";
+  document.getElementById("overlay").style.display="none";
 }
 </script>
 
