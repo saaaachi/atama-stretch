@@ -4,87 +4,77 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- 🔥 タイトル強化 -->
 <title>あたまのストレッチ｜無料の脳トレ・高齢者・失語症リハビリサポート</title>
 
-<!-- 🔥 SEO説明 -->
-<meta name="description" content="無料で遊べる脳トレゲーム。高齢者・失語症・高次脳機能障害のリハビリの補助として、ご家庭で簡単に続けられます。短時間でできる問題を収録。">
+<meta name="description" content="無料で遊べる脳トレゲーム。高齢者・失語症・高次脳機能障害のリハビリの補助として、ご家庭で簡単に続けられます。集中をサポートする音機能も搭載。">
 
 <style>
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-  
   background: #f2f4f7;
-
   max-width: 520px;
   margin: auto;
 }
 
-/* 上バー */
 .top-bar {
   display: flex;
   align-items: center;
   padding: 12px;
 }
 
-.back-space {
-  width: 40px;
-}
+.back-space { width: 40px; }
 
-/* 設定ボタン */
 .setting-btn {
   font-size: 20px;
   border: none;
   background: #ffffff;
   border-radius: 12px;
   padding: 10px;
-
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* メインカード */
 .main-card {
   background: white;
   margin: 20px;
   padding: 30px 20px;
   border-radius: 20px;
-
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-
   text-align: center;
 }
 
-/* タイトル */
 .title {
   font-size: 18px;
   color: #666;
   margin-bottom: 10px;
 }
 
-/* 説明文 */
 .desc {
   font-size: 14px;
   color: #666;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   line-height: 1.6;
 }
 
-/* ボタン */
+/* ⭐ガンマ説明 */
+.gamma-box{
+  font-size:13px;
+  color:#777;
+  background:#f1f2f6;
+  padding:10px;
+  border-radius:12px;
+  margin-bottom:20px;
+  line-height:1.5;
+}
+
 .start-btn {
   width: 100%;
   font-size: 22px;
   padding: 18px;
   border-radius: 16px;
   border: none;
-
   background: linear-gradient(135deg, #ffb3b3, #ff8f8f);
   color: white;
-
-  box-shadow: 0 4px 10px rgba(255, 120, 120, 0.3);
 }
 
-/* 下カード */
 .bottom-card {
   display: flex;
   justify-content: space-between;
@@ -97,32 +87,18 @@ body {
   padding: 20px 0;
   border-radius: 16px;
   border: none;
-  font-size: 16px;
   background: white;
-
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 .result-btn { color: #4a90e2; }
 .music-btn { color: #4caf50; }
 
-button:active { transform: scale(0.97); }
-
-/* 準備画面 */
 #loading {
   display: none;
   text-align: center;
   margin-top: 40vh;
 }
 
-.ad-box {
-  margin-top: 20px;
-  padding: 20px;
-  background: white;
-  border-radius: 16px;
-}
-
-/* お知らせ */
 .news-wrap {
   overflow: hidden;
   margin: 20px;
@@ -136,7 +112,6 @@ button:active { transform: scale(0.97); }
   display: inline-block;
   animation: scrollText 12s linear infinite;
   font-size: 14px;
-  color: #555;
 }
 
 @keyframes scrollText {
@@ -148,7 +123,6 @@ button:active { transform: scale(0.97); }
 
 <body>
 
-<!-- 🔥 SEO用（見えないタイトル） -->
 <h1 style="display:none;">
 無料の脳トレゲーム｜高齢者・失語症・高次脳機能障害のリハビリサポート
 </h1>
@@ -158,17 +132,20 @@ button:active { transform: scale(0.97); }
   <button class="setting-btn" onclick="location.href='setting.html'">⚙️</button>
 </div>
 
-<!-- メイン -->
 <div class="main-card" id="mainUI">
 
-  <!-- 🔥 SEO強化タイトル -->
   <div class="title">脳トレ・リハビリサポート</div>
 
-  <!-- 🔥 SEO最重要テキスト -->
   <div class="desc">
-    高齢者の脳トレや、失語症・高次脳機能障害のリハビリの補助として、<br>
-    ご家庭で簡単にできるように作りました。<br>
-    短時間でできる問題で、無理なく続けられます。
+    高齢者の脳トレや、失語症・高次脳機能障害のリハビリの補助として、
+    ご家庭で簡単にできるように作りました。
+  </div>
+
+  <!-- ⭐ガンマ派説明 -->
+  <div class="gamma-box">
+    ガンマ派サウンドは、一定のリズムで流れる音です。<br>
+    集中したいときや脳トレの補助としてご利用いただけます。<br>
+    音楽ページや問題ページでもオン・オフが可能です。
   </div>
 
   <button class="start-btn" onclick="startGame()">
@@ -177,64 +154,31 @@ button:active { transform: scale(0.97); }
 
 </div>
 
-<!-- 下メニュー -->
 <div class="bottom-card">
-  <button class="menu-btn result-btn" onclick="location.href='result.html'">
-    実績
-  </button>
-
-  <button class="menu-btn music-btn" onclick="location.href='music.html'">
-    音楽
-  </button>
+  <button class="menu-btn result-btn" onclick="location.href='result.html'">実績</button>
+  <button class="menu-btn music-btn" onclick="location.href='music.html'">音楽</button>
 </div>
 
-<!-- お知らせ -->
 <div class="news-wrap">
   <div class="news-text">
-    🎉 お知らせ：現在アップデート中です！新機能（実績・音楽・継続サポート）追加しました✨
+    🎉 実績機能＆音楽機能追加！毎日続けやすくなりました✨
   </div>
 </div>
 
-<!-- 準備画面 -->
 <div id="loading">
   <p>問題を準備しています…</p>
-
-  <div class="ad-box">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
-     crossorigin="anonymous"></script>
-<!-- 頭問題準備中 -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-1299640300068792"
-     data-ad-slot="2165782928"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-  </div>
 </div>
 
 <script>
 function startGame() {
-  const today = new Date().toDateString();
-  const last = localStorage.getItem("lastAdDate");
-
   document.getElementById("mainUI").style.display = "none";
   document.querySelector(".bottom-card").style.display = "none";
   document.querySelector(".news-wrap").style.display = "none";
   document.getElementById("loading").style.display = "block";
 
-  if (last !== today) {
-    localStorage.setItem("lastAdDate", today);
-
-    setTimeout(() => {
-      location.href = "quiz.html";
-    }, 1500);
-
-  } else {
-    location.href = "quiz.html";
-  }
+  setTimeout(()=>{
+    location.href="quiz.html";
+  },1500);
 }
 </script>
 
