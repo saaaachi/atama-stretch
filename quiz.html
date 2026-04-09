@@ -256,13 +256,16 @@ function next(){
  answers.innerHTML="";
  answers.className="";
 
- if(current>=total){
+if(current>=total){
+
+  saveResult(score,total); // ←★これ追加！！！
+
   container.innerHTML=
   `<h2>🎉 おつかれさま！</h2>
    <p>${score}/${total} 正解！</p>
    <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
   return;
- }
+}
 
  current++;
 
@@ -400,7 +403,46 @@ function startMemory(){
   answers.appendChild(div);
  });
 }
+function saveResult(score,total){
 
+ let today = new Date().toDateString();
+
+ let totalPlay = Number(localStorage.getItem("totalPlay")||0);
+ let totalCorrect = Number(localStorage.getItem("totalCorrect")||0);
+ let totalQuestions = Number(localStorage.getItem("totalQuestions")||0);
+ let streak = Number(localStorage.getItem("streak")||0);
+ let last = localStorage.getItem("lastPlayDate");
+
+ // 累計
+ localStorage.setItem("totalPlay", totalPlay+1);
+ localStorage.setItem("totalCorrect", totalCorrect+score);
+ localStorage.setItem("totalQuestions", totalQuestions+total);
+
+ // ストリーク
+ if(last === today){
+   // 同日なら何もしない
+ }else{
+   let yesterday = new Date();
+   yesterday.setDate(yesterday.getDate()-1);
+
+   if(last === yesterday.toDateString()){
+     streak++;
+   }else{
+     streak=1;
+   }
+
+   localStorage.setItem("streak", streak);
+   localStorage.setItem("lastPlayDate", today);
+ }
+
+ // ★カレンダー用
+ let history = JSON.parse(localStorage.getItem("playHistory")||"[]");
+
+ if(!history.includes(today)){
+   history.push(today);
+   localStorage.setItem("playHistory", JSON.stringify(history));
+ }
+}
 next();
 </script>
 
