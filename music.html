@@ -10,10 +10,10 @@ body {
   margin: 0;
   font-family: sans-serif;
   background: #f5f6fa;
-  overflow: hidden;
+  overflow: hidden; /* スクロール禁止 /
 }
 
-/* ヘッダー */
+/ ヘッダー /
 .header {
   display: flex;
   justify-content: space-between;
@@ -36,7 +36,7 @@ body {
   font-weight: bold;
 }
 
-/* レイアウト */
+/ レイアウト /
 .container {
   height: calc(100vh - 70px);
   display: flex;
@@ -45,43 +45,12 @@ body {
   align-items: center;
 }
 
-/* 広告 */
+/ 広告 /
 #ad-area {
   height: 100px;
 }
 
-/* 波紋アニメーション */
-.visual {
-  position: relative;
-  width: 120px;
-  height: 120px;
-}
-
-.circle {
-  position: absolute;
-  border: 3px solid #6fa8dc;
-  border-radius: 50%;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  animation: ripple 2s infinite;
-}
-
-.circle:nth-child(2){ animation-delay: 0.5s; }
-.circle:nth-child(3){ animation-delay: 1s; }
-
-@keyframes ripple {
-  0% {
-    transform: scale(0.3);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
-}
-
-/* 音楽ボタン */
+/ 音楽ボタン /
 .music-btn {
   width: 85%;
   padding: 14px;
@@ -92,7 +61,7 @@ body {
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
 
-/* 枠 */
+/ 枠 /
 .box {
   width: 85%;
   padding: 12px;
@@ -112,6 +81,52 @@ body {
 
 #countdown {
   margin-top: 5px;
+}
+
+/ 波紋アニメーション（レイヤー表示） /
+.wave {
+  position: fixed;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  height: 220px;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.wave::before,
+.wave::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid rgba(100,150,255,0.4);
+  width: 100%;
+  height: 100%;
+  animation: ripple 2.5s infinite ease-out;
+}
+
+.wave::after {
+  animation-delay: 1.2s;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.8);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.hidden {
+  display: none;
 }
 </style>
 </head>
@@ -137,34 +152,24 @@ data-ad-slot="3000015733"></ins>
 <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
 
-  <!-- 波紋 -->
-  <div class="visual" id="visual" style="display:none;">
-    <div class="circle"></div>
-    <div class="circle"></div>
-    <div class="circle"></div>
-  </div>
-
-  <!-- 音楽 -->
+  <!-- 音楽ボタン -->
   <button class="music-btn" onclick="toggleMusic('seseragi.mp3')">せせらぎ</button>
   <button class="music-btn" onclick="toggleMusic('kotori.mp3')">小鳥</button>
   <button class="music-btn" onclick="toggleMusic('debussy.mp3')">ピアノ</button>
 
   <!-- ガンマ -->
   <div class="box">
-    ガンマ波(40Hz)
-    <br>
+    ガンマ波(40Hz)<br>
     <input type="checkbox" id="gammaToggle" onchange="toggleGamma()">
     <br><br>
-    音量
-    <br>
+    音量<br>
     <input type="range" min="0" max="1" step="0.1" value="0.5"
-      onchange="setGammaVolume()">
+      onchange="setGammaVolume(event)">
   </div>
 
   <!-- タイマー -->
   <div class="box">
-    タイマー
-    <br>
+    タイマー<br>
     <button class="timer-btn" onclick="startTimer(3)">3分</button>
     <button class="timer-btn" onclick="startTimer(5)">5分</button>
     <button class="timer-btn" onclick="startTimer(10)">10分</button>
@@ -174,70 +179,94 @@ data-ad-slot="3000015733"></ins>
 
 </div>
 
+<!-- 波紋 -->
+<div id="waveEffect" class="wave hidden"></div>
+
 <script>
-let currentAudio = new Audio();
+let currentAudio = null;
 let currentFile = "";
 let gammaAudio = new Audio("music/gamma.mp3");
 gammaAudio.loop = true;
 
-/* 音楽ON/OFF */
+const wave = document.getElementById("waveEffect");
+
+/ 音楽ON/OFF /
 function toggleMusic(file){
-  if(currentFile === file && !currentAudio.paused){
+  if(currentFile === file && currentAudio){
     currentAudio.pause();
+    currentAudio = null;
     currentFile = "";
-    stopAnimationIfSilent();
-  } else {
-    currentAudio.pause();
-    currentAudio = new Audio("music/" + file);
-    currentAudio.loop = true;
-    currentAudio.play();
-    currentFile = file;
-    startAnimation();
+    stopWave();
+    return;
   }
+
+  if(currentAudio){
+    currentAudio.pause();
+  }
+
+  currentAudio = new Audio("music/" + file);
+  currentAudio.loop = true;
+  currentAudio.play();
+  currentFile = file;
+
+  startWave();
 }
 
-/* ガンマ */
+/ ガンマ /
 function toggleGamma(){
   if(document.getElementById("gammaToggle").checked){
     gammaAudio.play();
-    startAnimation();
+    startWave();
   } else {
     gammaAudio.pause();
-    stopAnimationIfSilent();
+    checkStopWave();
   }
 }
 
-function setGammaVolume(){
-  gammaAudio.volume = event.target.value;
+function setGammaVolume(e){
+  gammaAudio.volume = e.target.value;
 }
 
-/* アニメーション制御 */
-function startAnimation(){
-  document.getElementById("visual").style.display = "block";
+/ 波紋制御 /
+function startWave(){
+  wave.classList.remove("hidden");
 }
 
-function stopAnimationIfSilent(){
-  if(!currentAudio.paused || !gammaAudio.paused) return;
-  document.getElementById("visual").style.display = "none";
+function stopWave(){
+  if(!gammaAudio.paused) return;
+  wave.classList.add("hidden");
 }
 
-/* タイマー */
+function checkStopWave(){
+  if(!currentAudio && gammaAudio.paused){
+    wave.classList.add("hidden");
+  }
+}
+
+/ タイマー */
 let timer;
 
 function startTimer(min){
   clearInterval(timer);
-  let sec = min*60;
+  let sec = min * 60;
 
   timer = setInterval(()=>{
     sec--;
-    document.getElementById("countdown").innerText =
-      Math.floor(sec/60)+":"+("0"+sec%60).slice(-2);
 
-    if(sec<=0){
+    document.getElementById("countdown").innerText =
+      Math.floor(sec/60) + ":" + ("0"+sec%60).slice(-2);
+
+    if(sec <= 0){
       clearInterval(timer);
-      currentAudio.pause();
+
+      if(currentAudio) currentAudio.pause();
       gammaAudio.pause();
-      stopAnimationIfSilent();
+
+      currentAudio = null;
+      currentFile = "";
+
+      wave.classList.add("hidden");
+
       alert("終了しました");
     }
   },1000);
