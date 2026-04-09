@@ -30,7 +30,7 @@ body{
 .title{font-weight:bold;}
 
 .container{
- margin-top:90px; /* ←修正 */
+ margin-top:90px;
  padding:20px;
 }
 
@@ -88,6 +88,20 @@ body{
 .played{
  background:#55efc4;
 }
+
+/* 今日（強調） */
+.today{
+ border:3px solid #0984e3;
+ font-weight:bold;
+ background:#dfe6e9;
+}
+
+/* あと1日表示 */
+.next-goal{
+ margin-top:10px;
+ color:#e17055;
+ font-weight:bold;
+}
 </style>
 </head>
 
@@ -114,6 +128,7 @@ body{
 <div class="card">
  <div>連続プレイ日数🔥</div>
  <div id="streak" class="big"></div>
+ <div id="nextGoal" class="next-goal"></div>
 </div>
 
 <div class="card">
@@ -145,26 +160,34 @@ document.getElementById("rate").innerText = rate+"%";
 
 document.getElementById("streak").innerText = streak+"日";
 
-/* ===== 前回比較（ここがリピート①🔥） ===== */
+/* ===== 前回比較 ===== */
 let lastRate = Number(localStorage.getItem("lastRate")||0);
 
 if(lastRate){
  let diff = rate - lastRate;
 
  if(diff > 0){
-   document.getElementById("compare").innerText =
-   "前回より +" + diff + "% 👍";
+   compare.innerText = "前回より +" + diff + "% 👍";
  }else if(diff < 0){
-   document.getElementById("compare").innerText =
-   "前回より " + diff + "%";
+   compare.innerText = "前回より " + diff + "%";
  }else{
-   document.getElementById("compare").innerText =
-   "前回と同じ！";
+   compare.innerText = "前回と同じ！";
  }
 }
-
-/* 今回の結果を保存 */
 localStorage.setItem("lastRate", rate);
+
+/* ===== あと1日表示（神機能🔥） ===== */
+let nextGoalText = "";
+
+if(streak < 3){
+ nextGoalText = `あと ${3 - streak} 日で3日連続🔥`;
+}else if(streak < 10){
+ nextGoalText = `あと ${10 - streak} 日で10日連続👑`;
+}else{
+ nextGoalText = "すごい！継続中🔥";
+}
+
+document.getElementById("nextGoal").innerText = nextGoalText;
 
 /* ===== バッジ ===== */
 let badgesHTML="";
@@ -196,8 +219,9 @@ for(let i=29;i>=0;i--){
  let str = d.toDateString();
 
  let played = history.includes(str);
+ let isToday = (str === today.toDateString());
 
- calHTML += `<div class="day ${played?"played":""}">
+ calHTML += `<div class="day ${played?"played":""} ${isToday?"today":""}">
  ${d.getDate()}
  </div>`;
 }
