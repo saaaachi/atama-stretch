@@ -30,47 +30,42 @@ body{
  padding:0 15px;
 }
 
-.back{
- font-size:20px;
- cursor:pointer;
-}
+.back{font-size:20px;}
+.title{font-weight:bold;}
 
-.title{
- font-size:18px;
- font-weight:bold;
-}
-
-/* 音楽ボタン */
-.audio-controls{
+/* 上バー */
+.topbar{
  display:flex;
- gap:8px;
+ justify-content:space-between;
+ align-items:center;
+ margin-top:70px;
+ padding:0 15px;
 }
 
-.audio-btn{
- padding:6px 10px;
- border:none;
- border-radius:8px;
- background:#dfe6e9;
+.audio{
+ display:flex;
+ gap:6px;
+ align-items:center;
  font-size:12px;
 }
 
+.audio button{
+ border:none;
+ padding:5px 8px;
+ border-radius:8px;
+ background:#dfe6e9;
+}
+
+.audio input[type="range"]{
+ width:60px;
+}
+
 /* 広告 */
-.ad{
- margin-top:60px;
- text-align:center;
- min-height:110px;
-}
+.ad{text-align:center;min-height:110px;}
 
-/* メイン */
-.container{
- text-align:center;
- padding:15px;
-}
-
-.question{
- font-size:32px;
- margin:20px 0;
-}
+/* 問題 */
+.container{text-align:center;padding:10px;}
+.question{font-size:34px;margin:20px 0;}
 
 .btn{
  width:90%;
@@ -80,10 +75,8 @@ body{
  border-radius:15px;
  border:none;
  background:#dfe6e9;
- transition:.2s;
 }
 
-.btn:active{transform:scale(.95);}
 .correct{background:#81ecec;}
 .wrong{background:#fab1a0;}
 
@@ -104,52 +97,19 @@ body{
  font-size:30px;
 }
 
-.matched{
- background:#b9fbc0 !important;
-}
+.matched{background:#b9fbc0!important;}
 
 /* ホーム */
 .big-home-btn{
  width:92%;
  padding:30px;
  font-size:28px;
- border-radius:22px;
  border:none;
+ border-radius:22px;
  background:#74b9ff;
  color:white;
  margin-top:30px;
 }
-
-/* 波紋 */
-.wave{
- position:fixed;
- top:45%;
- left:50%;
- transform:translate(-50%,-50%);
- width:200px;
- height:200px;
- pointer-events:none;
- z-index:999;
-}
-
-.wave::before,.wave::after{
- content:"";
- position:absolute;
- border-radius:50%;
- border:3px solid rgba(100,150,255,0.4);
- width:100%;
- height:100%;
- animation:ripple 2.5s infinite;
-}
-
-.wave::after{animation-delay:1.2s;}
-
-@keyframes ripple{
- 0%{transform:scale(.5);opacity:.7;}
- 100%{transform:scale(2);opacity:0;}
-}
-
-.hidden{display:none;}
 </style>
 </head>
 
@@ -157,16 +117,17 @@ body{
 
 <div class="header">
   <div class="back" onclick="location.href='index.html'">←</div>
-
-  <div class="audio-controls">
-    <button class="audio-btn" onclick="toggleBGM()">BGM</button>
-    <label>
-      γ
-      <input type="checkbox" id="gammaToggle">
-    </label>
-  </div>
-
   <div class="title">問題</div>
+</div>
+
+<div class="topbar">
+  <div id="progress"></div>
+
+  <div class="audio">
+    <button onclick="toggleBGM()">BGM</button>
+    <label>γ<input type="checkbox" id="gammaToggle"></label>
+    <input type="range" id="gammaVol" min="0" max="1" step="0.1" value="0.5">
+  </div>
 </div>
 
 <div class="ad" id="adArea">
@@ -177,98 +138,134 @@ data-ad-slot="7107118417"></ins>
 </div>
 
 <div class="container">
-<div id="progress"></div>
 <div id="last" style="color:red;font-weight:bold;"></div>
 <div id="question" class="question"></div>
 <div id="answers"></div>
 </div>
 
-<div id="waveEffect" class="wave hidden"></div>
-
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 
 /* ===== 音 ===== */
-let bgm = new Audio("music/bgm.mp3");
-bgm.loop = true;
-
-let gamma = new Audio("music/gamma.mp3");
-gamma.loop = true;
-
-let playing = false;
-
-const wave = document.getElementById("waveEffect");
+let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
+let gamma=new Audio("music/gamma.mp3"); gamma.loop=true; gamma.volume=0.5;
+let playing=false;
 
 function toggleBGM(){
- if(playing){
-   bgm.pause();
-   playing=false;
-   stopWave();
- }else{
-   bgm.play();
-   playing=true;
-   startWave();
- }
+ playing ? bgm.pause() : bgm.play();
+ playing=!playing;
 }
 
-document.getElementById("gammaToggle").addEventListener("change",e=>{
- if(e.target.checked){
-   gamma.play();
-   startWave();
- }else{
-   gamma.pause();
-   checkWave();
- }
-});
-
-function startWave(){ wave.classList.remove("hidden"); }
-function stopWave(){ if(!gamma.paused) return; wave.classList.add("hidden"); }
-function checkWave(){
- if(!playing && gamma.paused){
-   wave.classList.add("hidden");
- }
+gammaToggle.onchange=e=>{
+ e.target.checked ? gamma.play() : gamma.pause();
 }
 
-/* ===== 問題 ===== */
-let total = Number(localStorage.getItem("questionCount")) || 5;
-let current = 0;
-let score = 0;
+gammaVol.oninput=e=>{
+ gamma.volume=e.target.value;
+}
 
-const josiList = [["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"]];
-const whichList = [["🐶","🐱","いぬ"],["🍎","🍌","りんご"]];
-const memorySets = [["🍎","🍓","🍊","🍌"]];
+/* ===== 設定読み込み ===== */
+let total=Number(localStorage.getItem("questionCount"))||5;
 
+let useJosi = localStorage.getItem("useJosi") !== "false";
+let useWhich = localStorage.getItem("useWhich") !== "false";
+let useMemory = localStorage.getItem("useMemory") !== "false";
+
+/* ===== データ ===== */
+const josiList=[
+["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
+["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
+["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
+["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
+["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
+];
+
+const whichList=[
+["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
+["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
+["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
+["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
+["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
+];
+
+const memorySets=[
+["🍎","🍓","🍊","🍌"],
+["🐶","🐱","🐼","🐸"],
+["🚗","🚲","✈️","🚀"]
+];
+
+/* ===== シャッフル ===== */
+function shuffle(arr){
+ return [...arr].sort(()=>Math.random()-0.5);
+}
+
+/* ===== キュー生成 ===== */
+let josiQueue = useJosi ? shuffle(josiList) : [];
+let whichQueue = useWhich ? shuffle(whichList) : [];
+
+let toggleType = true;
+
+let current=0,score=0;
+
+/* ===== 出題 ===== */
 function next(){
 
- document.getElementById("answers").innerHTML="";
+ answers.innerHTML="";
 
  if(current>=total){
-   document.querySelector(".container").innerHTML=
-   `<h2>🎉 おつかれさま！</h2>
-    <p>${score}/${total}</p>
-    <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
-   return;
+  container.innerHTML=
+  `<h2>🎉 おつかれさま！</h2>
+   <p>${score}/${total}</p>
+   <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
+  return;
  }
 
  current++;
- document.getElementById("progress").innerText=current+" / "+total;
- document.getElementById("last").innerText=(current===total)?"ラスト問題！":"";
+ progress.innerText=current+" / "+total;
+ last.innerText=(current===total)?"ラスト問題！":"";
 
- if(current===total){ startMemory(); return; }
+ /* ラスト */
+ if(current===total && useMemory){
+   startMemory();
+   return;
+ }
 
- let type=Math.random()<0.5?"josi":"which";
+ let type;
+
+ if(!useJosi && !useWhich){
+   question.innerText="問題が選択されていません";
+   return;
+ }
+
+ if(!useJosi) type="which";
+ else if(!useWhich) type="josi";
+ else{
+   if(josiQueue.length===0) type="which";
+   else if(whichQueue.length===0) type="josi";
+   else{
+     type = toggleType ? "josi" : "which";
+     toggleType=!toggleType;
+   }
+ }
 
  if(type==="josi"){
-   let x=josiList[Math.floor(Math.random()*josiList.length)];
-   renderChoice(`${x[0]}【に・で】${x[2]}`,["に","で"],x[1]);
- }else{
-   let x=whichList[Math.floor(Math.random()*whichList.length)];
+   let x=josiQueue.pop();
+   let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
+   renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
+ }
+
+ if(type==="which"){
+   let x=whichQueue.pop();
    renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
  }
 }
 
+/* ===== 選択 ===== */
 function renderChoice(q,choices,answer){
- document.getElementById("question").innerText=q;
+
+ question.innerText=q;
+
+ choices.sort(()=>Math.random()-0.5);
 
  choices.forEach(c=>{
    let btn=document.createElement("button");
@@ -276,71 +273,60 @@ function renderChoice(q,choices,answer){
    btn.innerText=c;
 
    btn.onclick=()=>{
-     if(c===answer){
-       btn.classList.add("correct");
-       score++;
-     }else{
-       btn.classList.add("wrong");
-     }
+     if(c===answer){btn.classList.add("correct");score++;}
+     else{btn.classList.add("wrong");}
      setTimeout(next,800);
    };
 
-   document.getElementById("answers").appendChild(btn);
+   answers.appendChild(btn);
  });
 }
 
+/* ===== 神経衰弱 ===== */
 function startMemory(){
- document.getElementById("question").innerText="神経衰弱";
 
- let set=memorySets[0];
- let cards=[...set,...set].sort(()=>Math.random()-0.5);
+ question.innerText="神経衰弱";
 
- let open=[];
- let matched=0;
- let lock=false;
+ let set=memorySets[Math.floor(Math.random()*memorySets.length)];
+ let cards=shuffle([...set,...set]);
 
- let area=document.getElementById("answers");
- area.className="memory";
+ let open=[],matched=0,lock=false;
+
+ answers.className="memory";
 
  cards.forEach(card=>{
-   let div=document.createElement("div");
-   div.className="card";
-   div.innerText="?";
+  let div=document.createElement("div");
+  div.className="card";
+  div.innerText="?";
 
-   div.onclick=()=>{
-     if(lock||div.innerText!=="?") return;
+  div.onclick=()=>{
+   if(lock||div.innerText!=="?")return;
 
-     div.innerText=card;
-     open.push({div,card});
+   div.innerText=card;
+   open.push({div,card});
 
-     if(open.length===2){
-       lock=true;
-       let [a,b]=open;
+   if(open.length===2){
+    lock=true;
+    let[a,b]=open;
 
-       if(a.card===b.card){
-         a.div.classList.add("matched");
-         b.div.classList.add("matched");
-         matched+=2;
-         open=[];
-         lock=false;
+    if(a.card===b.card){
+      a.div.classList.add("matched");
+      b.div.classList.add("matched");
+      matched+=2;
+      open=[];lock=false;
 
-         if(matched===8){
-           score++;
-           setTimeout(next,800);
-         }
+      if(matched===8){score++;setTimeout(next,800);}
+    }else{
+      setTimeout(()=>{
+        a.div.innerText="?";
+        b.div.innerText="?";
+        open=[];lock=false;
+      },700);
+    }
+   }
+  };
 
-       }else{
-         setTimeout(()=>{
-           a.div.innerText="?";
-           b.div.innerText="?";
-           open=[];
-           lock=false;
-         },700);
-       }
-     }
-   };
-
-   area.appendChild(div);
+  answers.appendChild(div);
  });
 }
 
