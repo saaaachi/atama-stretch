@@ -12,7 +12,7 @@ body{
  background:#f5f6fa;
  text-align:center;
 }
-は
+
 .header{
  position:fixed;
  top:0;
@@ -23,13 +23,14 @@ body{
  justify-content:space-between;
  align-items:center;
  padding:0 15px;
+ box-sizing:border-box;
 }
 
 .back{font-size:20px;}
 .title{font-weight:bold;}
 
 .container{
- margin-top:90px;
+ margin-top:90px; /* ←修正 */
  padding:20px;
 }
 
@@ -68,6 +69,25 @@ body{
  background:#74b9ff;
  color:#fff;
 }
+
+/* カレンダー */
+#calendar{
+ display:grid;
+ grid-template-columns:repeat(7,1fr);
+ gap:5px;
+ margin-top:10px;
+}
+
+.day{
+ padding:10px 0;
+ border-radius:8px;
+ font-size:12px;
+ background:#dfe6e9;
+}
+
+.played{
+ background:#55efc4;
+}
 </style>
 </head>
 
@@ -88,6 +108,7 @@ body{
 <div class="card">
  <div>正解率</div>
  <div id="rate" class="big"></div>
+ <div id="compare" style="margin-top:10px;color:#636e72;"></div>
 </div>
 
 <div class="card">
@@ -98,6 +119,11 @@ body{
 <div class="card">
  <div>🏆 実績</div>
  <div id="badges"></div>
+</div>
+
+<div class="card">
+ <div>📅 プレイ履歴</div>
+ <div id="calendar"></div>
 </div>
 
 <button class="home" onclick="location.href='index.html'">
@@ -119,6 +145,28 @@ document.getElementById("rate").innerText = rate+"%";
 
 document.getElementById("streak").innerText = streak+"日";
 
+/* ===== 前回比較（ここがリピート①🔥） ===== */
+let lastRate = Number(localStorage.getItem("lastRate")||0);
+
+if(lastRate){
+ let diff = rate - lastRate;
+
+ if(diff > 0){
+   document.getElementById("compare").innerText =
+   "前回より +" + diff + "% 👍";
+ }else if(diff < 0){
+   document.getElementById("compare").innerText =
+   "前回より " + diff + "%";
+ }else{
+   document.getElementById("compare").innerText =
+   "前回と同じ！";
+ }
+}
+
+/* 今回の結果を保存 */
+localStorage.setItem("lastRate", rate);
+
+/* ===== バッジ ===== */
 let badgesHTML="";
 
 function badge(name,condition){
@@ -127,7 +175,6 @@ function badge(name,condition){
  </span>`;
 }
 
-// 実績条件
 badge("初プレイ", totalPlay>=1);
 badge("10回プレイ", totalPlay>=10);
 badge("正解率80%", rate>=80);
@@ -135,6 +182,27 @@ badge("3日連続🔥", streak>=3);
 badge("10日連続👑", streak>=10);
 
 document.getElementById("badges").innerHTML = badgesHTML;
+
+/* ===== カレンダー ===== */
+let history = JSON.parse(localStorage.getItem("playHistory")||"[]");
+
+let calHTML="";
+let today = new Date();
+
+for(let i=29;i>=0;i--){
+ let d = new Date();
+ d.setDate(today.getDate()-i);
+
+ let str = d.toDateString();
+
+ let played = history.includes(str);
+
+ calHTML += `<div class="day ${played?"played":""}">
+ ${d.getDate()}
+ </div>`;
+}
+
+document.getElementById("calendar").innerHTML = calHTML;
 </script>
 
 </body>
