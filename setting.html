@@ -18,14 +18,13 @@ body{
 /* ヘッダー */
 .header{
  display:flex;
+ justify-content:space-between;
  align-items:center;
  padding:12px;
 }
 
-.back{
- font-size:20px;
- cursor:pointer;
-}
+.back{font-size:20px;}
+.header-title{font-weight:bold;}
 
 /* カード */
 .card{
@@ -62,10 +61,6 @@ select{
 }
 
 /* アコーディオン */
-.accordion{
- margin-top:10px;
-}
-
 .accordion-btn{
  width:100%;
  padding:12px;
@@ -82,7 +77,7 @@ select{
  color:#555;
 }
 
-/* テキストエリア */
+/* テキスト */
 textarea{
  width:100%;
  height:80px;
@@ -109,11 +104,17 @@ textarea{
 <!-- ヘッダー -->
 <div class="header">
  <div class="back" onclick="location.href='index.html'">←</div>
+ <div class="header-title">設定</div>
 </div>
 
 <!-- 問題設定 -->
 <div class="card">
  <div class="title">問題設定</div>
+
+ <div class="toggle">
+  <span>計算問題</span>
+  <input type="checkbox" id="useCalc">
+ </div>
 
  <div class="toggle">
   <span>助詞問題</span>
@@ -142,32 +143,28 @@ textarea{
  </div>
 </div>
 
-<!-- メッセージ投稿 -->
+<!-- メッセージ -->
 <div class="card">
  <div class="title">ご意見・ご要望</div>
  <textarea id="msg"></textarea>
  <button class="send-btn" onclick="sendMsg()">送信</button>
 </div>
 
-<!-- 作成者メッセージ -->
+<!-- 作成者 -->
 <div class="card">
  <button class="accordion-btn" onclick="toggleAcc(this)">＋ 作成者からのメッセージ</button>
  <div class="accordion-content">
 「あたまのストレッチ」をご利用いただき、ありがとうございます。<br><br>
-このゲームは、脳卒中で倒れ失語症になった母のために、家でも少しでもできることはないかと考え、試行錯誤しながら作りました。<br><br>
-リハビリの時間が限られる中で、母と一緒にいろいろ試してきた内容を、ひとつひとつ問題にしています。専門家が作ったものではありませんが、同じように「家で何かしてあげたい」「少しでも頭を使ってほしい」と願うご家族のお役に立てたら嬉しいです。<br><br>
-ぜひゲーム感覚で、無理のないペースで楽しんでください。<br><br>
-もし改善点や「こんな問題があったらいいな」というご要望がありましたら、気軽にメッセージをいただけると励みになります。
+このゲームは、脳卒中で倒れ失語症になった母のために作りました。<br><br>
+ぜひ無理なく楽しんでください。
  </div>
 </div>
 
-<!-- プライバシーポリシー -->
+<!-- プライバシー -->
 <div class="card">
  <button class="accordion-btn" onclick="toggleAcc(this)">＋ プライバシーポリシー</button>
  <div class="accordion-content">
-本アプリでは、広告配信のためにGoogle AdSenseを利用しています。<br><br>
-Googleなどの第三者配信事業者は、Cookieを使用してユーザーの興味に応じた広告を表示することがあります。<br><br>
-Cookieを無効にする設定およびGoogle AdSenseに関する詳細はGoogleのポリシーをご確認ください。
+本アプリではGoogle AdSenseを利用しています。Cookieにより広告が表示される場合があります。
  </div>
 </div>
 
@@ -175,22 +172,20 @@ Cookieを無効にする設定およびGoogle AdSenseに関する詳細はGoogle
 <div class="card">
  <button class="accordion-btn" onclick="toggleAcc(this)">＋ 音源について</button>
  <div class="accordion-content">
-・BGM：変わらない日常（石屋 様 / DOVA-SYNDROME）<br>
-・効果音：効果音ラボ<br>
-・環境音：自作 / フリー素材
+BGM：変わらない日常（石屋 様）<br>
+効果音：効果音ラボ
  </div>
 </div>
 
 <!-- 宣伝 -->
 <div class="card">
  <div class="title">他のゲーム</div>
- <p>他にもシンプルなゲームを作っています。<br>ぜひ遊んでみてください！</p>
- <a href="https://saaaachi.github.io/" target="_blank">👉 ゲーム一覧はこちら</a>
+ <a href="https://saaaachi.github.io/" target="_blank">👉 遊ぶ</a>
 </div>
 
 <script>
-/* ===== 保存 ===== */
-const ids=["useJosi","useWhich","useMemory","questionCount"];
+/* 保存 */
+const ids=["useCalc","useJosi","useWhich","useMemory","questionCount"];
 
 ids.forEach(id=>{
  let el=document.getElementById(id);
@@ -206,21 +201,16 @@ ids.forEach(id=>{
  };
 });
 
-/* ===== アコーディオン ===== */
+/* アコーディオン */
 function toggleAcc(btn){
- let content=btn.nextElementSibling;
- content.style.display = content.style.display==="block" ? "none" : "block";
+ let c=btn.nextElementSibling;
+ c.style.display = c.style.display==="block"?"none":"block";
 }
 
-/* ===== メッセージ ===== */
+/* メッセージ */
 function sendMsg(){
- let text=document.getElementById("msg").value;
-
- if(!text){
-   alert("入力してください");
-   return;
- }
-
+ let t=document.getElementById("msg").value;
+ if(!t){alert("入力してください");return;}
  alert("送信ありがとうございました！");
  document.getElementById("msg").value="";
 }
