@@ -10,14 +10,14 @@ body {
   margin: 0;
   font-family: sans-serif;
   background: #f5f6fa;
-  overflow: hidden; /* スクロール禁止 */
+  overflow: hidden;
 }
 
 /* ヘッダー */
 .header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   padding: 10px 15px;
 }
 
@@ -34,16 +34,15 @@ body {
 .title {
   font-size: 22px;
   font-weight: bold;
-  margin-right: 10px;
 }
 
-/* 全体レイアウト */
+/* レイアウト */
 .container {
   height: calc(100vh - 70px);
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: space-around;
+  align-items: center;
 }
 
 /* 広告 */
@@ -51,17 +50,35 @@ body {
   height: 100px;
 }
 
-/* アニメーション */
+/* 波紋アニメーション */
 .visual {
-  height: 80px;
+  position: relative;
+  width: 120px;
+  height: 120px;
 }
 
-.bar {
-  display: inline-block;
-  width: 8px;
-  margin: 0 2px;
-  background: #6fa8dc;
-  height: 20px;
+.circle {
+  position: absolute;
+  border: 3px solid #6fa8dc;
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  animation: ripple 2s infinite;
+}
+
+.circle:nth-child(2){ animation-delay: 0.5s; }
+.circle:nth-child(3){ animation-delay: 1s; }
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
 }
 
 /* 音楽ボタン */
@@ -85,7 +102,6 @@ body {
   text-align: center;
 }
 
-/* タイマー */
 .timer-btn {
   margin: 5px;
   padding: 8px 12px;
@@ -96,7 +112,6 @@ body {
 
 #countdown {
   margin-top: 5px;
-  font-size: 14px;
 }
 </style>
 </head>
@@ -122,17 +137,22 @@ data-ad-slot="3000015733"></ins>
 <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
 
-  <!-- アニメーション -->
-  <div class="visual" id="visual"></div>
+  <!-- 波紋 -->
+  <div class="visual" id="visual" style="display:none;">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+  </div>
 
-  <!-- 音楽ボタン -->
-  <button class="music-btn" onclick="playMusic('seseragi.mp3')">せせらぎ</button>
-  <button class="music-btn" onclick="playMusic('kotori.mp3')">小鳥</button>
-  <button class="music-btn" onclick="playMusic('debussy.mp3')">ピアノ</button>
+  <!-- 音楽 -->
+  <button class="music-btn" onclick="toggleMusic('seseragi.mp3')">せせらぎ</button>
+  <button class="music-btn" onclick="toggleMusic('kotori.mp3')">小鳥</button>
+  <button class="music-btn" onclick="toggleMusic('debussy.mp3')">ピアノ</button>
 
   <!-- ガンマ -->
   <div class="box">
-    <div>ガンマ波(40Hz)</div>
+    ガンマ波(40Hz)
+    <br>
     <input type="checkbox" id="gammaToggle" onchange="toggleGamma()">
     <br><br>
     音量
@@ -143,7 +163,8 @@ data-ad-slot="3000015733"></ins>
 
   <!-- タイマー -->
   <div class="box">
-    <div>タイマー</div>
+    タイマー
+    <br>
     <button class="timer-btn" onclick="startTimer(3)">3分</button>
     <button class="timer-btn" onclick="startTimer(5)">5分</button>
     <button class="timer-btn" onclick="startTimer(10)">10分</button>
@@ -155,16 +176,24 @@ data-ad-slot="3000015733"></ins>
 
 <script>
 let currentAudio = new Audio();
+let currentFile = "";
 let gammaAudio = new Audio("music/gamma.mp3");
 gammaAudio.loop = true;
 
-/* 音楽再生 */
-function playMusic(file){
-  currentAudio.pause();
-  currentAudio = new Audio("music/" + file);
-  currentAudio.loop = true;
-  currentAudio.play();
-  startAnimation();
+/* 音楽ON/OFF */
+function toggleMusic(file){
+  if(currentFile === file && !currentAudio.paused){
+    currentAudio.pause();
+    currentFile = "";
+    stopAnimationIfSilent();
+  } else {
+    currentAudio.pause();
+    currentAudio = new Audio("music/" + file);
+    currentAudio.loop = true;
+    currentAudio.play();
+    currentFile = file;
+    startAnimation();
+  }
 }
 
 /* ガンマ */
@@ -182,29 +211,14 @@ function setGammaVolume(){
   gammaAudio.volume = event.target.value;
 }
 
-/* アニメーション */
-let animInterval;
-
+/* アニメーション制御 */
 function startAnimation(){
-  if(animInterval) return;
-  const visual = document.getElementById("visual");
-
-  animInterval = setInterval(()=>{
-    visual.innerHTML = "";
-    for(let i=0;i<8;i++){
-      let bar = document.createElement("div");
-      bar.className = "bar";
-      bar.style.height = (20 + Math.random()*60) + "px";
-      visual.appendChild(bar);
-    }
-  },200);
+  document.getElementById("visual").style.display = "block";
 }
 
 function stopAnimationIfSilent(){
   if(!currentAudio.paused || !gammaAudio.paused) return;
-  clearInterval(animInterval);
-  animInterval = null;
-  document.getElementById("visual").innerHTML = "";
+  document.getElementById("visual").style.display = "none";
 }
 
 /* タイマー */
