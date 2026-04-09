@@ -129,12 +129,7 @@ body{
  <div class="title">問題</div>
 </div>
 
-<div class="ad" id="adArea">
-<ins class="adsbygoogle"
-style="display:inline-block;width:320px;height:100px"
-data-ad-client="ca-pub-1299640300068792"
-data-ad-slot="7107118417"></ins>
-</div>
+<div class="ad" id="adArea"></div>
 
 <div class="topbar">
  <div id="progress"></div>
@@ -158,13 +153,11 @@ data-ad-slot="7107118417"></ins>
 </div>
 
 <script>
-(adsbygoogle = window.adsbygoogle || []).push({});
 
 /* ===== 音 ===== */
 let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
 let gamma=new Audio("music/gamma.mp3"); gamma.loop=true;
 
-/* 効果音 */
 let correctSound = new Audio("music/correct.mp3");
 let wrongSound = new Audio("music/wrong.mp3");
 
@@ -195,6 +188,7 @@ gammaToggle.onchange=function(){
 /* ===== 設定 ===== */
 let total=Number(localStorage.getItem("questionCount"))||5;
 
+let useCalc = localStorage.getItem("useCalc") !== "false";
 let useJosi = localStorage.getItem("useJosi") !== "false";
 let useWhich = localStorage.getItem("useWhich") !== "false";
 let useMemory = localStorage.getItem("useMemory") !== "false";
@@ -226,16 +220,41 @@ function shuffle(arr){
  return [...arr].sort(()=>Math.random()-0.5);
 }
 
+/* ===== 計算問題 ===== */
+function generateCalc(){
+ let a,b,op,ans;
+
+ if(Math.random()<0.5){
+   a=Math.floor(Math.random()*11);
+   b=Math.floor(Math.random()*(21-a));
+   ans=a+b; op="+";
+ }else{
+   a=Math.floor(Math.random()*21);
+   b=Math.floor(Math.random()*(a+1));
+   ans=a-b; op="-";
+ }
+
+ let wrong=ans+(Math.random()<0.5?1:-1);
+ if(wrong<0) wrong=ans+2;
+ if(wrong>20) wrong=ans-2;
+
+ return {
+   q:`${a} ${op} ${b} = ?`,
+   choices:[ans,wrong],
+   answer:ans
+ };
+}
+
 let josiQueue = useJosi ? shuffle(josiList) : [];
 let whichQueue = useWhich ? shuffle(whichList) : [];
 
-let toggleType=true;
 let current=0,score=0;
 
 /* ===== 出題 ===== */
 function next(){
 
  answers.innerHTML="";
+ answers.className="";
 
  if(current>=total){
   container.innerHTML=
@@ -246,6 +265,18 @@ function next(){
  }
 
  current++;
+
+ /* ★広告（2問ごと更新） */
+ if(current % 2 === 1){
+   let ad=document.getElementById("adArea");
+   ad.innerHTML=`
+   <ins class="adsbygoogle"
+   style="display:inline-block;width:320px;height:100px"
+   data-ad-client="ca-pub-1299640300068792"
+   data-ad-slot="7107118417"></ins>`;
+   (adsbygoogle = window.adsbygoogle || []).push({});
+ }
+
  progress.innerText=current+" / "+total;
  last.innerText=(current===total)?"ラスト問題！":"";
 
@@ -254,31 +285,32 @@ function next(){
    return;
  }
 
- let type;
+ let types=[];
+ if(useCalc) types.push("calc");
+ if(useJosi) types.push("josi");
+ if(useWhich) types.push("which");
 
- if(!useJosi && !useWhich){
+ if(types.length===0){
    question.innerText="問題が選択されていません";
    return;
  }
 
- if(!useJosi) type="which";
- else if(!useWhich) type="josi";
- else{
-   if(josiQueue.length===0) type="which";
-   else if(whichQueue.length===0) type="josi";
-   else{
-     type = toggleType ? "josi" : "which";
-     toggleType=!toggleType;
-   }
+ let type = types[current % types.length];
+
+ if(type==="calc"){
+   let d=generateCalc();
+   renderChoice(d.q,d.choices,d.answer);
  }
 
  if(type==="josi"){
+   if(josiQueue.length===0) josiQueue=shuffle(josiList);
    let x=josiQueue.pop();
    let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
    renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
  }
 
  if(type==="which"){
+   if(whichQueue.length===0) whichQueue=shuffle(whichList);
    let x=whichQueue.pop();
    renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
  }
@@ -299,12 +331,12 @@ function renderChoice(q,choices,answer){
    btn.onclick=()=>{
      if(c===answer){
        btn.classList.add("correct");
-       correctSound.currentTime = 0;
+       correctSound.currentTime=0;
        correctSound.play();
        score++;
      }else{
        btn.classList.add("wrong");
-       wrongSound.currentTime = 0;
+       wrongSound.currentTime=0;
        wrongSound.play();
      }
      setTimeout(next,800);
@@ -344,7 +376,7 @@ function startMemory(){
     if(a.card===b.card){
       a.div.classList.add("matched");
       b.div.classList.add("matched");
-      correctSound.currentTime = 0;
+      correctSound.currentTime=0;
       correctSound.play();
       matched+=2;
       open=[];lock=false;
@@ -354,7 +386,7 @@ function startMemory(){
         setTimeout(next,800);
       }
     }else{
-      wrongSound.currentTime = 0;
+      wrongSound.currentTime=0;
       wrongSound.play();
       setTimeout(()=>{
         a.div.innerText="?";
