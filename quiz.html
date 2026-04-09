@@ -28,44 +28,55 @@ body{
  justify-content:space-between;
  align-items:center;
  padding:0 15px;
+ box-sizing:border-box; /* ←見切れ防止 */
 }
 
 .back{font-size:20px;}
-.title{font-weight:bold;}
+.title{font-weight:bold;font-size:18px;}
 
-/* 上バー */
+/* 広告 */
+.ad{
+ margin-top:60px;
+ text-align:center;
+ min-height:110px;
+}
+
+/* 上バー（問題数＋音） */
 .topbar{
  display:flex;
  justify-content:space-between;
  align-items:center;
- margin-top:70px;
- padding:0 15px;
+ padding:10px 15px;
 }
 
 .audio{
  display:flex;
- gap:6px;
  align-items:center;
- font-size:12px;
+ gap:8px;
+ font-size:13px;
 }
 
 .audio button{
  border:none;
- padding:5px 8px;
- border-radius:8px;
+ padding:6px 10px;
+ border-radius:10px;
  background:#dfe6e9;
 }
 
 .audio input[type="range"]{
- width:60px;
+ width:70px;
 }
 
-/* 広告 */
-.ad{text-align:center;min-height:110px;}
+/* メイン */
+.container{
+ text-align:center;
+ padding:10px;
+}
 
-/* 問題 */
-.container{text-align:center;padding:10px;}
-.question{font-size:34px;margin:20px 0;}
+.question{
+ font-size:34px;
+ margin:20px 0;
+}
 
 .btn{
  width:90%;
@@ -97,9 +108,11 @@ body{
  font-size:30px;
 }
 
-.matched{background:#b9fbc0!important;}
+.matched{
+ background:#b9fbc0!important;
+}
 
-/* ホーム */
+/* 終了 */
 .big-home-btn{
  width:92%;
  padding:30px;
@@ -115,21 +128,13 @@ body{
 
 <body>
 
+<!-- ヘッダー -->
 <div class="header">
-  <div class="back" onclick="location.href='index.html'">←</div>
-  <div class="title">問題</div>
+ <div class="back" onclick="location.href='index.html'">←</div>
+ <div class="title">問題</div>
 </div>
 
-<div class="topbar">
-  <div id="progress"></div>
-
-  <div class="audio">
-    <button onclick="toggleBGM()">BGM</button>
-    <label>γ<input type="checkbox" id="gammaToggle"></label>
-    <input type="range" id="gammaVol" min="0" max="1" step="0.1" value="0.5">
-  </div>
-</div>
-
+<!-- 広告 -->
 <div class="ad" id="adArea">
 <ins class="adsbygoogle"
 style="display:inline-block;width:320px;height:100px"
@@ -137,10 +142,27 @@ data-ad-client="ca-pub-1299640300068792"
 data-ad-slot="7107118417"></ins>
 </div>
 
-<div class="container">
-<div id="last" style="color:red;font-weight:bold;"></div>
-<div id="question" class="question"></div>
-<div id="answers"></div>
+<!-- 問題数＋音 -->
+<div class="topbar">
+ <div id="progress"></div>
+
+ <div class="audio">
+   <button onclick="toggleBGM()">BGM</button>
+
+   <label>
+     γ
+     <input type="checkbox" id="gammaToggle">
+   </label>
+
+   <input type="range" id="gammaVol" min="0" max="1" step="0.1" value="0.5">
+ </div>
+</div>
+
+<!-- 問題 -->
+<div class="container" id="container">
+ <div id="last" style="color:red;font-weight:bold;"></div>
+ <div id="question" class="question"></div>
+ <div id="answers"></div>
 </div>
 
 <script>
@@ -148,23 +170,33 @@ data-ad-slot="7107118417"></ins>
 
 /* ===== 音 ===== */
 let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
-let gamma=new Audio("music/gamma.mp3"); gamma.loop=true; gamma.volume=0.5;
+let gamma=new Audio("music/gamma.mp3"); gamma.loop=true;
+
 let playing=false;
 
 function toggleBGM(){
- playing ? bgm.pause() : bgm.play();
+ if(playing){bgm.pause();}
+ else{bgm.play();}
  playing=!playing;
 }
 
-gammaToggle.onchange=e=>{
- e.target.checked ? gamma.play() : gamma.pause();
+const gammaToggle=document.getElementById("gammaToggle");
+const gammaSlider=document.getElementById("gammaVol");
+
+gammaSlider.addEventListener("input",function(){
+ gamma.volume=parseFloat(this.value);
+});
+
+gammaToggle.onchange=function(){
+ if(this.checked){
+   gamma.volume=parseFloat(gammaSlider.value);
+   gamma.play();
+ }else{
+   gamma.pause();
+ }
 }
 
-gammaVol.oninput=e=>{
- gamma.volume=e.target.value;
-}
-
-/* ===== 設定読み込み ===== */
+/* ===== 設定 ===== */
 let total=Number(localStorage.getItem("questionCount"))||5;
 
 let useJosi = localStorage.getItem("useJosi") !== "false";
@@ -172,21 +204,21 @@ let useWhich = localStorage.getItem("useWhich") !== "false";
 let useMemory = localStorage.getItem("useMemory") !== "false";
 
 /* ===== データ ===== */
-const josiList=[
-["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
-["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
-["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
-["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
-["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
-];
+const josiList=[...Array(20)].map((_,i)=>[
+ ["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
+ ["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
+ ["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
+ ["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
+ ["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
+][i]);
 
-const whichList=[
-["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
-["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
-["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
-["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
-["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
-];
+const whichList=[...Array(20)].map((_,i)=>[
+ ["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
+ ["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
+ ["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
+ ["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
+ ["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
+][i]);
 
 const memorySets=[
 ["🍎","🍓","🍊","🍌"],
@@ -194,17 +226,14 @@ const memorySets=[
 ["🚗","🚲","✈️","🚀"]
 ];
 
-/* ===== シャッフル ===== */
 function shuffle(arr){
  return [...arr].sort(()=>Math.random()-0.5);
 }
 
-/* ===== キュー生成 ===== */
 let josiQueue = useJosi ? shuffle(josiList) : [];
 let whichQueue = useWhich ? shuffle(whichList) : [];
 
-let toggleType = true;
-
+let toggleType=true;
 let current=0,score=0;
 
 /* ===== 出題 ===== */
@@ -215,7 +244,7 @@ function next(){
  if(current>=total){
   container.innerHTML=
   `<h2>🎉 おつかれさま！</h2>
-   <p>${score}/${total}</p>
+   <p>${score}/${total} 正解！</p>
    <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
   return;
  }
@@ -224,7 +253,6 @@ function next(){
  progress.innerText=current+" / "+total;
  last.innerText=(current===total)?"ラスト問題！":"";
 
- /* ラスト */
  if(current===total && useMemory){
    startMemory();
    return;
@@ -260,7 +288,7 @@ function next(){
  }
 }
 
-/* ===== 選択 ===== */
+/* ===== 選択問題 ===== */
 function renderChoice(q,choices,answer){
 
  question.innerText=q;
@@ -273,8 +301,12 @@ function renderChoice(q,choices,answer){
    btn.innerText=c;
 
    btn.onclick=()=>{
-     if(c===answer){btn.classList.add("correct");score++;}
-     else{btn.classList.add("wrong");}
+     if(c===answer){
+       btn.classList.add("correct");
+       score++;
+     }else{
+       btn.classList.add("wrong");
+     }
      setTimeout(next,800);
    };
 
@@ -315,7 +347,10 @@ function startMemory(){
       matched+=2;
       open=[];lock=false;
 
-      if(matched===8){score++;setTimeout(next,800);}
+      if(matched===8){
+        score++;
+        setTimeout(next,800);
+      }
     }else{
       setTimeout(()=>{
         a.div.innerText="?";
