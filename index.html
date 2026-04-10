@@ -246,6 +246,28 @@ if(ref){
 
   localStorage.setItem("accessLog", JSON.stringify(logs));
 }
+  const ref = document.referrer;
+
+let logs = JSON.parse(localStorage.getItem("accessLog") || "[]");
+
+if(ref){
+  logs.push({
+    date: new Date().toLocaleString(),
+    ref: ref
+  });
+  localStorage.setItem("accessLog", JSON.stringify(logs));
+}
+
+/* ⭐画面に表示 */
+let logArea = document.createElement("div");
+logArea.style.fontSize = "12px";
+logArea.style.padding = "10px";
+logArea.style.background = "#fff";
+logArea.innerHTML = "<b>アクセスログ</b><br>" +
+  logs.map(l => l.date + " / " + l.ref).join("<br>");
+
+document.body.appendChild(logArea);
+  
 function startGame() {
   document.getElementById("mainUI").style.display = "none";
   document.querySelector(".bottom-card").style.display = "none";
