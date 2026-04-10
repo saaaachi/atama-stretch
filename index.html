@@ -233,6 +233,19 @@ body {
 </div>
 
 <script>
+  const ref = document.referrer;
+
+if(ref){
+  console.log("流入元:", ref);
+
+  let logs = JSON.parse(localStorage.getItem("accessLog") || "[]");
+  logs.push({
+    date: new Date().toLocaleString(),
+    ref: ref
+  });
+
+  localStorage.setItem("accessLog", JSON.stringify(logs));
+}
 function startGame() {
   document.getElementById("mainUI").style.display = "none";
   document.querySelector(".bottom-card").style.display = "none";
