@@ -193,6 +193,9 @@ let useJosi = localStorage.getItem("useJosi") !== "false";
 let useWhich = localStorage.getItem("useWhich") !== "false";
 let useMemory = localStorage.getItem("useMemory") !== "false";
 
+/* 神経衰弱がある場合は1問分空ける */
+let normalTotal = useMemory ? total - 1 : total;
+
 /* ===== データ ===== */
 const josiList=[...Array(20)].map((_,i)=>[
  ["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
@@ -256,20 +259,25 @@ function next(){
  answers.innerHTML="";
  answers.className="";
 
-if(current>=total){
-
-  saveResult(score,total); // ←★これ追加！！！
+ if(current >= total){
+  saveResult(score,total);
 
   container.innerHTML=
   `<h2>🎉 おつかれさま！</h2>
    <p>${score}/${total} 正解！</p>
    <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
   return;
-}
+ }
 
  current++;
 
- /* ★広告（2問ごと更新） */
+ /* 神経衰弱 */
+ if(useMemory && current > normalTotal){
+   startMemory();
+   return;
+ }
+
+ /* 広告 */
  if(current % 2 === 1){
    let ad=document.getElementById("adArea");
    ad.innerHTML=`
@@ -282,11 +290,6 @@ if(current>=total){
 
  progress.innerText=current+" / "+total;
  last.innerText=(current===total)?"ラスト問題！":"";
-
- if(current===total && useMemory){
-   startMemory();
-   return;
- }
 
  let types=[];
  if(useCalc) types.push("calc");
@@ -317,36 +320,6 @@ if(current>=total){
    let x=whichQueue.pop();
    renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
  }
-}
-
-/* ===== 選択問題 ===== */
-function renderChoice(q,choices,answer){
-
- question.innerText=q;
-
- choices.sort(()=>Math.random()-0.5);
-
- choices.forEach(c=>{
-   let btn=document.createElement("button");
-   btn.className="btn";
-   btn.innerText=c;
-
-   btn.onclick=()=>{
-     if(c===answer){
-       btn.classList.add("correct");
-       correctSound.currentTime=0;
-       correctSound.play();
-       score++;
-     }else{
-       btn.classList.add("wrong");
-       wrongSound.currentTime=0;
-       wrongSound.play();
-     }
-     setTimeout(next,800);
-   };
-
-   answers.appendChild(btn);
- });
 }
 
 /* ===== 神経衰弱 ===== */
@@ -384,7 +357,7 @@ function startMemory(){
       matched+=2;
       open=[];lock=false;
 
-      if(matched===8){
+      if(matched===6){
         score++;
         setTimeout(next,800);
       }
@@ -403,6 +376,8 @@ function startMemory(){
   answers.appendChild(div);
  });
 }
+
+/* ===== 実績保存 ===== */
 function saveResult(score,total){
 
  let today = new Date().toDateString();
@@ -413,15 +388,11 @@ function saveResult(score,total){
  let streak = Number(localStorage.getItem("streak")||0);
  let last = localStorage.getItem("lastPlayDate");
 
- // 累計
  localStorage.setItem("totalPlay", totalPlay+1);
  localStorage.setItem("totalCorrect", totalCorrect+score);
  localStorage.setItem("totalQuestions", totalQuestions+total);
 
- // ストリーク
- if(last === today){
-   // 同日なら何もしない
- }else{
+ if(last !== today){
    let yesterday = new Date();
    yesterday.setDate(yesterday.getDate()-1);
 
@@ -435,7 +406,6 @@ function saveResult(score,total){
    localStorage.setItem("lastPlayDate", today);
  }
 
- // ★カレンダー用
  let history = JSON.parse(localStorage.getItem("playHistory")||"[]");
 
  if(!history.includes(today)){
@@ -443,6 +413,7 @@ function saveResult(score,total){
    localStorage.setItem("playHistory", JSON.stringify(history));
  }
 }
+
 next();
 </script>
 
