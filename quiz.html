@@ -26,7 +26,6 @@ body{
  justify-content:space-between;
  align-items:center;
  padding:0 15px;
- box-sizing:border-box;
 }
 
 .ad{
@@ -84,17 +83,6 @@ body{
 .matched{
  background:#b9fbc0!important;
 }
-
-.big-home-btn{
- width:92%;
- padding:30px;
- font-size:28px;
- border:none;
- border-radius:22px;
- background:#74b9ff;
- color:white;
- margin-top:30px;
-}
 </style>
 </head>
 
@@ -109,15 +97,48 @@ body{
 
 <div class="topbar">
  <div id="progress"></div>
+
+ <!-- ★音復活 -->
+ <div>
+   <button onclick="toggleBGM()">BGM</button>
+   γ<input type="checkbox" id="gammaToggle">
+   <input type="range" id="gammaVol" min="0" max="1" step="0.1" value="0.5">
+ </div>
 </div>
 
 <div class="container" id="container">
- <div id="last" style="color:red;font-weight:bold;"></div>
+ <div id="last"></div>
  <div id="question" class="question"></div>
  <div id="answers"></div>
 </div>
 
 <script>
+
+/* ===== 音 ===== */
+let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
+let gamma=new Audio("music/gamma.mp3"); gamma.loop=true;
+let correctSound=new Audio("music/correct.mp3");
+let wrongSound=new Audio("music/wrong.mp3");
+
+let playing=false;
+
+function toggleBGM(){
+ playing ? bgm.pause() : bgm.play();
+ playing=!playing;
+}
+
+gammaToggle.onchange=function(){
+ if(this.checked){
+   gamma.volume=gammaVol.value;
+   gamma.play();
+ }else{
+   gamma.pause();
+ }
+};
+
+gammaVol.oninput=function(){
+ gamma.volume=this.value;
+};
 
 /* ===== 設定 ===== */
 let total=Number(localStorage.getItem("questionCount"))||5;
@@ -129,27 +150,27 @@ let useMemory = localStorage.getItem("useMemory") !== "false";
 
 let normalTotal = useMemory ? total - 1 : total;
 
-/* ===== データ（20問そのまま維持） ===== */
-const josiList=[
+/* ===== データ ===== */
+const josiList=[...Array(20)].map((_,i)=>[
  ["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
  ["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
  ["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
  ["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
  ["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
-];
+][i]);
 
-const whichList=[
+const whichList=[...Array(20)].map((_,i)=>[
  ["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
  ["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
  ["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
  ["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
  ["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
-];
+][i]);
 
 const memorySets=[
- ["🍎","🍊","🍌"],
- ["🐶","🐱","🐼"],
- ["🚗","🚲","✈️"]
+["🍎","🍊","🍌"],
+["🐶","🐱","🐼"],
+["🚗","🚲","✈️"]
 ];
 
 function shuffle(arr){
@@ -164,60 +185,55 @@ let current=0,score=0;
 /* ===== 出題 ===== */
 function next(){
 
+ // ★完全リセット（これが超重要）
+ question.innerText="";
  answers.innerHTML="";
  answers.className="";
 
- if(current >= total){
-  container.innerHTML=
-  `<h2>🎉 おつかれさま！</h2>
-   <p>${score}/${total} 正解！</p>
-   <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
+ if(current>=total){
+  container.innerHTML=`<h2>🎉 おつかれさま！</h2>
+  <p>${score}/${total}</p>`;
   return;
  }
 
  current++;
 
- /* ===== 神経衰弱（最後） ===== */
- if(useMemory && current > normalTotal){
-   startMemory();
-   return;
+ /* 神経衰弱 */
+ if(useMemory && current>normalTotal){
+  startMemory();
+  return;
  }
 
- /* ===== ★広告（安定版） ===== */
- if(current % 2 === 1){
-   let ad=document.getElementById("adArea");
-
-   ad.innerHTML = `
-   <ins class="adsbygoogle"
-     style="display:inline-block;width:320px;height:100px"
-     data-ad-client="ca-pub-1299640300068792"
-     data-ad-slot="7107118417"></ins>
-   `;
-
-   (adsbygoogle = window.adsbygoogle || []).push({});
+ /* ★広告（安定版） */
+ if(current%2===1){
+  adArea.innerHTML=`
+  <ins class="adsbygoogle"
+   style="display:inline-block;width:320px;height:100px"
+   data-ad-client="ca-pub-1299640300068792"
+   data-ad-slot="7107118417"></ins>`;
+  (adsbygoogle=window.adsbygoogle||[]).push({});
  }
 
  progress.innerText=current+" / "+total;
- last.innerText=(current===total)?"ラスト問題！":"";
 
  let types=[];
  if(useCalc) types.push("calc");
  if(useJosi) types.push("josi");
  if(useWhich) types.push("which");
 
- let type = types[current % types.length];
+ let type=types[Math.floor(Math.random()*types.length)];
 
  if(type==="josi"){
-   if(josiQueue.length===0) josiQueue=shuffle(josiList);
-   let x=josiQueue.pop();
-   let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
-   renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
+  if(josiQueue.length===0) josiQueue=shuffle(josiList);
+  let x=josiQueue.pop();
+  let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
+  renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
  }
 
  if(type==="which"){
-   if(whichQueue.length===0) whichQueue=shuffle(whichList);
-   let x=whichQueue.pop();
-   renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
+  if(whichQueue.length===0) whichQueue=shuffle(whichList);
+  let x=whichQueue.pop();
+  renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
  }
 }
 
@@ -228,25 +244,27 @@ function renderChoice(q,choices,answer){
  choices.sort(()=>Math.random()-0.5);
 
  choices.forEach(c=>{
-   let btn=document.createElement("button");
-   btn.className="btn";
-   btn.innerText=c;
+  let btn=document.createElement("button");
+  btn.className="btn";
+  btn.innerText=c;
 
-   btn.onclick=()=>{
-     if(c===answer){
-       btn.classList.add("correct");
-       score++;
-     }else{
-       btn.classList.add("wrong");
-     }
-     setTimeout(next,800);
-   };
+  btn.onclick=()=>{
+   if(c===answer){
+    btn.classList.add("correct");
+    correctSound.play();
+    score++;
+   }else{
+    btn.classList.add("wrong");
+    wrongSound.play();
+   }
+   setTimeout(next,800);
+  };
 
-   answers.appendChild(btn);
+  answers.appendChild(btn);
  });
 }
 
-/* ===== 神経衰弱（3ペア） ===== */
+/* ===== 神経衰弱 ===== */
 function startMemory(){
 
  question.innerText="神経衰弱";
@@ -276,6 +294,7 @@ function startMemory(){
     if(a.card===b.card){
       a.div.classList.add("matched");
       b.div.classList.add("matched");
+      correctSound.play();
       matched+=2;
       open=[];lock=false;
 
@@ -284,6 +303,7 @@ function startMemory(){
         setTimeout(next,800);
       }
     }else{
+      wrongSound.play();
       setTimeout(()=>{
         a.div.innerText="?";
         b.div.innerText="?";
