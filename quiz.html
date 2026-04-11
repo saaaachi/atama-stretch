@@ -3,25 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>問題</title>
 
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
 crossorigin="anonymous"></script>
 
 <style>
-body{margin:0;font-family:sans-serif;background:#f5f6fa;overflow:hidden;}
-.header{position:fixed;top:0;width:100%;height:60px;background:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 15px;}
-.ad{margin-top:60px;text-align:center;min-height:110px;}
-.topbar{display:flex;justify-content:space-between;padding:10px 15px;}
-.container{text-align:center;padding:10px;}
-.question{font-size:34px;margin:20px 0;}
-.btn{width:90%;margin:10px auto;padding:20px;font-size:24px;border-radius:15px;border:none;background:#dfe6e9;}
+body{
+ margin:0;
+ font-family:sans-serif;
+ background:#f5f6fa;
+}
+
+/* ヘッダー */
+.header{
+ position:fixed;
+ top:0;
+ width:100%;
+ height:60px;
+ background:#fff;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:0 15px;
+ box-sizing:border-box;
+ z-index:10;
+}
+
+.ad{
+ margin-top:60px;
+ text-align:center;
+ min-height:110px;
+}
+
+.topbar{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:10px 15px;
+}
+
+.container{
+ text-align:center;
+ padding:10px;
+}
+
+.question{
+ font-size:34px;
+ margin:20px 0;
+}
+
+.btn{
+ width:90%;
+ margin:10px auto;
+ padding:20px;
+ font-size:24px;
+ border-radius:15px;
+ border:none;
+ background:#dfe6e9;
+}
+
 .correct{background:#81ecec;}
 .wrong{background:#fab1a0;}
-.memory{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.card{height:75px;background:#b2bec3;border-radius:10px;display:flex;justify-content:center;align-items:center;font-size:30px;}
+
+.memory{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:10px;
+}
+
+.card{
+ height:80px;
+ background:#b2bec3;
+ border-radius:10px;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ font-size:30px;
+}
+
 .matched{background:#b9fbc0!important;}
-.big-home-btn{width:92%;padding:30px;font-size:28px;border:none;border-radius:22px;background:#74b9ff;color:white;margin-top:30px;}
+
+.big-home-btn{
+ width:92%;
+ padding:25px;
+ font-size:24px;
+ border:none;
+ border-radius:20px;
+ background:#74b9ff;
+ color:white;
+ margin-top:30px;
+}
 </style>
 </head>
 
@@ -36,46 +109,57 @@ body{margin:0;font-family:sans-serif;background:#f5f6fa;overflow:hidden;}
 
 <div class="topbar">
  <div id="progress"></div>
+
+ <div>
+   <button onclick="toggleBGM()">BGM</button>
+   γ <input type="checkbox" id="gammaToggle">
+ </div>
 </div>
 
 <div class="container" id="container">
- <div id="last" style="color:red;font-weight:bold;"></div>
+ <div id="last" style="color:red;"></div>
  <div id="question" class="question"></div>
  <div id="answers"></div>
 </div>
 
 <script>
 
-/* ===== 要素取得（←超重要） ===== */
-const question = document.getElementById("question");
-const answers = document.getElementById("answers");
-const progress = document.getElementById("progress");
-const last = document.getElementById("last");
-const container = document.getElementById("container");
+/* ===== 音 ===== */
+let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
+let gamma=new Audio("music/gamma.mp3"); gamma.loop=true;
+let correctSound=new Audio("music/correct.mp3");
+let wrongSound=new Audio("music/wrong.mp3");
+
+function toggleBGM(){ bgm.paused?bgm.play():bgm.pause(); }
+
+document.getElementById("gammaToggle").onchange=function(){
+ this.checked?gamma.play():gamma.pause();
+};
 
 /* ===== 設定 ===== */
-let total = Number(localStorage.getItem("questionCount")) || 5;
-
+let total=Number(localStorage.getItem("questionCount"))||5;
 let useCalc = localStorage.getItem("useCalc") !== "false";
 let useJosi = localStorage.getItem("useJosi") !== "false";
 let useWhich = localStorage.getItem("useWhich") !== "false";
 let useMemory = localStorage.getItem("useMemory") !== "false";
 
-/* ===== データ ===== */
+let normalTotal = useMemory ? total-1 : total;
+
+/* ===== 問題 ===== */
 const josiList=[
-["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
-["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
-["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
-["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
-["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
+ ["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
+ ["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
+ ["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
+ ["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
+ ["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
 ];
 
 const whichList=[
-["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
-["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
-["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
-["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
-["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
+ ["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
+ ["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
+ ["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
+ ["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
+ ["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
 ];
 
 const memorySets=[
@@ -84,36 +168,12 @@ const memorySets=[
 ["🚗","🚲","✈️"]
 ];
 
-function shuffle(arr){
- return [...arr].sort(()=>Math.random()-0.5);
-}
+function shuffle(a){return [...a].sort(()=>Math.random()-0.5);}
 
-/* ===== 計算 ===== */
-function generateCalc(){
- let a=Math.floor(Math.random()*10);
- let b=Math.floor(Math.random()*10);
- let ans=a+b;
- let wrong=ans+1;
- return {q:`${a}+${b}=?`,choices:[ans,wrong],answer:ans};
-}
-
-/* ===== 初期化 ===== */
-let josiQueue = shuffle(josiList);
-let whichQueue = shuffle(whichList);
+let josiQueue=shuffle(josiList);
+let whichQueue=shuffle(whichList);
 
 let current=0,score=0;
-let didMemory=false;
-let lastType="";
-
-/* ===== タイプランダム ===== */
-function getRandomType(types){
- let t;
- do{
-   t = types[Math.floor(Math.random()*types.length)];
- }while(t === lastType && types.length > 1);
- lastType = t;
- return t;
-}
 
 /* ===== 出題 ===== */
 function next(){
@@ -121,129 +181,112 @@ function next(){
  answers.innerHTML="";
  answers.className="";
 
- if(current >= total){
-
-   if(useMemory && !didMemory){
-     didMemory=true;
-     startMemory();
-     return;
-   }
-
-   container.innerHTML=
-   `<h2>🎉 おつかれさま！</h2>
-    <p>${score}/${total} 正解！</p>
-    <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
-   return;
+ if(current>=total){
+  container.innerHTML=`<h2>終了！</h2><p>${score}/${total}</p>
+  <button class="big-home-btn" onclick="location.href='index.html'">ホーム</button>`;
+  return;
  }
 
  current++;
 
+ /* 神経衰弱 */
+ if(useMemory && current>normalTotal){
+  startMemory();
+  return;
+ }
+
+ /* 広告 */
+ if(current%2===1){
+  adArea.innerHTML=`<ins class="adsbygoogle"
+  style="display:block"
+  data-ad-client="ca-pub-1299640300068792"
+  data-ad-slot="7107118417"></ins>`;
+  (adsbygoogle=window.adsbygoogle||[]).push({});
+ }
+
  progress.innerText=current+" / "+total;
- last.innerText=(current===total)?"ラスト問題！":"";
+ last.innerText=(current===total)?"ラスト！":"";
 
  let types=[];
  if(useCalc) types.push("calc");
  if(useJosi) types.push("josi");
  if(useWhich) types.push("which");
 
- if(types.length===0){
-   question.innerText="問題が選択されていません";
-   return;
- }
-
- let type = getRandomType(types);
+ let type=types[Math.floor(Math.random()*types.length)];
 
  if(type==="calc"){
-   let d=generateCalc();
-   renderChoice(d.q,d.choices,d.answer);
+  let a=Math.floor(Math.random()*10);
+  let b=Math.floor(Math.random()*10);
+  let ans=a+b;
+  render(`${a}+${b}=?`,[ans,ans+1],ans);
  }
 
  if(type==="josi"){
-   if(josiQueue.length===0) josiQueue=shuffle(josiList);
-   let x=josiQueue.pop();
-   let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
-   renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
+  if(josiQueue.length===0) josiQueue=shuffle(josiList);
+  let x=josiQueue.pop();
+  let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
+  render(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
  }
 
  if(type==="which"){
-   if(whichQueue.length===0) whichQueue=shuffle(whichList);
-   let x=whichQueue.pop();
-   renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
+  if(whichQueue.length===0) whichQueue=shuffle(whichList);
+  let x=whichQueue.pop();
+  render(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
  }
 }
 
-/* ===== 選択 ===== */
-function renderChoice(q,choices,answer){
-
+function render(q,choices,ans){
  question.innerText=q;
-
- choices.sort(()=>Math.random()-0.5);
-
- choices.forEach(c=>{
-   let btn=document.createElement("button");
-   btn.className="btn";
-   btn.innerText=c;
-
-   btn.onclick=()=>{
-     if(c===answer){
-       btn.classList.add("correct");
-       score++;
-     }else{
-       btn.classList.add("wrong");
-     }
-     setTimeout(next,600);
-   };
-
-   answers.appendChild(btn);
+ shuffle(choices).forEach(c=>{
+  let b=document.createElement("button");
+  b.className="btn";
+  b.innerText=c;
+  b.onclick=()=>{
+   if(c===ans){b.classList.add("correct");correctSound.play();score++;}
+   else{b.classList.add("wrong");wrongSound.play();}
+   setTimeout(next,800);
+  };
+  answers.appendChild(b);
  });
 }
 
-/* ===== 神経衰弱（3ペア） ===== */
+/* ===== 神経衰弱 ===== */
 function startMemory(){
-
  question.innerText="神経衰弱";
 
- let set=memorySets[Math.floor(Math.random()*memorySets.length)];
+ let set=memorySets[Math.floor(Math.random()*3)];
  let cards=shuffle([...set,...set]);
 
- let open=[],matched=0,lock=false;
-
+ let open=[],match=0,lock=false;
  answers.className="memory";
 
- cards.forEach(card=>{
-  let div=document.createElement("div");
-  div.className="card";
-  div.innerText="?";
+ cards.forEach(c=>{
+  let d=document.createElement("div");
+  d.className="card";
+  d.innerText="?";
 
-  div.onclick=()=>{
-   if(lock||div.innerText!=="?")return;
-
-   div.innerText=card;
-   open.push({div,card});
+  d.onclick=()=>{
+   if(lock||d.innerText!=="?")return;
+   d.innerText=c;
+   open.push({d,c});
 
    if(open.length===2){
     lock=true;
     let[a,b]=open;
-
-    if(a.card===b.card){
-      matched+=2;
-      open=[];lock=false;
-
-      if(matched===6){
-        score++;
-        setTimeout(next,800);
-      }
+    if(a.c===b.c){
+     a.d.classList.add("matched");
+     b.d.classList.add("matched");
+     correctSound.play();
+     match+=2;
+     open=[];lock=false;
+     if(match===6){score++;setTimeout(next,800);}
     }else{
-      setTimeout(()=>{
-        a.div.innerText="?";
-        b.div.innerText="?";
-        open=[];lock=false;
-      },600);
+     wrongSound.play();
+     setTimeout(()=>{a.d.innerText="?";b.d.innerText="?";open=[];lock=false;},700);
     }
    }
   };
-
-  answers.appendChild(div);
+  answers.appendChild(d);
  });
 }
 
