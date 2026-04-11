@@ -16,7 +16,6 @@ body{
  background:#f5f6fa;
 }
 
-/* ヘッダー */
 .header{
  position:fixed;
  top:0;
@@ -28,7 +27,6 @@ body{
  align-items:center;
  padding:0 15px;
  box-sizing:border-box;
- z-index:10;
 }
 
 .ad{
@@ -83,14 +81,16 @@ body{
  font-size:30px;
 }
 
-.matched{background:#b9fbc0!important;}
+.matched{
+ background:#b9fbc0!important;
+}
 
 .big-home-btn{
  width:92%;
- padding:25px;
- font-size:24px;
+ padding:30px;
+ font-size:28px;
  border:none;
- border-radius:20px;
+ border-radius:22px;
  background:#74b9ff;
  color:white;
  margin-top:30px;
@@ -109,43 +109,27 @@ body{
 
 <div class="topbar">
  <div id="progress"></div>
-
- <div>
-   <button onclick="toggleBGM()">BGM</button>
-   γ <input type="checkbox" id="gammaToggle">
- </div>
 </div>
 
 <div class="container" id="container">
- <div id="last" style="color:red;"></div>
+ <div id="last" style="color:red;font-weight:bold;"></div>
  <div id="question" class="question"></div>
  <div id="answers"></div>
 </div>
 
 <script>
 
-/* ===== 音 ===== */
-let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
-let gamma=new Audio("music/gamma.mp3"); gamma.loop=true;
-let correctSound=new Audio("music/correct.mp3");
-let wrongSound=new Audio("music/wrong.mp3");
-
-function toggleBGM(){ bgm.paused?bgm.play():bgm.pause(); }
-
-document.getElementById("gammaToggle").onchange=function(){
- this.checked?gamma.play():gamma.pause();
-};
-
 /* ===== 設定 ===== */
 let total=Number(localStorage.getItem("questionCount"))||5;
+
 let useCalc = localStorage.getItem("useCalc") !== "false";
 let useJosi = localStorage.getItem("useJosi") !== "false";
 let useWhich = localStorage.getItem("useWhich") !== "false";
 let useMemory = localStorage.getItem("useMemory") !== "false";
 
-let normalTotal = useMemory ? total-1 : total;
+let normalTotal = useMemory ? total - 1 : total;
 
-/* ===== 問題 ===== */
+/* ===== データ（20問そのまま維持） ===== */
 const josiList=[
  ["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
  ["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
@@ -163,15 +147,17 @@ const whichList=[
 ];
 
 const memorySets=[
-["🍎","🍊","🍌"],
-["🐶","🐱","🐼"],
-["🚗","🚲","✈️"]
+ ["🍎","🍊","🍌"],
+ ["🐶","🐱","🐼"],
+ ["🚗","🚲","✈️"]
 ];
 
-function shuffle(a){return [...a].sort(()=>Math.random()-0.5);}
+function shuffle(arr){
+ return [...arr].sort(()=>Math.random()-0.5);
+}
 
-let josiQueue=shuffle(josiList);
-let whichQueue=shuffle(whichList);
+let josiQueue = useJosi ? shuffle(josiList) : [];
+let whichQueue = useWhich ? shuffle(whichList) : [];
 
 let current=0,score=0;
 
@@ -181,112 +167,133 @@ function next(){
  answers.innerHTML="";
  answers.className="";
 
- if(current>=total){
-  container.innerHTML=`<h2>終了！</h2><p>${score}/${total}</p>
-  <button class="big-home-btn" onclick="location.href='index.html'">ホーム</button>`;
+ if(current >= total){
+  container.innerHTML=
+  `<h2>🎉 おつかれさま！</h2>
+   <p>${score}/${total} 正解！</p>
+   <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
   return;
  }
 
  current++;
 
- /* 神経衰弱 */
- if(useMemory && current>normalTotal){
-  startMemory();
-  return;
+ /* ===== 神経衰弱（最後） ===== */
+ if(useMemory && current > normalTotal){
+   startMemory();
+   return;
  }
 
- /* 広告 */
- if(current%2===1){
-  adArea.innerHTML=`<ins class="adsbygoogle"
-  style="display:block"
-  data-ad-client="ca-pub-1299640300068792"
-  data-ad-slot="7107118417"></ins>`;
-  (adsbygoogle=window.adsbygoogle||[]).push({});
+ /* ===== ★広告（安定版） ===== */
+ if(current % 2 === 1){
+   let ad=document.getElementById("adArea");
+
+   ad.innerHTML = `
+   <ins class="adsbygoogle"
+     style="display:inline-block;width:320px;height:100px"
+     data-ad-client="ca-pub-1299640300068792"
+     data-ad-slot="7107118417"></ins>
+   `;
+
+   (adsbygoogle = window.adsbygoogle || []).push({});
  }
 
  progress.innerText=current+" / "+total;
- last.innerText=(current===total)?"ラスト！":"";
+ last.innerText=(current===total)?"ラスト問題！":"";
 
  let types=[];
  if(useCalc) types.push("calc");
  if(useJosi) types.push("josi");
  if(useWhich) types.push("which");
 
- let type=types[Math.floor(Math.random()*types.length)];
-
- if(type==="calc"){
-  let a=Math.floor(Math.random()*10);
-  let b=Math.floor(Math.random()*10);
-  let ans=a+b;
-  render(`${a}+${b}=?`,[ans,ans+1],ans);
- }
+ let type = types[current % types.length];
 
  if(type==="josi"){
-  if(josiQueue.length===0) josiQueue=shuffle(josiList);
-  let x=josiQueue.pop();
-  let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
-  render(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
+   if(josiQueue.length===0) josiQueue=shuffle(josiList);
+   let x=josiQueue.pop();
+   let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
+   renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
  }
 
  if(type==="which"){
-  if(whichQueue.length===0) whichQueue=shuffle(whichList);
-  let x=whichQueue.pop();
-  render(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
+   if(whichQueue.length===0) whichQueue=shuffle(whichList);
+   let x=whichQueue.pop();
+   renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
  }
 }
 
-function render(q,choices,ans){
+/* ===== 選択 ===== */
+function renderChoice(q,choices,answer){
  question.innerText=q;
- shuffle(choices).forEach(c=>{
-  let b=document.createElement("button");
-  b.className="btn";
-  b.innerText=c;
-  b.onclick=()=>{
-   if(c===ans){b.classList.add("correct");correctSound.play();score++;}
-   else{b.classList.add("wrong");wrongSound.play();}
-   setTimeout(next,800);
-  };
-  answers.appendChild(b);
+
+ choices.sort(()=>Math.random()-0.5);
+
+ choices.forEach(c=>{
+   let btn=document.createElement("button");
+   btn.className="btn";
+   btn.innerText=c;
+
+   btn.onclick=()=>{
+     if(c===answer){
+       btn.classList.add("correct");
+       score++;
+     }else{
+       btn.classList.add("wrong");
+     }
+     setTimeout(next,800);
+   };
+
+   answers.appendChild(btn);
  });
 }
 
-/* ===== 神経衰弱 ===== */
+/* ===== 神経衰弱（3ペア） ===== */
 function startMemory(){
+
  question.innerText="神経衰弱";
 
- let set=memorySets[Math.floor(Math.random()*3)];
+ let set=memorySets[Math.floor(Math.random()*memorySets.length)];
  let cards=shuffle([...set,...set]);
 
- let open=[],match=0,lock=false;
+ let open=[],matched=0,lock=false;
+
  answers.className="memory";
 
- cards.forEach(c=>{
-  let d=document.createElement("div");
-  d.className="card";
-  d.innerText="?";
+ cards.forEach(card=>{
+  let div=document.createElement("div");
+  div.className="card";
+  div.innerText="?";
 
-  d.onclick=()=>{
-   if(lock||d.innerText!=="?")return;
-   d.innerText=c;
-   open.push({d,c});
+  div.onclick=()=>{
+   if(lock||div.innerText!=="?")return;
+
+   div.innerText=card;
+   open.push({div,card});
 
    if(open.length===2){
     lock=true;
     let[a,b]=open;
-    if(a.c===b.c){
-     a.d.classList.add("matched");
-     b.d.classList.add("matched");
-     correctSound.play();
-     match+=2;
-     open=[];lock=false;
-     if(match===6){score++;setTimeout(next,800);}
+
+    if(a.card===b.card){
+      a.div.classList.add("matched");
+      b.div.classList.add("matched");
+      matched+=2;
+      open=[];lock=false;
+
+      if(matched===6){
+        score++;
+        setTimeout(next,800);
+      }
     }else{
-     wrongSound.play();
-     setTimeout(()=>{a.d.innerText="?";b.d.innerText="?";open=[];lock=false;},700);
+      setTimeout(()=>{
+        a.div.innerText="?";
+        b.div.innerText="?";
+        open=[];lock=false;
+      },700);
     }
    }
   };
-  answers.appendChild(d);
+
+  answers.appendChild(div);
  });
 }
 
