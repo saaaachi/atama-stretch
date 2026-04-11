@@ -3,237 +3,217 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>問題</title>
 
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
-crossorigin="anonymous"></script>
+<title>設定</title>
 
 <style>
-body{margin:0;font-family:sans-serif;background:#f5f6fa;}
-.header{position:fixed;top:0;width:100%;height:60px;background:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 15px;}
-.ad{margin-top:60px;text-align:center;min-height:110px;}
-.topbar{display:flex;justify-content:space-between;padding:10px 15px;}
-.container{text-align:center;padding:10px;}
-.question{font-size:34px;margin:20px 0;}
-.btn{width:90%;margin:10px auto;padding:20px;font-size:24px;border-radius:15px;border:none;background:#dfe6e9;}
-.correct{background:#81ecec;}
-.wrong{background:#fab1a0;}
-.memory{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.card{height:80px;background:#b2bec3;border-radius:10px;display:flex;justify-content:center;align-items:center;font-size:30px;}
-.matched{background:#b9fbc0!important;}
+body{
+ margin:0;
+ font-family:sans-serif;
+ background:#f5f6fa;
+ max-width:520px;
+ margin:auto;
+}
+
+/* ヘッダー */
+.header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:12px;
+}
+
+.back{font-size:20px;}
+.header-title{font-weight:bold;}
+
+/* カード */
+.card{
+ background:white;
+ margin:15px;
+ padding:15px;
+ border-radius:16px;
+ box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.title{
+ font-weight:bold;
+ margin-bottom:10px;
+}
+
+/* トグル */
+.toggle{
+ display:flex;
+ justify-content:space-between;
+ margin:10px 0;
+}
+
+input[type="checkbox"]{
+ transform:scale(1.3);
+}
+
+/* セレクト */
+select{
+ width:100%;
+ padding:10px;
+ border-radius:10px;
+ border:none;
+ background:#f1f2f6;
+}
+
+/* アコーディオン */
+.accordion-btn{
+ width:100%;
+ padding:12px;
+ border:none;
+ border-radius:10px;
+ background:#dfe6e9;
+ text-align:left;
+}
+
+.accordion-content{
+ display:none;
+ padding:10px;
+ font-size:14px;
+ color:#555;
+}
+
+/* テキスト */
+textarea{
+ width:100%;
+ height:80px;
+ border-radius:10px;
+ border:none;
+ padding:10px;
+ background:#f1f2f6;
+}
+
+.send-btn{
+ width:100%;
+ margin-top:10px;
+ padding:12px;
+ border:none;
+ border-radius:10px;
+ background:#74b9ff;
+ color:white;
+}
 </style>
 </head>
 
 <body>
 
+<!-- ヘッダー -->
 <div class="header">
- <div onclick="location.href='index.html'">←</div>
- <div>問題</div>
+ <div class="back" onclick="location.href='index.html'">←</div>
+ <div class="header-title">設定</div>
 </div>
 
-<div class="ad" id="adArea"></div>
+<!-- 問題設定 -->
+<div class="card">
+ <div class="title">問題設定</div>
 
-<div class="topbar">
- <div id="progress"></div>
- <div>
-   <button onclick="toggleBGM()">BGM</button>
-   γ<input type="checkbox" id="gammaToggle">
-   <input type="range" id="gammaVol" min="0" max="1" step="0.1" value="0.5">
+ <div class="toggle">
+  <span>計算問題</span>
+  <input type="checkbox" id="useCalc">
+ </div>
+
+ <div class="toggle">
+  <span>助詞問題</span>
+  <input type="checkbox" id="useJosi">
+ </div>
+
+ <div class="toggle">
+  <span>どっち問題</span>
+  <input type="checkbox" id="useWhich">
+ </div>
+
+ <div class="toggle">
+  <span>神経衰弱</span>
+  <input type="checkbox" id="useMemory">
+ </div>
+
+ <div style="margin-top:10px;">
+  <div>問題数</div>
+  <select id="questionCount">
+    <option value="3">3問</option>
+    <option value="5">5問</option>
+    <option value="7">7問</option>
+    <option value="10">10問</option>
+    <option value="15">15問</option>
+  </select>
  </div>
 </div>
 
-<div class="container" id="container">
- <div id="question" class="question"></div>
- <div id="answers"></div>
+<!-- メッセージ -->
+<div class="card">
+ <div class="title">ご意見・ご要望</div>
+ <textarea id="msg"></textarea>
+ <button class="send-btn" onclick="sendMsg()">送信</button>
+</div>
+
+<!-- 作成者 -->
+<div class="card">
+ <button class="accordion-btn" onclick="toggleAcc(this)">＋ 作成者からのメッセージ</button>
+ <div class="accordion-content">
+「あたまのストレッチ」をご利用いただき、ありがとうございます。<br><br>
+このゲームは、脳卒中で倒れ失語症になった母のために作りました。<br><br>
+ぜひ無理なく楽しんでください。
+ </div>
+</div>
+
+<!-- プライバシー -->
+<div class="card">
+ <button class="accordion-btn" onclick="toggleAcc(this)">＋ プライバシーポリシー</button>
+ <div class="accordion-content">
+本アプリではGoogle AdSenseを利用しています。Cookieにより広告が表示される場合があります。
+ </div>
+</div>
+
+<!-- 音源 -->
+<div class="card">
+ <button class="accordion-btn" onclick="toggleAcc(this)">＋ 音源について</button>
+ <div class="accordion-content">
+BGM：変わらない日常（石屋 様）<br>
+効果音：効果音ラボ
+ </div>
+</div>
+
+<!-- 宣伝 -->
+<div class="card">
+ <div class="title">他のゲーム</div>
+ <a href="https://saaaachi.github.io/" target="_blank">👉 遊ぶ</a>
 </div>
 
 <script>
+/* 保存 */
+const ids=["useCalc","useJosi","useWhich","useMemory","questionCount"];
 
-/* ===== 音 ===== */
-let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
-let gamma=new Audio("music/gamma.mp3"); gamma.loop=true;
-let correctSound=new Audio("music/correct.mp3");
-let wrongSound=new Audio("music/wrong.mp3");
+ids.forEach(id=>{
+ let el=document.getElementById(id);
 
-function toggleBGM(){ bgm.paused ? bgm.play() : bgm.pause(); }
-
-gammaToggle.onchange=function(){
- this.checked ? gamma.play() : gamma.pause();
-};
-gammaVol.oninput=function(){ gamma.volume=this.value; };
-
-/* ===== 設定 ===== */
-let total=Number(localStorage.getItem("questionCount"))||5;
-
-let useCalc = localStorage.getItem("useCalc") !== "false";
-let useJosi = localStorage.getItem("useJosi") !== "false";
-let useWhich = localStorage.getItem("useWhich") !== "false";
-let useMemory = localStorage.getItem("useMemory") !== "false";
-
-/* ===== データ（そのまま） ===== */
-const josiList=[...Array(20)].map((_,i)=>[
- ["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
- ["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
- ["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
- ["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
- ["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
-][i]);
-
-const whichList=[...Array(20)].map((_,i)=>[
- ["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
- ["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
- ["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
- ["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
- ["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
-][i]);
-
-const memorySets=[
-["🍎","🍊","🍌"],
-["🐶","🐱","🐼"],
-["🚗","🚲","✈️"]
-];
-
-function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
-
-let josiQueue=shuffle(josiList);
-let whichQueue=shuffle(whichList);
-
-let current=0,score=0;
-
-/* ===== 出題 ===== */
-function next(){
-
- question.innerText="";
- answers.innerHTML="";
- answers.className="";
-
- if(current>=total){
-  container.innerHTML=`<h2>🎉 おつかれさま！</h2><p>${score}/${total}</p>`;
-  return;
+ let saved=localStorage.getItem(id);
+ if(saved!==null){
+   if(el.type==="checkbox") el.checked = saved==="true";
+   else el.value = saved;
  }
 
- current++;
+ el.onchange=()=>{
+   localStorage.setItem(id, el.type==="checkbox" ? el.checked : el.value);
+ };
+});
 
- /* ★広告（ここだけ変更） */
- if(current%2===1){
-  adArea.innerHTML=`
-  <ins class="adsbygoogle"
-   style="display:inline-block;width:320px;height:100px"
-   data-ad-client="ca-pub-1299640300068792"
-   data-ad-slot="7107118417"></ins>`;
-  (adsbygoogle = window.adsbygoogle || []).push({});
- }
-
- progress.innerText=current+" / "+total;
-
- /* ★最後だけ神経衰弱 */
- if(useMemory && current===total){
-  startMemory();
-  return;
- }
-
- let types=[];
- if(useCalc) types.push("calc");
- if(useJosi) types.push("josi");
- if(useWhich) types.push("which");
-
- let type=types[current % types.length];
-
- if(type==="josi"){
-  if(josiQueue.length===0) josiQueue=shuffle(josiList);
-  let x=josiQueue.pop();
-  let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
-  renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
- }
-
- if(type==="which"){
-  if(whichQueue.length===0) whichQueue=shuffle(whichList);
-  let x=whichQueue.pop();
-  renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
- }
+/* アコーディオン */
+function toggleAcc(btn){
+ let c=btn.nextElementSibling;
+ c.style.display = c.style.display==="block"?"none":"block";
 }
 
-/* ===== 選択 ===== */
-function renderChoice(q,choices,answer){
- question.innerText=q;
-
- choices.sort(()=>Math.random()-0.5);
-
- choices.forEach(c=>{
-  let btn=document.createElement("button");
-  btn.className="btn";
-  btn.innerText=c;
-
-  btn.onclick=()=>{
-   if(c===answer){
-    btn.classList.add("correct");
-    correctSound.play();
-    score++;
-   }else{
-    btn.classList.add("wrong");
-    wrongSound.play();
-   }
-   setTimeout(next,800);
-  };
-
-  answers.appendChild(btn);
- });
+/* メッセージ */
+function sendMsg(){
+ let t=document.getElementById("msg").value;
+ if(!t){alert("入力してください");return;}
+ alert("送信ありがとうございました！");
+ document.getElementById("msg").value="";
 }
-
-/* ===== 神経衰弱（3ペア） ===== */
-function startMemory(){
-
- question.innerText="神経衰弱";
-
- let set=memorySets[Math.floor(Math.random()*memorySets.length)];
- let cards=shuffle([...set,...set]);
-
- let open=[],matched=0,lock=false;
-
- answers.className="memory";
-
- cards.forEach(card=>{
-  let div=document.createElement("div");
-  div.className="card";
-  div.innerText="?";
-
-  div.onclick=()=>{
-   if(lock||div.innerText!=="?")return;
-
-   div.innerText=card;
-   open.push({div,card});
-
-   if(open.length===2){
-    lock=true;
-    let[a,b]=open;
-
-    if(a.card===b.card){
-      a.div.classList.add("matched");
-      b.div.classList.add("matched");
-      correctSound.play();
-      matched+=2;
-      open=[];lock=false;
-
-      if(matched===6){
-        score++;
-        setTimeout(next,800);
-      }
-    }else{
-      wrongSound.play();
-      setTimeout(()=>{
-        a.div.innerText="?";
-        b.div.innerText="?";
-        open=[];lock=false;
-      },700);
-    }
-   }
-  };
-
-  answers.appendChild(div);
- });
-}
-
-next();
 </script>
 
 </body>
