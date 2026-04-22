@@ -85,6 +85,18 @@ body {
   color: white;
 }
 
+/* 追加ボタン */
+.install-btn{
+  width:100%;
+  margin-top:12px;
+  font-size:16px;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:#fff4c7;
+  color:#555;
+}
+
 .bottom-card {
   display: flex;
   justify-content: space-between;
@@ -123,12 +135,12 @@ body {
   padding:20px;
   border-radius:16px;
   width:85%;
-  max-width:300px;
+  max-width:320px;
   box-shadow:0 10px 30px rgba(0,0,0,0.2);
   display:none;
   z-index:999;
   font-size:14px;
-  line-height:1.6;
+  line-height:1.7;
 }
 
 .overlay{
@@ -194,6 +206,11 @@ body {
     今日の問題をはじめる
   </button>
 
+  <!-- 追加 -->
+  <button class="install-btn" onclick="openInstallPopup()">
+    📱 ホーム画面に追加する
+  </button>
+
 </div>
 
 <div class="bottom-card">
@@ -223,14 +240,31 @@ body {
        data-full-width-responsive="true"></ins>
 </div>
 
-<div class="overlay" id="overlay" onclick="closePopup()"></div>
+<div class="overlay" id="overlay" onclick="closeAllPopup()"></div>
 
+<!-- ガンマ波説明 -->
 <div class="popup" id="popup">
   <b>ガンマ波サウンドについて</b><br><br>
   集中したいときに使われるリズム音です。<br><br>
   朝や問題前におすすめ。<br>
   夜はオフでリラックスできます。<br><br>
   音楽ページ・問題ページで切替できます。
+</div>
+
+<!-- 追加説明 -->
+<div class="popup" id="installPopup">
+  <b>ホーム画面に追加する方法</b><br><br>
+
+  iPhone：<br>
+  下の共有ボタン（□↑）→<br>
+  「ホーム画面に追加」<br><br>
+
+  Android：<br>
+  右上メニュー（︙）→<br>
+  「ホーム画面に追加」<br><br>
+
+  追加すると次回から<br>
+  アイコンを押すだけで遊べます😊
 </div>
 
 <script>
@@ -253,25 +287,29 @@ function startGame() {
   document.querySelector(".news-wrap").style.display = "none";
   document.getElementById("loading").style.display = "block";
 
-  // ⭐広告表示トリガー
   try {
     (adsbygoogle = window.adsbygoogle || []).push({});
   } catch(e) {}
 
-  // ⭐3秒後に遷移
   setTimeout(()=>{
     location.href="quiz.html";
   },3000);
 }
 
-/* ===== ポップ ===== */
+/* ===== ポップ共通 ===== */
 function openPopup(){
   document.getElementById("popup").style.display="block";
   document.getElementById("overlay").style.display="block";
 }
 
-function closePopup(){
+function openInstallPopup(){
+  document.getElementById("installPopup").style.display="block";
+  document.getElementById("overlay").style.display="block";
+}
+
+function closeAllPopup(){
   document.getElementById("popup").style.display="none";
+  document.getElementById("installPopup").style.display="none";
   document.getElementById("overlay").style.display="none";
 }
 </script>
