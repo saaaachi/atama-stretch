@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>問題</title>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1299640300068792"
+crossorigin="anonymous"></script>
+
+<style>
+body{
+ margin:0;
+ font-family:sans-serif;
+ background:#f5f6fa;
+ overflow:hidden;
+}
+
+.header{
+ position:fixed;
+ top:0;
+ width:100%;
+ height:60px;
+ background:#fff;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:0 15px;
+ box-sizing:border-box;
+}
+
+.back{font-size:20px;}
+.title{font-weight:bold;font-size:18px;}
+
+.ad{
+ margin-top:60px;
+ text-align:center;
+ min-height:110px;
+}
+
+.topbar{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:10px 15px;
+}
+
+.audio{
+ display:flex;
+ align-items:center;
+ gap:8px;
+ font-size:13px;
+}
+
+.audio button{
+ border:none;
+ padding:6px 10px;
+ border-radius:10px;
+ background:#dfe6e9;
+}
+
+.audio input[type="range"]{
+ width:70px;
+}
+
+.container{
+ text-align:center;
+ padding:10px;
+}
+
+.question{
+ font-size:34px;
+ margin:20px 0;
+}
+
+.btn{
+ width:90%;
+ margin:10px auto;
+ padding:20px;
+ font-size:24px;
+ border-radius:15px;
+ border:none;
+ background:#dfe6e9;
+}
+
+.correct{background:#81ecec;}
+.wrong{background:#fab1a0;}
+
+.memory{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:10px;
+}
+
+.card{
+ height:75px;
+ background:#b2bec3;
+ border-radius:10px;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ font-size:30px;
+}
+
+.matched{
+ background:#b9fbc0!important;
+}
+
+.big-home-btn{
+ width:92%;
+ padding:30px;
+ font-size:28px;
+ border:none;
+ border-radius:22px;
+ background:#74b9ff;
+ color:white;
+ margin-top:30px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+ <div class="back" onclick="location.href='index.html'">←</div>
+ <div class="title">問題</div>
+</div>
+
+<div class="ad" id="adArea"></div>
+
+<div class="topbar">
+ <div id="progress"></div>
+
+ <div class="audio">
+   <button onclick="toggleBGM()">BGM</button>
+
+   <label>
+     γ
+     <input type="checkbox" id="gammaToggle">
+   </label>
+
+   <input type="range" id="gammaVol" min="0" max="1" step="0.1" value="0.5">
+ </div>
+</div>
+
+<div class="container" id="container">
+ <div id="last" style="color:red;font-weight:bold;"></div>
+ <div id="question" class="question"></div>
+ <div id="answers"></div>
+</div>
+
+<script>
+/* 音 */
+let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
+let gamma=new Audio("music/gamma.mp3"); gamma.loop=true;
+let correctSound=new Audio("music/correct.mp3");
+let wrongSound=new Audio("music/wrong.mp3");
+let playing=false;
+
+function toggleBGM(){
+ if(playing){bgm.pause();}
+ else{bgm.play();}
+ playing=!playing;
+}
+
+gammaVol.oninput=function(){
+ gamma.volume=parseFloat(this.value);
+}
+
+gammaToggle.onchange=function(){
+ if(this.checked){
+   gamma.volume=parseFloat(gammaVol.value);
+   gamma.play();
+ }else{
+   gamma.pause();
+ }
+}
+
+/* 設定読込 */
+let total=Number(localStorage.getItem("questionCount"))||5;
+
+let calcLevel=localStorage.getItem("calcLevel")||"easy";
+let josiLevel=localStorage.getItem("josiLevel")||"easy";
+let whichLevel=localStorage.getItem("whichLevel")||"easy";
+let memoryPairs=localStorage.getItem("memoryPairs")||"3";
+
+let useCalc = calcLevel!=="none";
+let useJosi = josiLevel!=="none";
+let useWhich = whichLevel!=="none";
+let useMemory = memoryPairs!=="none";
+
+/* データ */
+const josiList=[
+["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
+["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"]
+];
+
+const whichList=[
+["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],
+["🐟","🐔","さかな"],["🌞","🌙","たいよう"],["🍓","🍇","いちご"]
+];
+
+const memorySets=["🍎","🍊","🍌","🐶","🐱","🐼","🚗","🚲","✈️","🍓","🍇","🍒"];
+
+function shuffle(arr){
+ return [...arr].sort(()=>Math.random()-0.5);
+}
+
+/* 計算 */
+function generateCalc(){
+
+ let a,b,ans,op;
+
+ if(calcLevel==="easy"){
+   if(Math.random()<0.5){
+     a=Math.floor(Math.random()*10);
+     b=Math.floor(Math.random()*10);
+     ans=a+b; op="+";
+   }else{
+     a=Math.floor(Math.random()*20);
+     b=Math.floor(Math.random()*(a+1));
+     ans=a-b; op="-";
+   }
+ }
+
+ if(calcLevel==="normal"){
+   if(Math.random()<0.5){
+     a=Math.floor(Math.random()*8)+2;
+     b=Math.floor(Math.random()*8)+2;
+     ans=a*b; op="×";
+   }else{
+     b=Math.floor(Math.random()*8)+2;
+     ans=Math.floor(Math.random()*8)+2;
+     a=b*ans; op="÷";
+   }
+ }
+
+ if(calcLevel==="hard"){
+   if(Math.random()<0.5){
+     a=Math.floor(Math.random()*90)+10;
+     b=Math.floor(Math.random()*90)+10;
+     ans=a+b; op="+";
+   }else{
+     a=Math.floor(Math.random()*90)+10;
+     b=Math.floor(Math.random()*50)+1;
+     ans=a-b; op="-";
+   }
+ }
+
+ let wrong=ans+(Math.random()<0.5?1:-1);
+ if(wrong===ans) wrong+=2;
+
+ return{
+   q:`${a} ${op} ${b} = ?`,
+   choices:[ans,wrong],
+   answer:ans
+ };
+}
+
+let current=0,score=0;
+let josiQueue=shuffle(josiList);
+let whichQueue=shuffle(whichList);
+
+/* 出題 */
+function next(){
+
+ answers.innerHTML="";
+ answers.className="";
+
+ if(current>=total){
+
+  container.innerHTML=
+  `<h2>🎉 おつかれさま！</h2>
+   <p>${score}/${total} 正解！</p>
+   <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
+  return;
+ }
+
+ current++;
+
+ progress.innerText=current+" / "+total;
+ last.innerText=(current===total)?"ラスト問題！":"";
+
+ if(current===total && useMemory){
+   startMemory();
+   return;
+ }
+
+ let types=[];
+
+ if(useCalc) types.push("calc");
+ if(useJosi) types.push("josi");
+ if(useWhich) types.push("which");
+
+ if(types.length===0 && useMemory){
+   startMemory();
+   return;
+ }
+
+ if(types.length===0){
+   question.innerText="問題がありません";
+   return;
+ }
+
+ let type=types[(current-1)%types.length];
+
+ if(type==="calc"){
+   let d=generateCalc();
+   renderChoice(d.q,d.choices,d.answer);
+ }
+
+ if(type==="josi"){
+   if(josiQueue.length===0) josiQueue=shuffle(josiList);
+   let x=josiQueue.pop();
+   let wrong=["に","で","と","を","へ"].filter(v=>v!==x[1])[0];
+   renderChoice(`${x[0]}【${x[1]}・${wrong}】${x[2]}`,[x[1],wrong],x[1]);
+ }
+
+ if(type==="which"){
+   if(whichQueue.length===0) whichQueue=shuffle(whichList);
+   let x=whichQueue.pop();
+   renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
+ }
+}
+
+/* 選択肢 */
+function renderChoice(q,choices,answer){
+
+ question.innerText=q;
+
+ shuffle(choices).forEach(c=>{
+
+   let btn=document.createElement("button");
+   btn.className="btn";
+   btn.innerText=c;
+
+   btn.onclick=()=>{
+
+     if(c===answer){
+       btn.classList.add("correct");
+       correctSound.play();
+       score++;
+     }else{
+       btn.classList.add("wrong");
+       wrongSound.play();
+     }
+
+     setTimeout(next,700);
+   };
+
+   answers.appendChild(btn);
+ });
+}
+
+/* 神経衰弱 */
+function startMemory(){
+
+ question.innerText="神経衰弱";
+
+ let pair=Number(memoryPairs);
+ let base=shuffle(memorySets).slice(0,pair);
+ let cards=shuffle([...base,...base]);
+
+ let open=[];
+ let matched=0;
+ let lock=false;
+
+ answers.className="memory";
+
+ cards.forEach(card=>{
+
+   let div=document.createElement("div");
+   div.className="card";
+   div.innerText="?";
+
+   div.onclick=()=>{
+
+     if(lock || div.innerText!=="?") return;
+
+     div.innerText=card;
+     open.push({div,card});
+
+     if(open.length===2){
+
+       lock=true;
+
+       let a=open[0];
+       let b=open[1];
+
+       if(a.card===b.card){
+
+         a.div.classList.add("matched");
+         b.div.classList.add("matched");
+
+         matched+=2;
+         open=[];
+         lock=false;
+
+         if(matched===pair*2){
+           score++;
+           setTimeout(next,700);
+         }
+
+       }else{
+
+         setTimeout(()=>{
+           a.div.innerText="?";
+           b.div.innerText="?";
+           open=[];
+           lock=false;
+         },700);
+       }
+     }
+   };
+
+   answers.appendChild(div);
+ });
+}
+
+next();
+</script>
+
+</body>
+</html>
