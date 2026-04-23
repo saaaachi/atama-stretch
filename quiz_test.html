@@ -196,10 +196,41 @@ const josiList=[
 ["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"]
 ];
 
-const whichList=[
-["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],
-["🐟","🐔","さかな"],["🌞","🌙","たいよう"],["🍓","🍇","いちご"]
+const whichEasy = [
+["🐶","🐱","いぬ"],
+["🍎","🍌","りんご"],
+["🚗","🚲","くるま"],
+["🐟","🐔","さかな"],
+["🌞","🌙","たいよう"],
+["🍓","🍇","いちご"]
 ];
+
+const whichNormal = [
+["🐧","🦆","ペンギン"],
+["🎹","🎻","ピアノ"],
+["🍔","🍕","ハンバーガー"],
+["🐼","🐨","パンダ"],
+["🚑","🚓","きゅうきゅうしゃ"],
+["📚","📰","ほん"]
+];
+
+const whichHard = [
+["🍎","🍌","赤い果物はどっち？"],
+["🌞","🌙","夜に出るのはどっち？"],
+["🐟","🐔","海で泳ぐのはどっち？"],
+["🚗","✈️","空を飛ぶのはどっち？"],
+["🎹","🎸","白と黒の鍵盤があるのはどっち？"],
+["📱","💻","電話できるのはどっち？"]
+];
+
+function getWhichList(){
+
+ if(whichLevel==="easy") return shuffle(whichEasy);
+ if(whichLevel==="normal") return shuffle(whichNormal);
+ if(whichLevel==="hard") return shuffle(whichHard);
+
+ return shuffle(whichEasy);
+}
 
 const memorySets=["🍎","🍊","🍌","🐶","🐱","🐼","🚗","🚲","✈️","🍓","🍇","🍒"];
 
@@ -260,7 +291,7 @@ function generateCalc(){
 
 let current=0,score=0;
 let josiQueue=shuffle(josiList);
-let whichQueue=shuffle(whichList);
+let whichQueue=getWhichList();
 
 /* 出題 */
 function next(){
