@@ -301,44 +301,68 @@ function generateCalc(){
 
  let a,b,ans,op;
 
+ /* 初級：1桁 足し算・引き算 */
  if(calcLevel==="easy"){
+
    if(Math.random()<0.5){
      a=Math.floor(Math.random()*10);
      b=Math.floor(Math.random()*10);
-     ans=a+b; op="+";
+     ans=a+b;
+     op="+";
    }else{
      a=Math.floor(Math.random()*20);
      b=Math.floor(Math.random()*(a+1));
-     ans=a-b; op="-";
+     ans=a-b;
+     op="-";
    }
+
  }
 
+ /* 中級：2桁 足し算・引き算 */
  if(calcLevel==="normal"){
-   if(Math.random()<0.5){
-     a=Math.floor(Math.random()*8)+2;
-     b=Math.floor(Math.random()*8)+2;
-     ans=a*b; op="×";
-   }else{
-     b=Math.floor(Math.random()*8)+2;
-     ans=Math.floor(Math.random()*8)+2;
-     a=b*ans; op="÷";
-   }
- }
 
- if(calcLevel==="hard"){
    if(Math.random()<0.5){
      a=Math.floor(Math.random()*90)+10;
      b=Math.floor(Math.random()*90)+10;
-     ans=a+b; op="+";
+     ans=a+b;
+     op="+";
    }else{
      a=Math.floor(Math.random()*90)+10;
-     b=Math.floor(Math.random()*50)+1;
-     ans=a-b; op="-";
+     b=Math.floor(Math.random()*90)+10;
+
+     if(b>a){
+       let tmp=a;
+       a=b;
+       b=tmp;
+     }
+
+     ans=a-b;
+     op="-";
    }
+
+ }
+
+ /* 上級：掛け算・割り算 */
+ if(calcLevel==="hard"){
+
+   if(Math.random()<0.5){
+     a=Math.floor(Math.random()*8)+2;
+     b=Math.floor(Math.random()*8)+2;
+     ans=a*b;
+     op="×";
+   }else{
+     b=Math.floor(Math.random()*8)+2;
+     ans=Math.floor(Math.random()*8)+2;
+     a=b*ans;
+     op="÷";
+   }
+
  }
 
  let wrong=ans+(Math.random()<0.5?1:-1);
+
  if(wrong===ans) wrong+=2;
+ if(wrong<0) wrong=ans+2;
 
  return{
    q:`${a} ${op} ${b} = ?`,
