@@ -191,10 +191,41 @@ let useWhich = whichLevel!=="none";
 let useMemory = memoryPairs!=="none";
 
 /* データ */
-const josiList=[
-["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
-["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"]
+const josiEasy = [
+["家","に","帰る"],
+["学校","へ","行く"],
+["公園","で","遊ぶ"],
+["友達","と","話す"],
+["部屋","で","寝る"],
+["本","を","読む"]
 ];
+
+const josiNormal = [
+["先生","に","聞く"],
+["友達","と","食べる"],
+["駅","へ","向かう"],
+["手紙","を","書く"],
+["車","で","行く"],
+["音楽","を","聞く"]
+];
+
+const josiHard = [
+["友達","に","手紙を書く"],
+["犬","と","公園へ行く"],
+["学校","で","先生に聞く"],
+["家族","と","店で食べる"],
+["駅","へ","電車で向かう"],
+["部屋","で","本を読む"]
+];
+
+function getJosiList(){
+
+ if(josiLevel==="easy") return shuffle(josiEasy);
+ if(josiLevel==="normal") return shuffle(josiNormal);
+ if(josiLevel==="hard") return shuffle(josiHard);
+
+ return shuffle(josiEasy);
+}
 
 const whichEasy = [
 ["🐶","🐱","いぬ"],
@@ -342,7 +373,7 @@ function next(){
  }
 
  if(type==="josi"){
-   if(josiQueue.length===0) josiQueue=shuffle(josiList);
+　　if(josiQueue.length===0) josiQueue=getJosiList();
    let x=josiQueue.pop();
    let wrong=["に","で","と","を","へ"].filter(v=>v!==x[1])[0];
    renderChoice(`${x[0]}【${x[1]}・${wrong}】${x[2]}`,[x[1],wrong],x[1]);
