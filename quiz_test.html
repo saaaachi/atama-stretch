@@ -136,8 +136,7 @@ body{
    <button onclick="toggleBGM()">BGM</button>
 
    <label>
-     γ
-     <input type="checkbox" id="gammaToggle">
+     γ <input type="checkbox" id="gammaToggle">
    </label>
 
    <input type="range" id="gammaVol" min="0" max="1" step="0.1" value="0.5">
@@ -151,22 +150,27 @@ body{
 </div>
 
 <script>
-/* 音 */
-let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
-let gamma=new Audio("music/gamma.mp3"); gamma.loop=true;
+/* ---------------- 音 ---------------- */
+let bgm=new Audio("music/bgm.mp3");
+bgm.loop=true;
+
+let gamma=new Audio("music/gamma.mp3");
+gamma.loop=true;
+
 let correctSound=new Audio("music/correct.mp3");
 let wrongSound=new Audio("music/wrong.mp3");
+
 let playing=false;
 
 function toggleBGM(){
- if(playing){bgm.pause();}
- else{bgm.play();}
+ if(playing){ bgm.pause(); }
+ else{ bgm.play(); }
  playing=!playing;
 }
 
 gammaVol.oninput=function(){
  gamma.volume=parseFloat(this.value);
-}
+};
 
 gammaToggle.onchange=function(){
  if(this.checked){
@@ -175,101 +179,124 @@ gammaToggle.onchange=function(){
  }else{
    gamma.pause();
  }
-}
+};
 
-/* 設定読込 */
-let total=Number(localStorage.getItem("questionCount"))||5;
+/* ---------------- 設定 ---------------- */
+let total=Number(localStorage.getItem("questionCount")) || 5;
 
-let calcLevel=localStorage.getItem("calcLevel")||"easy";
-let josiLevel=localStorage.getItem("josiLevel")||"easy";
-let whichLevel=localStorage.getItem("whichLevel")||"easy";
-let memoryPairs=localStorage.getItem("memoryPairs")||"3";
+let calcLevel=localStorage.getItem("calcLevel") || "easy";
+let josiLevel=localStorage.getItem("josiLevel") || "easy";
+let whichLevel=localStorage.getItem("whichLevel") || "easy";
+let memoryPairs=localStorage.getItem("memoryPairs") || "3";
 
 let useCalc = calcLevel!=="none";
 let useJosi = josiLevel!=="none";
 let useWhich = whichLevel!=="none";
 let useMemory = memoryPairs!=="none";
 
-/* データ */
-const josiEasy = [
+/* ---------------- 共通 ---------------- */
+function shuffle(arr){
+ return [...arr].sort(()=>Math.random()-0.5);
+}
+
+/* ---------------- 助詞問題（10問ずつ） ---------------- */
+const josiEasy=[
 ["家","に","帰る"],
 ["学校","へ","行く"],
 ["公園","で","遊ぶ"],
 ["友達","と","話す"],
+["本","を","読む"],
 ["部屋","で","寝る"],
-["本","を","読む"]
+["駅","へ","行く"],
+["犬","と","遊ぶ"],
+["テレビ","を","見る"],
+["海","で","泳ぐ"]
 ];
 
-const josiNormal = [
+const josiNormal=[
 ["先生","に","聞く"],
-["友達","と","食べる"],
-["駅","へ","向かう"],
-["手紙","を","書く"],
+["家族","と","食べる"],
 ["車","で","行く"],
-["音楽","を","聞く"]
+["音楽","を","聞く"],
+["手紙","を","書く"],
+["会社","へ","向かう"],
+["友達","に","会う"],
+["道","を","歩く"],
+["店","で","買う"],
+["電車","で","帰る"]
 ];
 
-const josiHard = [
+const josiHard=[
 ["友達","に","手紙を書く"],
 ["犬","と","公園へ行く"],
 ["学校","で","先生に聞く"],
 ["家族","と","店で食べる"],
 ["駅","へ","電車で向かう"],
-["部屋","で","本を読む"]
+["部屋","で","本を読む"],
+["先生","に","相談する"],
+["海","で","友達と遊ぶ"],
+["会社","へ","車で向かう"],
+["公園","で","犬と走る"]
 ];
 
 function getJosiList(){
-
  if(josiLevel==="easy") return shuffle(josiEasy);
  if(josiLevel==="normal") return shuffle(josiNormal);
  if(josiLevel==="hard") return shuffle(josiHard);
-
- return shuffle(josiEasy);
+ return [];
 }
 
-const whichEasy = [
+/* ---------------- どっち問題（10問ずつ） ---------------- */
+const whichEasy=[
 ["🐶","🐱","いぬ"],
 ["🍎","🍌","りんご"],
 ["🚗","🚲","くるま"],
 ["🐟","🐔","さかな"],
 ["🌞","🌙","たいよう"],
-["🍓","🍇","いちご"]
+["🍓","🍇","いちご"],
+["📱","💻","スマホ"],
+["🍞","🍙","パン"],
+["👟","👠","くつ"],
+["🐸","🐍","かえる"]
 ];
 
-const whichNormal = [
+const whichNormal=[
 ["🐧","🦆","ペンギン"],
 ["🎹","🎻","ピアノ"],
 ["🍔","🍕","ハンバーガー"],
 ["🐼","🐨","パンダ"],
 ["🚑","🚓","きゅうきゅうしゃ"],
-["📚","📰","ほん"]
+["📚","📰","ほん"],
+["🍰","🍩","ケーキ"],
+["🌸","🌻","さくら"],
+["✈️","🚢","ひこうき"],
+["🎸","🥁","ギター"]
 ];
 
-const whichHard = [
+const whichHard=[
 ["🍎","🍌","赤い果物"],
 ["🌞","🌙","夜に出るの"],
 ["🐟","🐔","海で泳ぐの"],
 ["🚗","✈️","空を飛ぶの"],
 ["🎹","🎸","白と黒の鍵盤があるの"],
-["📱","💻","電話できるの"]
+["📱","💻","電話できるの"],
+["🍓","🍇","つぶつぶの果物"],
+["🐼","🐨","白と黒の動物"],
+["🚑","🚓","病院へ急ぐ車"],
+["🌸","🌻","春に咲く花"]
 ];
 
 function getWhichList(){
-
  if(whichLevel==="easy") return shuffle(whichEasy);
  if(whichLevel==="normal") return shuffle(whichNormal);
  if(whichLevel==="hard") return shuffle(whichHard);
-
- return shuffle(whichEasy);
+ return [];
 }
 
+/* ---------------- 神経衰弱 ---------------- */
 const memorySets=["🍎","🍊","🍌","🐶","🐱","🐼","🚗","🚲","✈️","🍓","🍇","🍒"];
 
-function shuffle(arr){
- return [...arr].sort(()=>Math.random()-0.5);
-}
-
-/* 計算 */
+/* ---------------- 計算 ---------------- */
 function generateCalc(){
 
  let a,b,ans,op;
@@ -320,29 +347,43 @@ function generateCalc(){
  };
 }
 
-let current=0,score=0;
-let josiQueue=shuffle(josiList);
+/* ---------------- 初期 ---------------- */
+let current=0;
+let score=0;
+
+let josiQueue=getJosiList();
 let whichQueue=getWhichList();
 
-/* 出題 */
+/* ---------------- 出題 ---------------- */
 function next(){
 
  answers.innerHTML="";
  answers.className="";
 
  if(current>=total){
-
-  container.innerHTML=
-  `<h2>🎉 おつかれさま！</h2>
+   container.innerHTML=`
+   <h2>🎉 おつかれさま！</h2>
    <p>${score}/${total} 正解！</p>
    <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
-  return;
+   return;
  }
 
  current++;
 
  progress.innerText=current+" / "+total;
  last.innerText=(current===total)?"ラスト問題！":"";
+
+ /* 広告 */
+ if(current%2===1){
+   adArea.innerHTML=`
+   <ins class="adsbygoogle"
+    style="display:inline-block;width:320px;height:100px"
+    data-ad-client="ca-pub-1299640300068792"
+    data-ad-slot="7107118417"></ins>`;
+   try{
+     (adsbygoogle=window.adsbygoogle||[]).push({});
+   }catch(e){}
+ }
 
  if(current===total && useMemory){
    startMemory();
@@ -373,20 +414,31 @@ function next(){
  }
 
  if(type==="josi"){
-　　if(josiQueue.length===0) josiQueue=getJosiList();
+   if(josiQueue.length===0) josiQueue=getJosiList();
    let x=josiQueue.pop();
+
    let wrong=["に","で","と","を","へ"].filter(v=>v!==x[1])[0];
-   renderChoice(`${x[0]}【${x[1]}・${wrong}】${x[2]}`,[x[1],wrong],x[1]);
+
+   renderChoice(
+   `${x[0]}【${x[1]}・${wrong}】${x[2]}`,
+   [x[1],wrong],
+   x[1]
+   );
  }
 
  if(type==="which"){
-   if(whichQueue.length===0) whichQueue=shuffle(whichList);
+   if(whichQueue.length===0) whichQueue=getWhichList();
    let x=whichQueue.pop();
-   renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
+
+   renderChoice(
+   `${x[2]}はどっち？`,
+   [x[0],x[1]],
+   x[0]
+   );
  }
 }
 
-/* 選択肢 */
+/* ---------------- 選択肢 ---------------- */
 function renderChoice(q,choices,answer){
 
  question.innerText=q;
@@ -401,10 +453,12 @@ function renderChoice(q,choices,answer){
 
      if(c===answer){
        btn.classList.add("correct");
+       correctSound.currentTime=0;
        correctSound.play();
        score++;
      }else{
        btn.classList.add("wrong");
+       wrongSound.currentTime=0;
        wrongSound.play();
      }
 
@@ -415,7 +469,7 @@ function renderChoice(q,choices,answer){
  });
 }
 
-/* 神経衰弱 */
+/* ---------------- 神経衰弱 ---------------- */
 function startMemory(){
 
  question.innerText="神経衰弱";
