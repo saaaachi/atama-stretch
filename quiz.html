@@ -82,10 +82,8 @@ body{
  border-radius:15px;
  border:none;
  background:#dfe6e9;
- transition:.2s;
 }
 
-.btn:active{transform:scale(.95);}
 .correct{background:#81ecec;}
 .wrong{background:#fab1a0;}
 
@@ -138,8 +136,7 @@ body{
    <button onclick="toggleBGM()">BGM</button>
 
    <label>
-     γ
-     <input type="checkbox" id="gammaToggle">
+     γ <input type="checkbox" id="gammaToggle">
    </label>
 
    <input type="range" id="gammaVol" min="0" max="1" step="0.1" value="0.5">
@@ -153,135 +150,264 @@ body{
 </div>
 
 <script>
+/* ---------------- 音 ---------------- */
+let bgm=new Audio("music/bgm.mp3");
+bgm.loop=true;
 
-/* ===== 音 ===== */
-let bgm=new Audio("music/bgm.mp3"); bgm.loop=true;
-let gamma=new Audio("music/gamma.mp3"); gamma.loop=true;
+let gamma=new Audio("music/gamma.mp3");
+gamma.loop=true;
 
-let correctSound = new Audio("music/correct.mp3");
-let wrongSound = new Audio("music/wrong.mp3");
+let correctSound=new Audio("music/correct.mp3");
+let wrongSound=new Audio("music/wrong.mp3");
 
 let playing=false;
 
 function toggleBGM(){
- if(playing){bgm.pause();}
- else{bgm.play();}
+ if(playing){ bgm.pause(); }
+ else{ bgm.play(); }
  playing=!playing;
 }
 
-const gammaToggle=document.getElementById("gammaToggle");
-const gammaSlider=document.getElementById("gammaVol");
-
-gammaSlider.addEventListener("input",function(){
+gammaVol.oninput=function(){
  gamma.volume=parseFloat(this.value);
-});
+};
 
 gammaToggle.onchange=function(){
  if(this.checked){
-   gamma.volume=parseFloat(gammaSlider.value);
+   gamma.volume=parseFloat(gammaVol.value);
    gamma.play();
  }else{
    gamma.pause();
  }
-}
+};
 
-/* ===== 設定 ===== */
-let total=Number(localStorage.getItem("questionCount"))||5;
+/* ---------------- 設定 ---------------- */
+let total=Number(localStorage.getItem("questionCount")) || 5;
 
-let useCalc = localStorage.getItem("useCalc") !== "false";
-let useJosi = localStorage.getItem("useJosi") !== "false";
-let useWhich = localStorage.getItem("useWhich") !== "false";
-let useMemory = localStorage.getItem("useMemory") !== "false";
+let calcLevel=localStorage.getItem("calcLevel") || "easy";
+let josiLevel=localStorage.getItem("josiLevel") || "easy";
+let whichLevel=localStorage.getItem("whichLevel") || "easy";
+let memoryPairs=localStorage.getItem("memoryPairs") || "3";
 
-/* ===== データ ===== */
-const josiList=[...Array(20)].map((_,i)=>[
- ["家","に","帰る"],["学校","へ","行く"],["公園","で","遊ぶ"],["友達","と","話す"],
- ["駅","に","行く"],["部屋","で","寝る"],["店","で","買う"],["先生","に","聞く"],
- ["友達","に","会う"],["海","で","泳ぐ"],["会社","へ","行く"],["家族","と","食べる"],
- ["車","で","行く"],["電車","で","帰る"],["犬","と","遊ぶ"],["本","を","読む"],
- ["テレビ","を","見る"],["音楽","を","聞く"],["道","を","歩く"],["手紙","を","書く"]
-][i]);
+let useCalc = calcLevel!=="none";
+let useJosi = josiLevel!=="none";
+let useWhich = whichLevel!=="none";
+let useMemory = memoryPairs!=="none";
 
-const whichList=[...Array(20)].map((_,i)=>[
- ["🐶","🐱","いぬ"],["🍎","🍌","りんご"],["🚗","🚲","くるま"],["🐟","🐔","さかな"],
- ["🌞","🌙","たいよう"],["🍓","🍇","いちご"],["📱","💻","スマホ"],["✈️","🚢","ひこうき"],
- ["👟","👠","くつ"],["🍔","🍕","ハンバーガー"],["🐸","🐍","かえる"],["🐧","🦅","ペンギン"],
- ["🌸","🌻","さくら"],["🎹","🎸","ピアノ"],["🍙","🍞","おにぎり"],["🚓","🚑","パトカー"],
- ["📚","📰","ほん"],["🎂","🍩","ケーキ"],["🐼","🐨","パンダ"],["🐝","🦋","はち"]
-][i]);
-
-const memorySets=[
-["🍎","🍊","🍌"],
-["🐶","🐱","🐼"],
-["🚗","🚲","✈️"]
-];
-
+/* ---------------- 共通 ---------------- */
 function shuffle(arr){
  return [...arr].sort(()=>Math.random()-0.5);
 }
 
-/* ===== 計算問題 ===== */
-function generateCalc(){
- let a,b,op,ans;
+/* ---------------- 助詞問題（10問ずつ） ---------------- */
+const josiEasy=[
+["家","に","帰る"],
+["学校","へ","行く"],
+["公園","で","遊ぶ"],
+["友達","と","話す"],
+["本","を","読む"],
+["部屋","で","寝る"],
+["駅","へ","行く"],
+["犬","と","遊ぶ"],
+["テレビ","を","見る"],
+["海","で","泳ぐ"]
+];
 
- if(Math.random()<0.5){
-   a=Math.floor(Math.random()*11);
-   b=Math.floor(Math.random()*(21-a));
-   ans=a+b; op="+";
- }else{
-   a=Math.floor(Math.random()*21);
-   b=Math.floor(Math.random()*(a+1));
-   ans=a-b; op="-";
+const josiNormal=[
+["先生","に","聞く"],
+["家族","と","食べる"],
+["車","で","行く"],
+["音楽","を","聞く"],
+["手紙","を","書く"],
+["会社","へ","向かう"],
+["友達","に","会う"],
+["道","を","歩く"],
+["店","で","買う"],
+["電車","で","帰る"]
+];
+
+const josiHard=[
+["友達","に","手紙を書く"],
+["犬","と","公園へ行く"],
+["学校","で","先生に聞く"],
+["家族","と","店で食べる"],
+["駅","へ","電車で向かう"],
+["部屋","で","本を読む"],
+["先生","に","相談する"],
+["海","で","友達と遊ぶ"],
+["会社","へ","車で向かう"],
+["公園","で","犬と走る"]
+];
+
+function getJosiList(){
+ if(josiLevel==="easy") return shuffle(josiEasy);
+ if(josiLevel==="normal") return shuffle(josiNormal);
+ if(josiLevel==="hard") return shuffle(josiHard);
+ return [];
+}
+
+/* ---------------- どっち問題（10問ずつ） ---------------- */
+const whichEasy=[
+["🐶","🐱","いぬ"],
+["🍎","🍌","りんご"],
+["🚗","🚲","くるま"],
+["🐟","🐔","さかな"],
+["🌞","🌙","たいよう"],
+["🍓","🍇","いちご"],
+["📱","💻","スマホ"],
+["🍞","🍙","パン"],
+["👟","👠","くつ"],
+["🐸","🐍","かえる"]
+];
+
+const whichNormal=[
+["🐧","🦆","ペンギン"],
+["🎹","🎻","ピアノ"],
+["🍔","🍕","ハンバーガー"],
+["🐼","🐨","パンダ"],
+["🚑","🚓","きゅうきゅうしゃ"],
+["📚","📰","ほん"],
+["🍰","🍩","ケーキ"],
+["🌸","🌻","さくら"],
+["✈️","🚢","ひこうき"],
+["🎸","🥁","ギター"]
+];
+
+const whichHard=[
+["🍎","🍌","赤い果物"],
+["🌞","🌙","夜に出るの"],
+["🐟","🐔","海で泳ぐの"],
+["🚗","✈️","空を飛ぶの"],
+["🎹","🎸","白と黒の鍵盤があるの"],
+["📱","💻","電話できるの"],
+["🍓","🍇","つぶつぶの果物"],
+["🐼","🐨","白と黒の動物"],
+["🚑","🚓","病院へ急ぐ車"],
+["🌸","🌻","春に咲く花"]
+];
+
+function getWhichList(){
+ if(whichLevel==="easy") return shuffle(whichEasy);
+ if(whichLevel==="normal") return shuffle(whichNormal);
+ if(whichLevel==="hard") return shuffle(whichHard);
+ return [];
+}
+
+/* ---------------- 神経衰弱 ---------------- */
+const memorySets=["🍎","🍊","🍌","🐶","🐱","🐼","🚗","🚲","✈️","🍓","🍇","🍒"];
+
+/* ---------------- 計算 ---------------- */
+function generateCalc(){
+
+ let a,b,ans,op;
+
+ /* 初級：1桁 足し算・引き算 */
+ if(calcLevel==="easy"){
+
+   if(Math.random()<0.5){
+     a=Math.floor(Math.random()*10);
+     b=Math.floor(Math.random()*10);
+     ans=a+b;
+     op="+";
+   }else{
+     a=Math.floor(Math.random()*20);
+     b=Math.floor(Math.random()*(a+1));
+     ans=a-b;
+     op="-";
+   }
+
+ }
+
+ /* 中級：2桁 足し算・引き算 */
+ if(calcLevel==="normal"){
+
+   if(Math.random()<0.5){
+     a=Math.floor(Math.random()*90)+10;
+     b=Math.floor(Math.random()*90)+10;
+     ans=a+b;
+     op="+";
+   }else{
+     a=Math.floor(Math.random()*90)+10;
+     b=Math.floor(Math.random()*90)+10;
+
+     if(b>a){
+       let tmp=a;
+       a=b;
+       b=tmp;
+     }
+
+     ans=a-b;
+     op="-";
+   }
+
+ }
+
+ /* 上級：掛け算・割り算 */
+ if(calcLevel==="hard"){
+
+   if(Math.random()<0.5){
+     a=Math.floor(Math.random()*8)+2;
+     b=Math.floor(Math.random()*8)+2;
+     ans=a*b;
+     op="×";
+   }else{
+     b=Math.floor(Math.random()*8)+2;
+     ans=Math.floor(Math.random()*8)+2;
+     a=b*ans;
+     op="÷";
+   }
+
  }
 
  let wrong=ans+(Math.random()<0.5?1:-1);
- if(wrong<0) wrong=ans+2;
- if(wrong>20) wrong=ans-2;
 
- return {
+ if(wrong===ans) wrong+=2;
+ if(wrong<0) wrong=ans+2;
+
+ return{
    q:`${a} ${op} ${b} = ?`,
    choices:[ans,wrong],
    answer:ans
  };
 }
 
-let josiQueue = useJosi ? shuffle(josiList) : [];
-let whichQueue = useWhich ? shuffle(whichList) : [];
+/* ---------------- 初期 ---------------- */
+let current=0;
+let score=0;
 
-let current=0,score=0;
+let josiQueue=getJosiList();
+let whichQueue=getWhichList();
 
-/* ===== 出題 ===== */
+/* ---------------- 出題 ---------------- */
 function next(){
 
  answers.innerHTML="";
  answers.className="";
 
-if(current>=total){
-
-  saveResult(score,total); // ←★これ追加！！！
-
-  container.innerHTML=
-  `<h2>🎉 おつかれさま！</h2>
+ if(current>=total){
+   container.innerHTML=`
+   <h2>🎉 おつかれさま！</h2>
    <p>${score}/${total} 正解！</p>
    <button class="big-home-btn" onclick="location.href='index.html'">ホームへ</button>`;
-  return;
-}
+   return;
+ }
 
  current++;
 
- /* ★広告（2問ごと更新） */
- if(current % 2 === 1){
-   let ad=document.getElementById("adArea");
-   ad.innerHTML=`
-   <ins class="adsbygoogle"
-   style="display:inline-block;width:320px;height:100px"
-   data-ad-client="ca-pub-1299640300068792"
-   data-ad-slot="7107118417"></ins>`;
-   (adsbygoogle = window.adsbygoogle || []).push({});
- }
-
  progress.innerText=current+" / "+total;
  last.innerText=(current===total)?"ラスト問題！":"";
+
+ /* 広告 */
+ if(current%2===1){
+   adArea.innerHTML=`
+   <ins class="adsbygoogle"
+    style="display:inline-block;width:320px;height:100px"
+    data-ad-client="ca-pub-1299640300068792"
+    data-ad-slot="7107118417"></ins>`;
+   try{
+     (adsbygoogle=window.adsbygoogle||[]).push({});
+   }catch(e){}
+ }
 
  if(current===total && useMemory){
    startMemory();
@@ -289,16 +415,22 @@ if(current>=total){
  }
 
  let types=[];
+
  if(useCalc) types.push("calc");
  if(useJosi) types.push("josi");
  if(useWhich) types.push("which");
 
- if(types.length===0){
-   question.innerText="問題が選択されていません";
+ if(types.length===0 && useMemory){
+   startMemory();
    return;
  }
 
- let type = types[current % types.length];
+ if(types.length===0){
+   question.innerText="問題がありません";
+   return;
+ }
+
+ let type=types[(current-1)%types.length];
 
  if(type==="calc"){
    let d=generateCalc();
@@ -306,32 +438,43 @@ if(current>=total){
  }
 
  if(type==="josi"){
-   if(josiQueue.length===0) josiQueue=shuffle(josiList);
+   if(josiQueue.length===0) josiQueue=getJosiList();
    let x=josiQueue.pop();
-   let wrong=["に","で","と","を","へ"].filter(p=>p!==x[1]);
-   renderChoice(`${x[0]}【${x[1]}・${wrong[0]}】${x[2]}`,[x[1],wrong[0]],x[1]);
+
+   let wrong=["に","で","と","を","へ"].filter(v=>v!==x[1])[0];
+
+   renderChoice(
+   `${x[0]}【${x[1]}・${wrong}】${x[2]}`,
+   [x[1],wrong],
+   x[1]
+   );
  }
 
  if(type==="which"){
-   if(whichQueue.length===0) whichQueue=shuffle(whichList);
+   if(whichQueue.length===0) whichQueue=getWhichList();
    let x=whichQueue.pop();
-   renderChoice(`${x[2]}はどっち？`,[x[0],x[1]],x[0]);
+
+   renderChoice(
+   `${x[2]}はどっち？`,
+   [x[0],x[1]],
+   x[0]
+   );
  }
 }
 
-/* ===== 選択問題 ===== */
+/* ---------------- 選択肢 ---------------- */
 function renderChoice(q,choices,answer){
 
  question.innerText=q;
 
- choices.sort(()=>Math.random()-0.5);
+ shuffle(choices).forEach(c=>{
 
- choices.forEach(c=>{
    let btn=document.createElement("button");
    btn.className="btn";
    btn.innerText=c;
 
    btn.onclick=()=>{
+
      if(c===answer){
        btn.classList.add("correct");
        correctSound.currentTime=0;
@@ -342,107 +485,79 @@ function renderChoice(q,choices,answer){
        wrongSound.currentTime=0;
        wrongSound.play();
      }
-     setTimeout(next,800);
+
+     setTimeout(next,700);
    };
 
    answers.appendChild(btn);
  });
 }
 
-/* ===== 神経衰弱 ===== */
+/* ---------------- 神経衰弱 ---------------- */
 function startMemory(){
 
  question.innerText="神経衰弱";
 
- let set=memorySets[Math.floor(Math.random()*memorySets.length)];
- let cards=shuffle([...set,...set]);
+ let pair=Number(memoryPairs);
+ let base=shuffle(memorySets).slice(0,pair);
+ let cards=shuffle([...base,...base]);
 
- let open=[],matched=0,lock=false;
+ let open=[];
+ let matched=0;
+ let lock=false;
 
  answers.className="memory";
 
  cards.forEach(card=>{
-  let div=document.createElement("div");
-  div.className="card";
-  div.innerText="?";
 
-  div.onclick=()=>{
-   if(lock||div.innerText!=="?")return;
+   let div=document.createElement("div");
+   div.className="card";
+   div.innerText="?";
 
-   div.innerText=card;
-   open.push({div,card});
+   div.onclick=()=>{
 
-   if(open.length===2){
-    lock=true;
-    let[a,b]=open;
+     if(lock || div.innerText!=="?") return;
 
-    if(a.card===b.card){
-      a.div.classList.add("matched");
-      b.div.classList.add("matched");
-      correctSound.currentTime=0;
-      correctSound.play();
-      matched+=2;
-      open=[];lock=false;
+     div.innerText=card;
+     open.push({div,card});
 
-      if(matched===6){
-        score++;
-        setTimeout(next,800);
-      }
-    }else{
-      wrongSound.currentTime=0;
-      wrongSound.play();
-      setTimeout(()=>{
-        a.div.innerText="?";
-        b.div.innerText="?";
-        open=[];lock=false;
-      },700);
-    }
-   }
-  };
+     if(open.length===2){
 
-  answers.appendChild(div);
+       lock=true;
+
+       let a=open[0];
+       let b=open[1];
+
+       if(a.card===b.card){
+
+         a.div.classList.add("matched");
+         b.div.classList.add("matched");
+
+         matched+=2;
+         open=[];
+         lock=false;
+
+         if(matched===pair*2){
+           score++;
+           setTimeout(next,700);
+         }
+
+       }else{
+
+         setTimeout(()=>{
+           a.div.innerText="?";
+           b.div.innerText="?";
+           open=[];
+           lock=false;
+         },700);
+       }
+     }
+   };
+
+   answers.appendChild(div);
  });
 }
-function saveResult(score,total){
 
- let today = new Date().toDateString();
-
- let totalPlay = Number(localStorage.getItem("totalPlay")||0);
- let totalCorrect = Number(localStorage.getItem("totalCorrect")||0);
- let totalQuestions = Number(localStorage.getItem("totalQuestions")||0);
- let streak = Number(localStorage.getItem("streak")||0);
- let last = localStorage.getItem("lastPlayDate");
-
- // 累計
- localStorage.setItem("totalPlay", totalPlay+1);
- localStorage.setItem("totalCorrect", totalCorrect+score);
- localStorage.setItem("totalQuestions", totalQuestions+total);
-
- // ストリーク
- if(last === today){
-   // 同日なら何もしない
- }else{
-   let yesterday = new Date();
-   yesterday.setDate(yesterday.getDate()-1);
-
-   if(last === yesterday.toDateString()){
-     streak++;
-   }else{
-     streak=1;
-   }
-
-   localStorage.setItem("streak", streak);
-   localStorage.setItem("lastPlayDate", today);
- }
-
- // ★カレンダー用
- let history = JSON.parse(localStorage.getItem("playHistory")||"[]");
-
- if(!history.includes(today)){
-   history.push(today);
-   localStorage.setItem("playHistory", JSON.stringify(history));
- }
-}
 next();
 </script>
 
