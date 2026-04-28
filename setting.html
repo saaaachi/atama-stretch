@@ -41,11 +41,47 @@ body{
 .toggle{
  display:flex;
  justify-content:space-between;
+ align-items:center;
  margin:10px 0;
 }
 
 input[type="checkbox"]{
  transform:scale(1.3);
+}
+
+/* 難易度 */
+.level-wrap{
+ margin:12px 0 18px;
+ padding:12px;
+ background:#f8f9fb;
+ border-radius:12px;
+}
+
+.level-title{
+ font-size:14px;
+ margin-bottom:10px;
+ color:#555;
+}
+
+.level-row{
+ display:flex;
+ flex-wrap:wrap;
+ gap:10px;
+}
+
+.level-btn{
+ border:none;
+ background:white;
+ padding:8px 12px;
+ border-radius:999px;
+ font-size:14px;
+ box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+.level-btn.active{
+ background:#74b9ff;
+ color:white;
+ font-weight:bold;
 }
 
 select{
@@ -103,24 +139,49 @@ textarea{
 <div class="card">
  <div class="title">問題設定</div>
 
- <div class="toggle">
-  <span>計算問題</span>
-  <input type="checkbox" id="useCalc">
+ <!-- 計算 -->
+ <div class="level-wrap">
+   <div class="level-title">計算問題</div>
+   <div class="level-row">
+     <button class="level-btn calc-btn" onclick="setLevel('calc','none')">なし</button>
+     <button class="level-btn calc-btn" onclick="setLevel('calc','easy')">初級</button>
+     <button class="level-btn calc-btn" onclick="setLevel('calc','normal')">中級</button>
+     <button class="level-btn calc-btn" onclick="setLevel('calc','hard')">上級</button>
+   </div>
  </div>
 
- <div class="toggle">
-  <span>助詞問題</span>
-  <input type="checkbox" id="useJosi">
+ <!-- 助詞 -->
+ <div class="level-wrap">
+   <div class="level-title">助詞問題</div>
+   <div class="level-row">
+     <button class="level-btn josi-btn" onclick="setLevel('josi','none')">なし</button>
+     <button class="level-btn josi-btn" onclick="setLevel('josi','easy')">初級</button>
+     <button class="level-btn josi-btn" onclick="setLevel('josi','normal')">中級</button>
+     <button class="level-btn josi-btn" onclick="setLevel('josi','hard')">上級</button>
+   </div>
  </div>
 
- <div class="toggle">
-  <span>どっち問題</span>
-  <input type="checkbox" id="useWhich">
+ <!-- どっち -->
+ <div class="level-wrap">
+   <div class="level-title">どっち問題</div>
+   <div class="level-row">
+     <button class="level-btn which-btn" onclick="setLevel('which','none')">なし</button>
+     <button class="level-btn which-btn" onclick="setLevel('which','easy')">初級</button>
+     <button class="level-btn which-btn" onclick="setLevel('which','normal')">中級</button>
+     <button class="level-btn which-btn" onclick="setLevel('which','hard')">上級</button>
+   </div>
  </div>
 
- <div class="toggle">
-  <span>神経衰弱</span>
-  <input type="checkbox" id="useMemory">
+ <!-- 神経衰弱 -->
+ <div class="level-wrap">
+   <div class="level-title">神経衰弱</div>
+   <div class="level-row">
+     <button class="level-btn memory-btn" onclick="setMemory('none')">なし</button>
+     <button class="level-btn memory-btn" onclick="setMemory('2')">2ペア</button>
+     <button class="level-btn memory-btn" onclick="setMemory('3')">3ペア</button>
+     <button class="level-btn memory-btn" onclick="setMemory('4')">4ペア</button>
+     <button class="level-btn memory-btn" onclick="setMemory('6')">6ペア</button>
+   </div>
  </div>
 
  <div style="margin-top:10px;">
@@ -171,48 +232,83 @@ BGM：変わらない日常（石屋 様）<br>
 </div>
 
 <script>
-/* ===== 初期値（初回のみ全部ON） ===== */
+/* 初期値 */
 function initDefault(){
  if(localStorage.getItem("initialized")) return;
 
- localStorage.setItem("useCalc", true);
- localStorage.setItem("useJosi", true);
- localStorage.setItem("useWhich", true);
- localStorage.setItem("useMemory", true);
- localStorage.setItem("questionCount", 5);
+ localStorage.setItem("calcLevel","easy");
+ localStorage.setItem("josiLevel","easy");
+ localStorage.setItem("whichLevel","easy");
+ localStorage.setItem("memoryPairs","3");
+ localStorage.setItem("questionCount","5");
 
- localStorage.setItem("initialized", "true");
+ localStorage.setItem("initialized","true");
 }
 initDefault();
 
-/* ===== 読み込み＆保存 ===== */
-const ids=["useCalc","useJosi","useWhich","useMemory","questionCount"];
+/* 問題数 */
+let qc=document.getElementById("questionCount");
+qc.value=localStorage.getItem("questionCount") || "5";
+qc.onchange=()=>{
+ localStorage.setItem("questionCount",qc.value);
+};
 
-ids.forEach(id=>{
- let el=document.getElementById(id);
+/* 共通難易度 */
+function setLevel(type,level){
 
- let saved=localStorage.getItem(id);
+ localStorage.setItem(type+"Level",level);
 
- if(saved!==null){
-   if(el.type==="checkbox") el.checked = saved==="true";
-   else el.value = saved;
- }
+ document.querySelectorAll("."+type+"-btn").forEach(btn=>{
+   btn.classList.remove("active");
+ });
 
- el.onchange=()=>{
-   localStorage.setItem(id, el.type==="checkbox" ? el.checked : el.value);
+ const labels={
+   none:"なし",
+   easy:"初級",
+   normal:"中級",
+   hard:"上級"
  };
-});
 
-/* ===== アコーディオン ===== */
-function toggleAcc(btn){
- let c=btn.nextElementSibling;
- c.style.display = c.style.display==="block"?"none":"block";
+ document.querySelectorAll("."+type+"-btn").forEach(btn=>{
+   if(btn.innerText===labels[level]){
+     btn.classList.add("active");
+   }
+ });
 }
 
-/* ===== メッセージ ===== */
+/* 神経衰弱 */
+function setMemory(num){
+
+ localStorage.setItem("memoryPairs",num);
+
+ document.querySelectorAll(".memory-btn").forEach(btn=>{
+   btn.classList.remove("active");
+ });
+
+ document.querySelectorAll(".memory-btn").forEach(btn=>{
+   if(btn.innerText=== (num==="none" ? "なし" : num+"ペア")){
+     btn.classList.add("active");
+   }
+ });
+}
+
+/* 初期表示 */
+setLevel("calc",localStorage.getItem("calcLevel") || "easy");
+setLevel("josi",localStorage.getItem("josiLevel") || "easy");
+setLevel("which",localStorage.getItem("whichLevel") || "easy");
+setMemory(localStorage.getItem("memoryPairs") || "3");
+
+/* アコーディオン */
+function toggleAcc(btn){
+ let c=btn.nextElementSibling;
+ c.style.display = c.style.display==="block" ? "none" : "block";
+}
+
+/* メッセージ */
 function sendMsg(){
  let t=document.getElementById("msg").value;
- if(!t){alert("入力してください");return;}
+ if(!t){ alert("入力してください"); return; }
+
  alert("送信ありがとうございました！");
  document.getElementById("msg").value="";
 }
