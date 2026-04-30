@@ -1,3 +1,6 @@
+よし！じゃあこの流れでいっちゃおう😆😆👏
+問題コードはこれだけど…
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -370,7 +373,88 @@ function generateCalc(){
    answer:ans
  };
 }
+/* ---------------- 数字順番 ---------------- */
+function startNumber(){
 
+ let count =
+   calcLevel==="easy" ? 3 :
+   calcLevel==="normal" ? 6 : 10;
+
+ let nums = shuffle([...Array(count)].map((_,i)=>i+1));
+
+ question.innerText="小さい順に押そう";
+
+ let currentNum = 1;
+
+ nums.forEach(n=>{
+   let btn=document.createElement("button");
+   btn.className="btn";
+   btn.innerText=n;
+
+   btn.onclick=()=>{
+
+     if(n===currentNum){
+       btn.classList.add("correct");
+       currentNum++;
+
+       if(currentNum>count){
+         score++;
+         setTimeout(next,700);
+       }
+
+     }else{
+       btn.classList.add("wrong");
+     }
+   };
+
+   answers.appendChild(btn);
+ });
+}
+
+/* ---------------- 仲間外れ ---------------- */
+function startOdd(){
+
+ let data=[
+   ["🍎","🍓","🍅","野菜"],
+   ["🐶","🐱","🐟","魚"],
+   ["🚗","🚲","✈️","空"],
+   ["🍞","🍙","🍰","主食"],
+   ["🌸","🌻","🌲","木"]
+ ];
+
+ let d = shuffle(data)[0];
+
+ question.innerText="仲間外れはどれ？";
+
+ shuffle(d.slice(0,3)).forEach(c=>{
+
+   let btn=document.createElement("button");
+   btn.className="btn";
+   btn.innerText=c;
+
+   btn.onclick=()=>{
+
+     if(c===d[2]){ // ←3つ目を正解にしてる
+       btn.classList.add("correct");
+       score++;
+       setTimeout(next,700);
+     }else{
+       btn.classList.add("wrong");
+     }
+   };
+
+   answers.appendChild(btn);
+ });
+
+ /* 上級だけヒント */
+ if(calcLevel==="hard"){
+   let hint=document.createElement("div");
+   hint.style.marginTop="10px";
+   hint.innerText="ヒント："+d[3];
+   container.appendChild(hint);
+ }
+}
+ 
 /* ---------------- 初期 ---------------- */
 let current=0;
 let score=0;
@@ -415,6 +499,8 @@ function next(){
  }
 
  let types=[];
+ types.push("number");
+ types.push("odd");
 
  if(useCalc) types.push("calc");
  if(useJosi) types.push("josi");
@@ -453,6 +539,15 @@ function next(){
  if(type==="which"){
    if(whichQueue.length===0) whichQueue=getWhichList();
    let x=whichQueue.pop();
+  if(type==="number"){
+ startNumber();
+ return;
+}
+
+if(type==="odd"){
+ startOdd();
+ return;
+}
 
    renderChoice(
    `${x[2]}はどっち？`,
