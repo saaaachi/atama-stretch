@@ -421,6 +421,7 @@ function next(){
 
  answers.innerHTML="";
  answers.className="";
+ container.querySelectorAll(".hint-btn").forEach(e=>e.remove());
 
  if(current>=total){
    container.innerHTML=`
