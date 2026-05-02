@@ -318,17 +318,7 @@ function generateCalc(){
  let nums=[];
  let correctOrder=[];
  let isAscending=true;
- let resetBtn=document.createElement("button");
-resetBtn.innerText="🔄 やりなおし";
-resetBtn.className="hint-btn";
 
-resetBtn.onclick=()=>{
-  selected.forEach(b => b.style.background="#81ecec");
-  selected = [];
-  index = 0;
-};
-
-container.appendChild(resetBtn); 
 
  /* ---------------- 難易度 ---------------- */
  if(numberLevel==="easy"){
