@@ -304,7 +304,8 @@ function generateCalc(){
  return{ q:`${a} ${op} ${b} = ?`, choices:[ans,wrong], answer:ans };
 }
 
-/* ---------------- 数字 */function startNumber(){
+/* ---------------- 数字 */
+ function startNumber(){
 
  answers.innerHTML="";
  answers.className="number-grid";
@@ -316,7 +317,7 @@ function generateCalc(){
  /* ---------------- 難易度 ---------------- */
  if(numberLevel==="easy"){
 
-   // 1〜6 小さい順
+   // 1〜6 小さい順（3×2）
    nums = shuffle([1,2,3,4,5,6]);
    correctOrder = [1,2,3,4,5,6];
    isAscending = true;
@@ -326,7 +327,7 @@ function generateCalc(){
 
  else if(numberLevel==="normal"){
 
-   // 10〜20からランダム10個 小さい順
+   // 10〜20から10個 小さい順（5×2）
    let base = shuffle([...Array(11)].map((_,i)=>i+10)).slice(0,10);
    nums = shuffle(base);
    correctOrder = [...base].sort((a,b)=>a-b);
@@ -337,7 +338,7 @@ function generateCalc(){
 
  else{
 
-   // 1〜30からランダム10個 大きい順
+   // 1〜30から10個 大きい順（5×2）
    let base = shuffle([...Array(30)].map((_,i)=>i+1)).slice(0,10);
    nums = shuffle(base);
    correctOrder = [...base].sort((a,b)=>b-a);
@@ -352,6 +353,7 @@ function generateCalc(){
    : "大きい順に押そう";
 
  let index = 0;
+ let selected = []; // 押した履歴
 
  nums.forEach(n=>{
 
@@ -364,6 +366,7 @@ function generateCalc(){
      if(n===correctOrder[index]){
 
        btn.style.background="#55efc4";
+       selected.push(btn);
        index++;
 
        if(index===correctOrder.length){
@@ -373,8 +376,18 @@ function generateCalc(){
 
      }else{
 
+       // ❌ 間違えたら1つ戻る
+       if(selected.length > 0){
+         let last = selected.pop();
+         last.style.background="#81ecec";
+         index--;
+       }
+
        btn.style.background="#fab1a0";
 
+       setTimeout(()=>{
+         btn.style.background="#81ecec";
+       },300);
      }
 
    };
