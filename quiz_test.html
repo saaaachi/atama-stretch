@@ -305,12 +305,16 @@ function generateCalc(){
 }
 
 /* ---------------- 数字順番 ---------------- */
+/* ---------------- 数字順番 ---------------- */
+
 function startNumber(){
 
  answers.className="number-grid";
 
  let count =
+
    calcLevel==="easy" ? 3 :
+
    calcLevel==="normal" ? 6 : 10;
 
  let nums = shuffle([...Array(count)].map((_,i)=>i+1));
@@ -320,55 +324,95 @@ function startNumber(){
  let currentNum = 1;
 
  nums.forEach(n=>{
+
    let btn=document.createElement("button");
+
    btn.className="number-btn";
+
    btn.innerText=n;
 
    btn.onclick=()=>{
 
      if(n===currentNum){
+
        btn.style.background="#55efc4";
+
        currentNum++;
 
        if(currentNum>count){
+
          score++;
+
          setTimeout(next,700);
+
        }
 
      }else{
+
        btn.style.background="#fab1a0";
+
      }
+
    };
 
    answers.appendChild(btn);
+
  });
+
 }
 
 /* ---------------- 仲間外れ ---------------- */
+
 function startOdd(){
 
  answers.className="";
 
- let easy=[
-   ["🍎","🍓","🍅","やさい"],
-   ["🐶","🐱","🐟","さかな"],
-   ["🚗","🚲","✈️","そら"]
- ];
+ const easy=[
 
- let normal=[
+   ["🍎","🍓","🍅","やさい"],
+
+   ["🐶","🐱","🐟","さかな"],
+
+   ["🚗","🚲","✈️","そら"],
+
    ["🍞","🍙","🍰","あまいもの"],
-   ["🌸","🌻","🌲","き"],
-   ["🐼","🐨","🐟","みず"]
+
+   ["🌸","🌻","🌲","き"]
+
  ];
 
- let hard=[
+ const normal=[
+
+   ["🍎","🍓","🍌","くだもの"],
+
+   ["🐶","🐱","🐧","りく"],
+
+   ["🚗","🚲","🚢","みず"],
+
+   ["🍞","🍙","🍰","しょくじ"],
+
+   ["🌸","🌻","🌙","そら"]
+
+ ];
+
+ const hard=[
+
    ["🍎","🍓","🍅","やさい"],
+
    ["🐶","🐱","🐟","さかな"],
-   ["🚗","🚲","✈️","そら"]
+
+   ["🚗","🚲","✈️","そら"],
+
+   ["🐼","🐨","🐧","みず"],
+
+   ["🍞","🍙","🍰","あまい"]
+
  ];
 
  let list =
+
    calcLevel==="easy" ? easy :
+
    calcLevel==="normal" ? normal : hard;
 
  let d = shuffle(list)[0];
@@ -380,30 +424,45 @@ function startOdd(){
  shuffle(d.slice(0,3)).forEach(c=>{
 
    let btn=document.createElement("button");
+
    btn.className="btn";
+
    btn.innerText=c;
 
    btn.onclick=()=>{
 
      if(c===correct){
+
        btn.classList.add("correct");
+
        score++;
+
        setTimeout(next,700);
+
      }else{
+
        btn.classList.add("wrong");
+
      }
+
    };
 
    answers.appendChild(btn);
+
  });
 
  /* ヒントボタン */
+
  let hintBtn=document.createElement("button");
+
  hintBtn.className="hint-btn";
+
  hintBtn.innerText="ヒント";
 
  hintBtn.onclick=()=>{
+
    hintBtn.innerText="ヒント："+d[3];
+
  };
 
  container.appendChild(hintBtn);
