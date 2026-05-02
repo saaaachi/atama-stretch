@@ -213,11 +213,14 @@ let calcLevel=localStorage.getItem("calcLevel") || "easy";
 let josiLevel=localStorage.getItem("josiLevel") || "easy";
 let whichLevel=localStorage.getItem("whichLevel") || "easy";
 let memoryPairs=localStorage.getItem("memoryPairs") || "3";
+let numberLevel = localStorage.getItem("numberLevel") || "easy";
+
 
 let useCalc = calcLevel!=="none";
 let useJosi = josiLevel!=="none";
 let useWhich = whichLevel!=="none";
 let useMemory = memoryPairs!=="none";
+let useNumber = numberLevel!=="none";
 
 /* ---------------- 共通 ---------------- */
 function shuffle(arr){
