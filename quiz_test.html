@@ -74,8 +74,6 @@ body{
  margin:20px 0;
 }
 
- <div id="history" style="font-size:20px; margin-bottom:10px;"></div>
-
 .btn{
  width:90%;
  margin:10px auto;
@@ -173,6 +171,7 @@ body{
 <div class="container" id="container">
  <div id="last" style="color:red;font-weight:bold;"></div>
  <div id="question" class="question"></div>
+ <div id="history" style="font-size:20px; margin-bottom:10px;"></div>
  <div id="answers"></div>
 </div>
 
@@ -380,24 +379,12 @@ historyEl.innerText = "";
        index++;
 　　　　 historyEl.innerText += n + " ";
 
-  if(index === correctOrder.length){
-
-    score++;
-
-    setTimeout(next,700);
-
-       if(index===correctOrder.length){
+     if(index===correctOrder.length){
          score++;
          setTimeout(next,700);
        }
 
      }else{
-
-btn.style.background="#fab1a0";
-
-setTimeout(()=>{
-  btn.style.background="#81ecec";
-},300);
 
        btn.style.background="#fab1a0";
 
