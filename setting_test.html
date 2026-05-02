@@ -1,1 +1,344 @@
-a
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>設定</title>
+
+<style>
+body{
+ margin:0;
+ font-family:sans-serif;
+ background:#f5f6fa;
+ max-width:520px;
+ margin:auto;
+}
+
+.header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:12px;
+}
+
+.back{font-size:20px;}
+.header-title{font-weight:bold;}
+
+.card{
+ background:white;
+ margin:15px;
+ padding:15px;
+ border-radius:16px;
+ box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.title{
+ font-weight:bold;
+ margin-bottom:10px;
+}
+
+.toggle{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin:10px 0;
+}
+
+input[type="checkbox"]{
+ transform:scale(1.3);
+}
+
+/* 難易度 */
+.level-wrap{
+ margin:12px 0 18px;
+ padding:12px;
+ background:#f8f9fb;
+ border-radius:12px;
+}
+
+.level-title{
+ font-size:14px;
+ margin-bottom:10px;
+ color:#555;
+}
+
+.level-row{
+ display:flex;
+ flex-wrap:wrap;
+ gap:10px;
+}
+
+.level-btn{
+ border:none;
+ background:white;
+ padding:8px 12px;
+ border-radius:999px;
+ font-size:14px;
+ box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+.level-btn.active{
+ background:#74b9ff;
+ color:white;
+ font-weight:bold;
+}
+
+select{
+ width:100%;
+ padding:10px;
+ border-radius:10px;
+ border:none;
+ background:#f1f2f6;
+}
+
+.accordion-btn{
+ width:100%;
+ padding:12px;
+ border:none;
+ border-radius:10px;
+ background:#dfe6e9;
+ text-align:left;
+}
+
+.accordion-content{
+ display:none;
+ padding:10px;
+ font-size:14px;
+ color:#555;
+}
+
+textarea{
+ width:100%;
+ height:80px;
+ border-radius:10px;
+ border:none;
+ padding:10px;
+ background:#f1f2f6;
+}
+
+.send-btn{
+ width:100%;
+ margin-top:10px;
+ padding:12px;
+ border:none;
+ border-radius:10px;
+ background:#74b9ff;
+ color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+ <div class="back" onclick="location.href='index.html'">←</div>
+ <div class="header-title">設定</div>
+</div>
+
+<div class="card">
+ <div class="title">問題設定</div>
+
+ <!-- 計算 -->
+ <div class="level-wrap">
+   <div class="level-title">計算問題</div>
+   <div class="level-row">
+     <button class="level-btn calc-btn" onclick="setLevel('calc','none')">なし</button>
+     <button class="level-btn calc-btn" onclick="setLevel('calc','easy')">初級</button>
+     <button class="level-btn calc-btn" onclick="setLevel('calc','normal')">中級</button>
+     <button class="level-btn calc-btn" onclick="setLevel('calc','hard')">上級</button>
+   </div>
+ </div>
+
+ <!-- 助詞 -->
+ <div class="level-wrap">
+   <div class="level-title">助詞問題</div>
+   <div class="level-row">
+     <button class="level-btn josi-btn" onclick="setLevel('josi','none')">なし</button>
+     <button class="level-btn josi-btn" onclick="setLevel('josi','easy')">初級</button>
+     <button class="level-btn josi-btn" onclick="setLevel('josi','normal')">中級</button>
+     <button class="level-btn josi-btn" onclick="setLevel('josi','hard')">上級</button>
+   </div>
+ </div>
+
+ <!-- どっち -->
+ <div class="level-wrap">
+   <div class="level-title">どっち問題</div>
+   <div class="level-row">
+     <button class="level-btn which-btn" onclick="setLevel('which','none')">なし</button>
+     <button class="level-btn which-btn" onclick="setLevel('which','easy')">初級</button>
+     <button class="level-btn which-btn" onclick="setLevel('which','normal')">中級</button>
+     <button class="level-btn which-btn" onclick="setLevel('which','hard')">上級</button>
+   </div>
+ </div>
+  
+  <!-- 仲間外れ -->
+<div class="level-wrap">
+  <div class="level-title">仲間外れ</div>
+  <div class="level-row">
+    <button class="level-btn odd-btn" onclick="setLevel('odd','none')">なし</button>
+    <button class="level-btn odd-btn" onclick="setLevel('odd','easy')">初級</button>
+    <button class="level-btn odd-btn" onclick="setLevel('odd','normal')">中級</button>
+    <button class="level-btn odd-btn" onclick="setLevel('odd','hard')">上級</button>
+  </div>
+</div>
+
+  <!-- 数字順番 -->
+<div class="level-wrap">
+  <div class="level-title">数字順番</div>
+  <div class="level-row">
+    <button class="level-btn number-btn" onclick="setLevel('number','none')">なし</button>
+    <button class="level-btn number-btn" onclick="setLevel('number','easy')">初級</button>
+    <button class="level-btn number-btn" onclick="setLevel('number','normal')">中級</button>
+    <button class="level-btn number-btn" onclick="setLevel('number','hard')">上級</button>
+  </div>
+</div>
+
+ <!-- 神経衰弱 -->
+ <div class="level-wrap">
+   <div class="level-title">神経衰弱</div>
+   <div class="level-row">
+     <button class="level-btn memory-btn" onclick="setMemory('none')">なし</button>
+     <button class="level-btn memory-btn" onclick="setMemory('2')">2ペア</button>
+     <button class="level-btn memory-btn" onclick="setMemory('3')">3ペア</button>
+     <button class="level-btn memory-btn" onclick="setMemory('4')">4ペア</button>
+     <button class="level-btn memory-btn" onclick="setMemory('6')">6ペア</button>
+   </div>
+ </div>
+
+ <div style="margin-top:10px;">
+  <div>問題数</div>
+  <select id="questionCount">
+    <option value="3">3問</option>
+    <option value="5">5問</option>
+    <option value="7">7問</option>
+    <option value="10">10問</option>
+    <option value="15">15問</option>
+  </select>
+ </div>
+</div>
+
+<div class="card">
+ <div class="title">ご意見・ご要望</div>
+ <textarea id="msg"></textarea>
+ <button class="send-btn" onclick="sendMsg()">送信</button>
+</div>
+
+<div class="card">
+ <button class="accordion-btn" onclick="toggleAcc(this)">＋ 作成者からのメッセージ</button>
+ <div class="accordion-content">
+「あたまのストレッチ」をご利用いただき、ありがとうございます。<br><br>
+このゲームは、脳卒中で倒れ失語症になった母のために作りました。<br><br>
+ぜひ無理なく楽しんでください。
+ </div>
+</div>
+
+<div class="card">
+ <button class="accordion-btn" onclick="toggleAcc(this)">＋ プライバシーポリシー</button>
+ <div class="accordion-content">
+本アプリではGoogle AdSenseを利用しています。Cookieにより広告が表示される場合があります。
+ </div>
+</div>
+
+<div class="card">
+ <button class="accordion-btn" onclick="toggleAcc(this)">＋ 音源について</button>
+ <div class="accordion-content">
+BGM：変わらない日常（石屋 様）<br>
+効果音：効果音ラボ
+ </div>
+</div>
+
+<div class="card">
+ <div class="title">他のゲーム</div>
+ <a href="https://saaaachi.github.io/" target="_blank">👉 遊ぶ</a>
+</div>
+
+<script>
+/* 初期値 */
+function initDefault(){
+ if(localStorage.getItem("initialized")) return;
+
+ localStorage.setItem("calcLevel","easy");
+ localStorage.setItem("josiLevel","easy");
+ localStorage.setItem("whichLevel","easy");
+ localStorage.setItem("memoryPairs","3");
+ localStorage.setItem("questionCount","5");
+localStorage.setItem("numberLevel","easy");
+
+ localStorage.setItem("initialized","true");
+ localStorage.setItem("oddLevel","easy");
+}
+initDefault();
+
+/* 問題数 */
+let qc=document.getElementById("questionCount");
+qc.value=localStorage.getItem("questionCount") || "5";
+qc.onchange=()=>{
+ localStorage.setItem("questionCount",qc.value);
+};
+
+/* 共通難易度 */
+function setLevel(type,level){
+
+ localStorage.setItem(type+"Level",level);
+
+ document.querySelectorAll("."+type+"-btn").forEach(btn=>{
+   btn.classList.remove("active");
+ });
+
+ const labels={
+   none:"なし",
+   easy:"初級",
+   normal:"中級",
+   hard:"上級"
+ };
+
+ document.querySelectorAll("."+type+"-btn").forEach(btn=>{
+   if(btn.innerText===labels[level]){
+     btn.classList.add("active");
+   }
+ });
+}
+
+/* 神経衰弱 */
+function setMemory(num){
+
+ localStorage.setItem("memoryPairs",num);
+
+ document.querySelectorAll(".memory-btn").forEach(btn=>{
+   btn.classList.remove("active");
+ });
+
+ document.querySelectorAll(".memory-btn").forEach(btn=>{
+   if(btn.innerText=== (num==="none" ? "なし" : num+"ペア")){
+     btn.classList.add("active");
+   }
+ });
+}
+
+/* 初期表示 */
+setLevel("calc",localStorage.getItem("calcLevel") || "easy");
+setLevel("josi",localStorage.getItem("josiLevel") || "easy");
+setLevel("which",localStorage.getItem("whichLevel") || "easy");
+setLevel("odd",localStorage.getItem("oddLevel") || "easy");
+setLevel("number",localStorage.getItem("numberLevel") || "easy");
+setMemory(localStorage.getItem("memoryPairs") || "3");
+
+/* アコーディオン */
+function toggleAcc(btn){
+ let c=btn.nextElementSibling;
+ c.style.display = c.style.display==="block" ? "none" : "block";
+}
+
+/* メッセージ */
+function sendMsg(){
+ let t=document.getElementById("msg").value;
+ if(!t){ alert("入力してください"); return; }
+
+ alert("送信ありがとうございました！");
+ document.getElementById("msg").value="";
+}
+</script>
+
+</body>
+</html>
