@@ -431,19 +431,19 @@ function startOdd(){
 
    btn.onclick=()=>{
 
-     if(c===correct){
+  if(c===correct){
+    btn.classList.add("correct");
+    score++;
+    correctSound.currentTime=0;
+    correctSound.play();
+  }else{
+    btn.classList.add("wrong");
+    wrongSound.currentTime=0;
+    wrongSound.play();
+  }
 
-       btn.classList.add("correct");
-
-       score++;
-
-       setTimeout(next,700);
-
-     }else{
-
-       btn.classList.add("wrong");
-
-     }
+  setTimeout(next,700);
+};
 
    };
 
