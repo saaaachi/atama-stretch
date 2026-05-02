@@ -334,7 +334,7 @@ function generateCalc(){
  else if(numberLevel==="normal"){
 
    // 10〜20から10個 小さい順（5×2）
-   let base = shuffle([...Array(11)].map((_,i)=>i+10)).slice(0,10);
+   let base = shuffle([...Array(10)].map((_,i)=>i+11));
    nums = shuffle(base);
    correctOrder = [...base].sort((a,b)=>a-b);
    isAscending = true;
