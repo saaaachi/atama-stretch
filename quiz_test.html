@@ -318,6 +318,17 @@ function generateCalc(){
  let nums=[];
  let correctOrder=[];
  let isAscending=true;
+ let resetBtn=document.createElement("button");
+resetBtn.innerText="🔄 やりなおし";
+resetBtn.className="hint-btn";
+
+resetBtn.onclick=()=>{
+  selected.forEach(b => b.style.background="#81ecec");
+  selected = [];
+  index = 0;
+};
+
+container.appendChild(resetBtn); 
 
  /* ---------------- 難易度 ---------------- */
  if(numberLevel==="easy"){
@@ -381,12 +392,11 @@ function generateCalc(){
 
      }else{
 
-       // ❌ 間違えたら1つ戻る
-       if(selected.length > 0){
-         let last = selected.pop();
-         last.style.background="#81ecec";
-         index--;
-       }
+btn.style.background="#fab1a0";
+
+setTimeout(()=>{
+  btn.style.background="#81ecec";
+},300);
 
        btn.style.background="#fab1a0";
 
