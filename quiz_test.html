@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <title>問題</title>
 
@@ -73,6 +73,8 @@ body{
  font-size:34px;
  margin:20px 0;
 }
+
+ <div id="history" style="font-size:20px; margin-bottom:10px;"></div>
 
 .btn{
  width:90%;
@@ -318,6 +320,8 @@ function generateCalc(){
  let nums=[];
  let correctOrder=[];
  let isAscending=true;
+ let historyEl = document.getElementById("history");
+historyEl.innerText = "";
 
 
  /* ---------------- 難易度 ---------------- */
@@ -374,6 +378,13 @@ function generateCalc(){
        btn.style.background="#55efc4";
        selected.push(btn);
        index++;
+　　　　 historyEl.innerText += n + " ";
+
+  if(index === correctOrder.length){
+
+    score++;
+
+    setTimeout(next,700);
 
        if(index===correctOrder.length){
          score++;
