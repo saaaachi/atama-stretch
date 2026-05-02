@@ -221,6 +221,8 @@ let useJosi = josiLevel!=="none";
 let useWhich = whichLevel!=="none";
 let useMemory = memoryPairs!=="none";
 let useNumber = numberLevel!=="none";
+let oddLevel = localStorage.getItem("oddLevel") || "easy";
+let useOdd = oddLevel!=="none";
 
 /* ---------------- 共通 ---------------- */
 function shuffle(arr){
@@ -449,9 +451,9 @@ function startOdd(){
 
  let list =
 
-   calcLevel==="easy" ? easy :
+   oddLevel==="easy" ? easy :
 
-   calcLevel==="normal" ? normal : hard;
+   oddLevel==="normal" ? normal : hard;
 
  let d = shuffle(list)[0];
 
