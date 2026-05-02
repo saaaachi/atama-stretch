@@ -546,8 +546,9 @@ function next(){
  }
 
  let types=[];
- types.push("number");
- types.push("odd");
+
+if(useNumber) types.push("number");
+if(useOdd) types.push("odd");
  if(useCalc) types.push("calc");
  if(useJosi) types.push("josi");
  if(useWhich) types.push("which");
