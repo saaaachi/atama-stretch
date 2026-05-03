@@ -142,19 +142,6 @@ body{
  background:#ffeaa7;
 }
 
- .history-item{
- display:inline-block;
- background:#dfe6e9;
- padding:6px 10px;
- margin:3px;
- border-radius:8px;
- font-size:18px;
-}
-#history{
- height:24px;
- font-size:14px;
- overflow:hidden;
-}
 }
 
 @media (max-height: 700px){
@@ -219,7 +206,6 @@ body{
 <div class="container" id="container">
  <div id="last" style="color:red;font-weight:bold;"></div>
  <div id="question" class="question"></div>
- <div id="history" style="font-size:20px; margin-bottom:10px;"></div>
  <div id="answers"></div>
 </div>
 
@@ -367,8 +353,6 @@ function generateCalc(){
  let nums=[];
  let correctOrder=[];
  let isAscending=true;
- let historyEl = document.getElementById("history");
-historyEl.innerText = "";
 
 
  /* ---------------- 難易度 ---------------- */
@@ -425,11 +409,6 @@ historyEl.innerText = "";
        btn.style.background="#55efc4";
        selected.push(btn);
        index++;
-　　　　 let span = document.createElement("span");
-span.className = "history-item";
-span.innerText = n;
-
-historyEl.appendChild(span);
 
      if(index===correctOrder.length){
          score++;
