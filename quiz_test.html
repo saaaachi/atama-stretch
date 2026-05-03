@@ -151,14 +151,22 @@ body{
  font-size:18px;
 }
 
- @media (max-height: 700px){
+@media (max-height: 700px){
  .question{
-   font-size:28px;
+   font-size:26px; /* 少し小さく */
+   margin:10px 0;  /* 上下の余白減らす */
+ }
+
+ .topbar{
+   padding:6px 10px; /* 上の余白も削る */
  }
 
  .btn{
-   padding:16px;
-   font-size:20px;
+   height:60px;
+   padding:0;
+   display:flex;
+   align-items:center;
+   justify-content:center;
  }
 
  .number-btn{
