@@ -171,6 +171,28 @@ textarea{
      <button class="level-btn which-btn" onclick="setLevel('which','hard')">上級</button>
    </div>
  </div>
+  
+  <!-- 仲間外れ -->
+<div class="level-wrap">
+  <div class="level-title">仲間外れ</div>
+  <div class="level-row">
+    <button class="level-btn odd-btn" onclick="setLevel('odd','none')">なし</button>
+    <button class="level-btn odd-btn" onclick="setLevel('odd','easy')">初級</button>
+    <button class="level-btn odd-btn" onclick="setLevel('odd','normal')">中級</button>
+    <button class="level-btn odd-btn" onclick="setLevel('odd','hard')">上級</button>
+  </div>
+</div>
+
+  <!-- 数字順番 -->
+<div class="level-wrap">
+  <div class="level-title">数字順番</div>
+  <div class="level-row">
+    <button class="level-btn number-btn" onclick="setLevel('number','none')">なし</button>
+    <button class="level-btn number-btn" onclick="setLevel('number','easy')">初級</button>
+    <button class="level-btn number-btn" onclick="setLevel('number','normal')">中級</button>
+    <button class="level-btn number-btn" onclick="setLevel('number','hard')">上級</button>
+  </div>
+</div>
 
  <!-- 神経衰弱 -->
  <div class="level-wrap">
@@ -241,8 +263,10 @@ function initDefault(){
  localStorage.setItem("whichLevel","easy");
  localStorage.setItem("memoryPairs","3");
  localStorage.setItem("questionCount","5");
+localStorage.setItem("numberLevel","easy");
 
  localStorage.setItem("initialized","true");
+ localStorage.setItem("oddLevel","easy");
 }
 initDefault();
 
@@ -296,7 +320,10 @@ function setMemory(num){
 setLevel("calc",localStorage.getItem("calcLevel") || "easy");
 setLevel("josi",localStorage.getItem("josiLevel") || "easy");
 setLevel("which",localStorage.getItem("whichLevel") || "easy");
+setLevel("odd",localStorage.getItem("oddLevel") || "easy");
+setLevel("number",localStorage.getItem("numberLevel") || "easy");
 setMemory(localStorage.getItem("memoryPairs") || "3");
+let numberLevel = localStorage.getItem("numberLevel") || "easy";
 
 /* アコーディオン */
 function toggleAcc(btn){
