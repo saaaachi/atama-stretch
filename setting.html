@@ -219,10 +219,39 @@ textarea{
 </div>
 
 <div class="card">
- <div class="title">ご意見・ご要望</div>
- <textarea id="msg"></textarea>
- <button class="send-btn" onclick="sendMsg()">送信</button>
+  <div class="title">ご意見・ご要望</div>
+  <textarea id="msg" placeholder="お気軽にご意見・ご要望をお送りください"></textarea>
+  <button class="send-btn" onclick="sendMsg()">送信</button>
 </div>
+
+<script>
+async function sendMsg() {
+  const msg = document.getElementById("msg").value;
+
+  if (!msg.trim()) {
+    alert("メッセージを入力してください。");
+    return;
+  }
+
+  const res = await fetch("https://formspree.io/f/xjgqdodp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify({
+      message: msg
+    })
+  });
+
+  if (res.ok) {
+    alert("送信しました。ありがとうございます！");
+    document.getElementById("msg").value = "";
+  } else {
+    alert("送信できませんでした。");
+  }
+}
+</script>
 
 <div class="card">
  <button class="accordion-btn" onclick="toggleAcc(this)">＋ 作成者からのメッセージ</button>
