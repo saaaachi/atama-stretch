@@ -305,7 +305,8 @@ const whichNormal=[
 const whichHard=[
 ["🍎","🍌","赤い果物"],["🌞","🌙","夜に出るの"],["🐟","🐔","海で泳ぐの"],["🚗","✈️","空を飛ぶの"],["🎹","🎸","白と黒の鍵盤があるの"],
 ["📱","💻","電話できるの"],["🍓","🍇","つぶつぶの果物"],["🐼","🐨","白と黒の動物"],["🚑","🚓","病院へ急ぐ車"],["🌸","🌻","春に咲く花"],
-["🍉","🍓","夏に食べる大きい果物"],["🍦","🍩","冷たくて甘いお菓子"],["🥕","🥔","土の中で育つオレンジ色の野菜"],["🦁","🐑","たてがみがある強い動物"],["✈️","🚢","海の上を進む大きなのりもの"]
+["🍉","🍓","夏に食べる大きい果物"],["🍦","🍩","冷たくて甘いお菓子"],["🥕","🥔","土の中で育つオレンジ色の野菜"],["🦁","🐑","たてがみがある強い動物"],
+["🚢","✈️","海の上を進む大きなのりもの"]
 ];
 
 function getWhichList(){
@@ -415,7 +416,7 @@ function generateCalc(){
        selected.push(btn);
        index++;
 
-     if(index===correctOrder.length){
+       if(index===correctOrder.length){
          score++;
          setTimeout(next,700);
        }
@@ -436,121 +437,61 @@ function generateCalc(){
  });
 }
 /* ---------------- 仲間外れ ---------------- */
+const oddEasy=[
+  ["🍎","🍓","🍅","やさい"], ["🐶","🐱","🐟","さかな"], ["🚗","🚲","✈️","そら"], ["🍞","🍙","🍰","あまいもの"], ["🌸","🌻","🌲","き"],
+  ["🥛","🍹","🍙","のみもの"], ["🐒","🐰","🐦","そら"], ["✏️","📖","🍎","学校に持っていくもの"], ["⚽","🏀","🚗","ボール（球技）"], ["🧅","🥕","🍌","くだもの"]
+];
+const oddNormal=[
+  ["🍎","🍓","🍌","いろ"], ["🐶","🐱","🐧","りく"], ["🚗","🚲","🚢","みず"], ["🍞","🍙","🍰","しょくじ"], ["🌸","🌻","🌙","そら"],
+  ["🍦","🍧","🍪","冷たいお菓子"], ["🚌","🚃","🚲","線路を走る"], ["🎻","🎸","🎹","弦（糸）を鳴らす楽器"], ["🥔","🥕","🍅","土の中で育つ野菜"], ["📱","💻","📺","持ち歩ける連絡ツール"]
+];
+const oddHard=[
+  ["🍎","🍓","🍅","やさい"], ["🐶","🐱","🐟","さかな"], ["🚗","🚲","✈️","そら"], ["🐼","🐨","🐧","みず"], ["🍞","🍙","🍰","あまい"],
+  ["🐝","🦋","🕷️","昆虫（むし）"], ["🐋","🐬","🐢","陸でも歩ける爬虫類"], ["📯","🎺","🥁","息を吹き込んで鳴らす（管楽器）"], ["🗻","🌲","🏜️","砂だらけの場所（砂漠）"], ["🧦","👖","👒","足（靴の中）に履くもの"]
+];
+
+function getOddList(){
+ if(oddLevel==="easy") return shuffle(oddEasy);
+ if(oddLevel==="normal") return shuffle(oddNormal);
+ if(oddLevel==="hard") return shuffle(oddHard);
+ return [];
+}
 
 function startOdd(){
-
  answers.className="";
-
- const easy=[
-
-   ["🍎","🍓","🍅","やさい"],
-
-   ["🐶","🐱","🐟","さかな"],
-
-   ["🚗","🚲","✈️","そら"],
-
-   ["🍞","🍙","🍰","あまいもの"],
-
-   ["🌸","🌻","🌲","き"],
-   ["🥛","🍹","🍙","のみもの"],
-   ["🐒","🐰","🐦","そら"],
-   ["✏️","📖","🍎","学校に持っていくもの"],
-   ["⚽","🏀","🚗","ボール（球技）"],
-   ["🧅","🥕","🍌","くだもの"]
-
- ];
-
- const normal=[
-
-   ["🍎","🍓","🍌","いろ"],
-
-   ["🐶","🐱","🐧","りく"],
-
-   ["🚗","🚲","🚢","みず"],
-
-   ["🍞","🍙","🍰","しょくじ"],
-
-   ["🌸","🌻","🌙","そら"],
-   ["🍦","🍧","🍪","冷たいお菓子"],
-   ["🚌","🚃","🚲","線路を走る"],
-   ["🎻","🎸","🎹","弦（糸）を鳴らす楽器"],
-   ["🥔","🥕","🍅","土の中で育つ野菜"],
-   ["📱","💻","📺","持ち歩ける連絡ツール"]
- ];
-
- const hard=[
-
-   ["🍎","🍓","🍅","やさい"],
-
-   ["🐶","🐱","🐟","さかな"],
-
-   ["🚗","🚲","✈️","そら"],
-
-   ["🐼","🐨","🐧","みず"],
-
-   ["🍞","🍙","🍰","あまい"],
-   ["🐝","🦋","🕷️","昆虫（むし）"],
-   ["🐋","🐬","🐢","陸でも歩ける爬虫類"],
-   ["📯","🎺","🥁","息を吹き込んで鳴らす（管楽器）"],
-   ["🗻","🌲","🏜️","砂だらけの場所（砂漠）"],
-   ["🧦","👖","👒","足（靴の中）に履くもの"]
- ];
-
- let list =
-
-   oddLevel==="easy" ? easy :
-
-   oddLevel==="normal" ? normal : hard;
-
- let d = shuffle(list)[0];
+ if(oddQueue.length===0) oddQueue=getOddList();
+ let d = oddQueue.pop();
 
  question.innerText="仲間外れはどれ？";
-
  let correct = d[2];
 
  shuffle(d.slice(0,3)).forEach(c=>{
-
    let btn=document.createElement("button");
-
    btn.className="btn";
-
    btn.innerText=c;
-
    btn.onclick=()=>{
-
-  if(c===correct){
-    btn.classList.add("correct");
-    score++;
-    correctSound.currentTime=0;
-    correctSound.play();
-  }else{
-    btn.classList.add("wrong");
-    wrongSound.currentTime=0;
-    wrongSound.play();
-  }
-
-  setTimeout(next,700);
-
+     if(c===correct){
+       btn.classList.add("correct");
+       score++;
+       correctSound.currentTime=0;
+       correctSound.play();
+     }else{
+       btn.classList.add("wrong");
+       wrongSound.currentTime=0;
+       wrongSound.play();
+     }
+     setTimeout(next,700);
    };
-
    answers.appendChild(btn);
-
  });
 
  /* ヒントボタン */
-
  let hintBtn=document.createElement("button");
-
  hintBtn.className="hint-btn";
-
  hintBtn.innerText="ヒント";
-
  hintBtn.onclick=()=>{
-
    hintBtn.innerText="ヒント："+d[3];
-
  };
-
  container.appendChild(hintBtn);
 }
 
@@ -560,6 +501,7 @@ let score=0;
 
 let josiQueue=getJosiList();
 let whichQueue=getWhichList();
+let oddQueue=getOddList();
 
 /* ---------------- 出題 ---------------- */
 function next(){
@@ -569,7 +511,7 @@ function next(){
  container.querySelectorAll(".hint-btn").forEach(e=>e.remove());
 
  let historyEl = document.getElementById("history");
-if(historyEl) historyEl.innerText = "";
+ if(historyEl) historyEl.innerText = "";
  
  if(current>=total){
    container.innerHTML=`
@@ -599,8 +541,8 @@ if(historyEl) historyEl.innerText = "";
 
  let types=[];
 
-if(useNumber) types.push("number");
-if(useOdd) types.push("odd");
+ if(useNumber) types.push("number");
+ if(useOdd) types.push("odd");
  if(useCalc) types.push("calc");
  if(useJosi) types.push("josi");
  if(useWhich) types.push("which");
@@ -608,14 +550,14 @@ if(useOdd) types.push("odd");
  let type=types[(current-1)%types.length];
 
  if(type==="number"){
- startNumber();
- return;
-}
+   startNumber();
+   return;
+ }
 
-if(type==="odd"){
- startOdd();
- return;
-}
+ if(type==="odd"){
+   startOdd();
+   return;
+ }
 
  if(type==="calc"){
    let d=generateCalc();
@@ -721,6 +663,5 @@ function startMemory(){
 
 next();
 </script>
-
 </body>
 </html>
